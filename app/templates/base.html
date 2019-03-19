@@ -1,0 +1,38 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  {% if title %}
+  <title>{{ title }} | Phenome10k</title>
+  {% else %}
+  <title>Phenome10k</title>
+  {% endif %}
+</head>
+
+<body>
+  <ul>
+    <li>Phenome10k</li>
+    {% if user %}
+    <li>{{ user.username }}</li>
+    {% else %}
+    <li><a href="{{ url_for('login') }}">Login</a></li>
+    {% endif %}
+    <li><a href="{{ url_for('index') }}">Home</a></li>
+    <li>About</li>
+    <li>Library</li>
+    <li>Publications</li>
+  </ul>
+  <hr>
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  <ul>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+  </ul>
+  {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</body>
+</html>
