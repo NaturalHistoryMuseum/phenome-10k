@@ -11,6 +11,10 @@ from app.models import User
 def index():
   return render_template('index.html')
 
+@app.route('/about', methods=['GET', 'POST'])
+def about():
+  return render_template('about.html')
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     form = LoginForm(next=request.args.get('next'))
