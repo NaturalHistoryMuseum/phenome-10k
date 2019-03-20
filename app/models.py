@@ -1,8 +1,20 @@
 from datetime import datetime
 from sqlalchemy.sql import func
-from app import db
+from app import db, login
+from passlib.context import CryptContext
+from flask_login import UserMixin
 
-class User(db.Model):
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
+# Allow decoding phpasswords, but deprecate all but argon2
+cryptCtx = CryptContext(
+    schemes = ['argon2', 'phpass'],
+    deprecated = ['auto']
+)
+
+class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True)
     email = db.Column(db.String(120), index=True, unique=True)
@@ -14,13 +26,27 @@ class User(db.Model):
 
     scans = db.relationship('Scan', backref='author', lazy='dynamic')
 
-    @classmethod
     def isAdmin(self):
         return self.role == 'ADMIN'
 
-    @classmethod
     def isContributor(self):
         return self.isAdmin() or self.role == 'CONTRIBUTOR'
+
+    def setPassword(self, password):
+        self.password = cryptCtx.hash(password)
+
+    def checkPassword(self, password):
+        return cryptCtx.verify(password, self.password)
+
+    def passwordNeedsUpdate(self):
+        return cryptCtx.needs_update(self.password)
+
+    def checkAndMigratePassword(self, password):
+        if(self.checkPassword(password)):
+            if(self.passwordNeedsUpdate()):
+                self.setPassword(password)
+            return True
+        return False
 
     def __repr__(self):
         return '<User {}>'.format(self.name)

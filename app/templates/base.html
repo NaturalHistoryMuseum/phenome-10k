@@ -8,15 +8,20 @@
   {% else %}
   <title>Phenome10k</title>
   {% endif %}
+
+  <style>
+    .error { color: red; }
+  </style>
 </head>
 
 <body>
   <ul>
     <li>Phenome10k</li>
-    {% if user %}
-    <li>{{ user.username }}</li>
+    {% if current_user.is_anonymous %}
+    <a href="{{ url_for('login') }}">Login</a>
     {% else %}
-    <li><a href="{{ url_for('login') }}">Login</a></li>
+    <li>{{ current_user.name }}</li>
+    <a href="{{ url_for('logout') }}">Logout</a>
     {% endif %}
     <li><a href="{{ url_for('index') }}">Home</a></li>
     <li>About</li>

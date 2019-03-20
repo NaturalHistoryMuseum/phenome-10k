@@ -1,16 +1,19 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <style>
-        .error { color: red; }
-    </style>
-
-    <h1>Sign In</h1>
+    <h1>Register</h1>
     <form action="" method="post" novalidate>
         {{ form.hidden_tag() }}
         {% if error %}
             <span class="error">[{{ error }}]</span>
         {% endif %}
+        <p>
+          {{ form.name.label }}<br>
+          {{ form.name() }}<br>
+          {% for error in form.name.errors %}
+          <span class="error">[{{ error }}]</span>
+          {% endfor %}
+        </p>
         <p>
             {{ form.email.label }}<br>
             {{ form.email() }}<br>
@@ -25,8 +28,20 @@
             <span class="error">[{{ error }}]</span>
             {% endfor %}
         </p>
-        <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+        <p>
+          {{ form.country.label }}<br>
+          {{ form.country() }}<br>
+          {% for error in form.country.errors %}
+          <span class="error">[{{ error }}]</span>
+          {% endfor %}
+        </p>
+        <p>
+          {{ form.organisation.label }}<br>
+          {{ form.organisation() }}<br>
+          {% for error in form.organisation.errors %}
+          <span class="error">[{{ error }}]</span>
+          {% endfor %}
+      </p>
         <p>{{ form.submit() }}</p>
-        <p>New User? <a href="{{ url_for('register') }}">Register</a></p>
     </form>
 {% endblock %}
