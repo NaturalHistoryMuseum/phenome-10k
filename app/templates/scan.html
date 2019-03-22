@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>{{ title }}</h1>
+{{ 'published' if scan.published else 'not published' }}
+<dl>
+  <dt>Alt Name</dt>
+  <dd>{{ scan.alt_name }}</dd>
+  <dt>Location</dt>
+  <dd>{{ scan.specimen_location }}</dd>
+  <dt>Specimen ID</dt>
+  <dd>{{ scan.specimen_id }}</dd>
+  <dt>Specimen URL</dt>
+  <dd>{{ scan.specimen_link }}</dd>
+</dl>
+
+<p>
+  {{ scan.description }}
+</p>
+
+{% endblock %}

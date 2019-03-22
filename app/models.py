@@ -59,7 +59,7 @@ class Scan(db.Model):
     date_modified = db.Column(db.DateTime, onupdate=func.now())
     scientific_name = db.Column(db.String(250), index=True)
     published = db.Column(db.Boolean)
-    url_slug = db.Column(db.String(250), index = True)
+    url_slug = db.Column(db.String(250), index = True, unique=True)
     alt_name = db.Column(db.String(250))
     file_id = db.Column(db.Integer, db.ForeignKey('file.id'))
     specimen_id = db.Column(db.String(250))

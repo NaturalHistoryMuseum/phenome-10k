@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, HiddenField, SelectField, Field
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, HiddenField, SelectField, FileField, TextAreaField
 from wtforms.validators import DataRequired, Email, ValidationError
+from flask_wtf.file import FileRequired
 import json, urllib.request
 from app.models import User
 
@@ -38,3 +39,14 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Please use a different email address.')
+
+class ScanUploadForm(FlaskForm):
+    # TODO: For new upload, add validators=[FileRequired()]
+    file = FileField('Scan file')
+    scientific_name = StringField('Scientific Name', validators=[DataRequired()])
+    alt_name = StringField('Alternate Name')
+    specimen_location = StringField('Specimen Location')
+    specimen_id = StringField('Specimen ID')
+    description = TextAreaField('Description')
+    # TODO: Change save button to upload/create/edit depending on context
+    submit = SubmitField('Save')

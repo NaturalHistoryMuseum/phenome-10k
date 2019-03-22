@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Register</h1>
+    <form action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        {% if error %}
+            <span class="error">[{{ error }}]</span>
+        {% endif %}
+        <p>
+          {{ form.file.label }}<br>
+          {{ form.file() }}<br>
+          {% for error in form.file.errors %}
+          <span class="error">[{{ error }}]</span>
+          {% endfor %}
+        </p>
+        <p>
+            {{ form.scientific_name.label }}<br>
+            {{ form.scientific_name() }}<br>
+            {% for error in form.scientific_name.errors %}
+            <span class="error">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.alt_name.label }}<br>
+            {{ form.alt_name() }}<br>
+            {% for error in form.alt_name.errors %}
+            <span class="error">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+          {{ form.specimen_location.label }}<br>
+          {{ form.specimen_location() }}<br>
+          {% for error in form.specimen_location.errors %}
+          <span class="error">[{{ error }}]</span>
+          {% endfor %}
+        </p>
+        <p>
+          {{ form.specimen_id.label }}<br>
+          {{ form.specimen_id() }}<br>
+          {% for error in form.specimen_id.errors %}
+          <span class="error">[{{ error }}]</span>
+          {% endfor %}
+      </p>
+      <p>
+        {{ form.description.label }}<br>
+        {{ form.description() }}<br>
+        {% for error in form.description.errors %}
+        <span class="error">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
