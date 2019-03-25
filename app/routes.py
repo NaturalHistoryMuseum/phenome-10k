@@ -4,29 +4,51 @@ import os
 import uuid
 from functools import wraps
 from zipfile import ZipFile
-from flask import request, render_template, redirect, url_for, flash
+from flask import request, render_template, redirect, url_for, flash, send_from_directory
 from flask_login import current_user, login_user, login_required, logout_user
 from werkzeug.routing import ValidationError, BaseConverter
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
 from stl.mesh import Mesh
 from app import app, db, models
-from app.forms import LoginForm, RegistrationForm, ScanUploadForm
-from app.models import User, Scan
+from app.forms import LoginForm, RegistrationForm, ScanUploadForm, PublicationUploadForm
+from app.models import User, Scan, File, Publication
 
-class ScanConverter(BaseConverter):
+class SlugConverter(BaseConverter):
   regex = r'[^/]+'
+  model = None
 
   def to_python(self, slug):
-    scan = Scan.query.filter_by(url_slug=slug).first()
-    if scan == None:
+    model = self.model.query.filter_by(url_slug=slug).first()
+    if model == None:
       raise ValidationError
-    return scan
+    return model
 
   def to_url(self, value):
     return BaseConverter.to_url(self, value.url_slug)
 
+class ScanConverter(SlugConverter):
+  model = Scan
+
+class PublicationConverter(SlugConverter):
+  model = Publication
+
 app.url_map.converters['scan'] = ScanConverter
+app.url_map.converters['publication'] = PublicationConverter
+
+def generate_slug(name):
+  # TODO: Use a different function that's more similar to what wordpress does
+  # (maybe just replace `_` with `-`?)
+  url_slug = secure_filename(name).lower()
+
+  try:
+    if app.url_map.bind('').match('/' + url_slug) != None:
+      # TODO: Instead of appending uuid, move this into the form validator and let the user pick a new url in case of clash
+      url_slug += '-' + uuid.uuid4()
+  except: # TODO: What's the specific RouteNotFound error here?
+    pass
+
+  return url_slug
 
 def requiresAdmin(f):
     @wraps(f)
@@ -49,6 +71,10 @@ def requiresContributor(f):
 @app.route('/', methods=['GET', 'POST'])
 def index():
   return render_template('index.html')
+
+@app.route('/uploads/<path:path>')
+def send_uploads(path):
+    return send_from_directory('../uploads', path)
 
 @app.route('/about', methods=['GET', 'POST'])
 def about():
@@ -102,7 +128,8 @@ def library():
 @requiresContributor
 def library_create():
     form = ScanUploadForm()
-    if form.validate_on_submit():
+    form.publications.choices = form.publications.data
+    if form.scientific_name.data and form.validate_on_submit():
       # TODO: Restrict list of uploadable file types
       # Save upload to temporary file
       filename, fileExt = os.path.splitext(form.file.data.filename)
@@ -128,16 +155,9 @@ def library_create():
         with ZipFile('uploads/' + form.file.data.filename + '.zip', 'w') as zipFile:
           zipFile.write(uploadFile.name)
 
-      # TODO: Use a different function that's more similar to what wordpress does
-      # (maybe just replace `_` with `-`?)
-      url_slug = secure_filename(form.scientific_name.data).lower()
+      url_slug = generate_slug(form.scientific_name.data)
 
-      try:
-        if app.url_map.bind('').match('/' + url_slug) != None:
-          # TODO: Instead of appending uuid, move this into the form validator and let the user pick a new url in case of clash
-          url_slug += '-' + uuid.uuid4()
-      except: # TODO: What's the specific RouteNotFound error here?
-        pass
+      pubs = Publication.query.filter(Publication.id.in_(form.publications.data)).all()
 
       scan = Scan(
         author_id = current_user.id,
@@ -146,13 +166,18 @@ def library_create():
         specimen_location = form.specimen_location.data,
         specimen_id = form.specimen_id.data,
         description = form.description.data,
-        url_slug = url_slug
+        url_slug = url_slug,
+        publications = pubs
       )
 
       db.session.add(scan)
       db.session.commit()
 
       return redirect(url_for('edit_scan', scan=scan))
+
+    if form.pub_query.data:
+      pubs = Publication.query.filter(Publication.title.contains(form.pub_query.data))
+      form.publications.choices = [(pub.id, pub.title) for pub in pubs]
 
     return render_template('upload.html', title='Upload New', form=form)
 
@@ -164,13 +189,98 @@ def scan(scan):
 @app.route('/<scan:scan>/edit/', methods=['GET', 'POST'])
 def edit_scan(scan):
   # TODO: Check user can edit
-  form = ScanUploadForm(obj=scan)
+  form = ScanUploadForm(obj=scan, pub_query=request.args.get("pub_query"))
+  pubIds = [(pubId,) for pubId in form.publications.data] if form.publications.data else []
+  form.publications.choices = [(pub.id, pub.title) for pub in scan.publications] + pubIds
+
   if form.validate_on_submit():
     scan.scientific_name = form.scientific_name.data
     scan.alt_name = form.alt_name.data
     scan.specimen_location = form.specimen_location.data
     scan.specimen_id = form.specimen_id.data
     scan.description = form.description.data
+    scan.publications = Publication.query.filter(Publication.id.in_(form.publications.data)).all()
     db.session.commit()
-    return redirect(url_for('edit_scan', scan=scan))
+    return redirect(url_for('edit_scan', scan=scan) + '?pub_query=' + form.pub_query.data)
+
+  app.logger.warn(scan.publications)
+
+  form.publications.data = [pub.id for pub in scan.publications]
+
+  if form.pub_query.data:
+    pubs = Publication.query.filter(Publication.title.contains(form.pub_query.data))
+    form.publications.choices = set([(pub.id, pub.title) for pub in pubs] + form.publications.choices)
+
   return render_template('upload.html', title=scan.scientific_name, form=form, edit=True)
+
+@app.route('/publications/create/', methods=['GET', 'POST'])
+@requiresContributor
+def create_publication():
+    form = PublicationUploadForm()
+    if form.validate_on_submit():
+      publication = Publication(
+        author_id = current_user.id,
+        title = form.title.data,
+        url_slug = generate_slug(form.title.data),
+        pub_year = form.pub_year.data,
+        authors = form.authors.data,
+        journal = form.journal.data,
+        link = form.link.data,
+        abstract = form.abstract.data
+      )
+
+      for file in form.files.data:
+        # TODO: Don't overwrite
+        file.save('uploads/' + file.filename)
+        publication.files.append(File(
+          filename = file.filename,
+          location = 'uploads/' + file.filename,
+          owner_id = current_user.id,
+          mime_type = 'application/pdf',
+        ))
+
+      db.session.add(publication)
+      db.session.commit()
+
+      return redirect(url_for('edit_publication', publication=publication))
+
+    return render_template('create-publication.html', title='Create', form=form)
+
+@app.route('/<publication:publication>/')
+def publication(publication):
+  # TODO: Hide if unpublished
+  return render_template('publication.html', title=publication.title, publication=publication)
+
+@app.route('/<publication:publication>/edit/', methods=['GET', 'POST'])
+@requiresContributor
+def edit_publication(publication):
+    form = PublicationUploadForm(obj=publication)
+    if form.validate_on_submit():
+      publication.title = form.title.data
+      publication.pub_year = form.pub_year.data
+      publication.authors = form.authors.data
+      publication.journal = form.journal.data
+      publication.link = form.link.data
+      publication.abstract = form.abstract.data
+
+      app.logger.warn(form.files.data)
+
+      for file in form.files.data:
+        # TODO: Don't overwrite
+        if file == '':
+          continue
+        file.save('uploads/' + file.filename)
+        f = File(
+          filename = file.filename,
+          location = 'uploads/' + file.filename,
+          owner_id = current_user.id,
+          mime_type = 'application/pdf',
+        )
+        db.session.add(f)
+        publication.files.append(f)
+
+      db.session.commit()
+
+      return redirect(url_for('edit_publication', publication=publication))
+
+    return render_template('create-publication.html', title='Create', form=form)

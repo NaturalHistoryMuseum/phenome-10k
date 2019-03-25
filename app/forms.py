@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, HiddenField, SelectField, FileField, TextAreaField
+from wtforms import widgets, StringField, PasswordField, BooleanField, SubmitField, HiddenField, SelectField, FileField, TextAreaField, MultipleFileField, SelectMultipleField
 from wtforms.validators import DataRequired, Email, ValidationError
-from flask_wtf.file import FileRequired
+from flask_wtf.file import FileRequired, FileAllowed
 import json, urllib.request
 from app.models import User
 
@@ -43,10 +43,25 @@ class RegistrationForm(FlaskForm):
 class ScanUploadForm(FlaskForm):
     # TODO: For new upload, add validators=[FileRequired()]
     file = FileField('Scan file')
-    scientific_name = StringField('Scientific Name', validators=[DataRequired()])
+    scientific_name = StringField('Scientific Name')
     alt_name = StringField('Alternate Name')
     specimen_location = StringField('Specimen Location')
     specimen_id = StringField('Specimen ID')
     description = TextAreaField('Description')
+    pub_query = StringField('Query')
+    pub_search = SubmitField('Search')
+    publications = SelectMultipleField('Publications', choices = [], coerce = int, widget=widgets.ListWidget(prefix_label=True), option_widget=widgets.CheckboxInput())
+    # TODO: Change save button to upload/create/edit depending on context
+    submit = SubmitField('Save')
+
+class PublicationUploadForm(FlaskForm):
+    title = StringField('Title', validators=[DataRequired()])
+    pub_year = StringField('Year', validators=[DataRequired()])
+    authors = StringField('Authors', validators=[DataRequired()])
+    journal = StringField('Journal, Volume and Page', validators=[DataRequired()])
+    abstract = TextAreaField('Abstract', validators=[DataRequired()])
+    link = StringField('URL Link')
+    # TODO: Validate pdf files only
+    files = MultipleFileField('Add files')
     # TODO: Change save button to upload/create/edit depending on context
     submit = SubmitField('Save')

@@ -49,6 +49,21 @@
         <span class="error">[{{ error }}]</span>
         {% endfor %}
     </p>
+    <p>
+        {{ form.pub_query.label }}<br>
+        {{ form.pub_query() }}<br>
+        {% for error in form.pub_query.errors %}
+        <span class="error">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>{{ form.pub_search() }}</p>
+    <p>
+        {{ form.publications.label }}<br>
+        {{ form.publications() }}<br>
+        {% for error in form.publications.errors %}
+        <span class="error">[{{ error }}]</span>
+        {% endfor %}
+    </p>
         <p>{{ form.submit() }}</p>
     </form>
 {% endblock %}

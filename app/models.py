@@ -68,6 +68,7 @@ class Scan(db.Model):
     description  = db.Column(db.Text())
 
     file = db.relationship('File')
+    publications = db.relationship('Publication', secondary='scan_publication')
 
     def __repr__(self):
         return '<Scan {}>'.format(self.scientific_name)
@@ -75,7 +76,8 @@ class Scan(db.Model):
 class File(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(250))
-    filename = db.Column(db.String(250), index=True)
+    filename = db.Column(db.String(250))
+    location = db.Column(db.String(250))
     date_created = db.Column(db.DateTime, index=True, server_default=func.now())
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     mime_type = db.Column(db.String(250))
@@ -84,6 +86,10 @@ class File(db.Model):
 
     def __repr__(self):
         return '<File {}>'.format(self.filename)
+
+class PublicationFile(db.Model):
+    publication_id = db.Column(db.Integer, db.ForeignKey('publication.id'))
+    file_id = db.Column(db.Integer, db.ForeignKey('file.id'), primary_key=True)
 
 class Publication(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -97,9 +103,9 @@ class Publication(db.Model):
     authors = db.Column(db.String(250))
     journal = db.Column(db.String(250))
     link = db.Column(db.String(250))
-    file_id = db.Column(db.Integer, db.ForeignKey('file.id'))
+    abstract = db.Column(db.Text)
 
-    file = db.relationship('File')
+    files = db.relationship('File', secondary='publication_file')
 
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -112,7 +118,7 @@ class Tag(db.Model):
 class ScanPublication(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250))
-    scan_id = db.Column(db.Integer)
+    scan_id = db.Column(db.Integer, db.ForeignKey('scan.id'))
     publication_id = db.Column(db.Integer, db.ForeignKey('publication.id'))
 
 class ScanTag(db.Model):
