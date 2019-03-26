@@ -8,36 +8,49 @@
   {% else %}
   <title>Phenome10k</title>
   {% endif %}
+  <link rel="stylesheet" href="/static/index.css">
 
   <style>
     .error { color: red; }
   </style>
 </head>
 
-<body>
-  <ul>
-    <li>Phenome10k</li>
-    {% if current_user.is_anonymous %}
-    <a href="{{ url_for('login') }}">Login</a>
-    {% else %}
-    <li>{{ current_user.name }}</li>
-    <a href="{{ url_for('logout') }}">Logout</a>
-    {% endif %}
-    <li><a href="{{ url_for('index') }}">Home</a></li>
-    <li><a href="{{ url_for('about') }}">About</a></li>
-    <li>Library</li>
-    <li>Publications</li>
-  </ul>
-  <hr>
-  {% with messages = get_flashed_messages() %}
-  {% if messages %}
-  <ul>
-      {% for message in messages %}
-      <li>{{ message }}</li>
-      {% endfor %}
-  </ul>
+<body class="Base">
+  <nav class="Base__nav Nav">
+    <ul class="Nav__list">
+      <li><a class="{{ bem('Nav', 'item', { 'selected': menu == 'home' }) }}" href="{{ url_for('index') }}">Home</a></li>
+      <li><a class="{{ bem('Nav', 'item', { 'selected': menu == 'about' }) }}" href="{{ url_for('about') }}">About</a></li>
+      <li><a class="{{ bem('Nav', 'item', { 'selected': menu == 'library' }) }}" href="{{ url_for('library') }}">Library</a></li>
+      <li><a class="{{ bem('Nav', 'item', { 'selected': menu == 'publications' }) }}" href="{{ url_for('publications') }}">Publications</a></li>
+    </ul>
+  </nav>
+  {% if not current_user.is_anonymous %}
+  <div class="Base__user">
+    Signed in as <a><b>{{ current_user.name }}</b></a>
+  </div>
+  <div class="Base__decoration"></div>
   {% endif %}
-  {% endwith %}
-  {% block content %}{% endblock %}
+  <div class="Base__auth">
+    {% if current_user.is_anonymous %}
+      <a href="{{ url_for('login') }}">Sign in</a>
+    {% else %}
+      <a href="{{ url_for('logout') }}">Sign Out</a>
+    {% endif %}
+  </div>
+  <div class="Base__sidebar Sidebar">
+    <img src="/static/logo.png" alt="" class="Sidebar__logo">
+  </div>
+  <main class="Base__content">
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
 </body>
 </html>

@@ -42,15 +42,16 @@ class RegistrationForm(FlaskForm):
 
 class ScanUploadForm(FlaskForm):
     # TODO: For new upload, add validators=[FileRequired()]
-    file = FileField('Scan file')
-    scientific_name = StringField('Scientific Name')
+    file = FileField('Scan file', validators=[FileRequired()])
+    scientific_name = StringField('Scientific Name', validators=[DataRequired()])
     alt_name = StringField('Alternate Name')
     specimen_location = StringField('Specimen Location')
     specimen_id = StringField('Specimen ID')
     description = TextAreaField('Description')
     pub_query = StringField('Query')
     pub_search = SubmitField('Search')
-    publications = SelectMultipleField('Publications', choices = [], coerce = int, widget=widgets.ListWidget(prefix_label=True), option_widget=widgets.CheckboxInput())
+    publications_search = SelectMultipleField('Publications', choices = [], coerce = int, widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
+    publications = SelectMultipleField('Publications', choices = [], coerce = int, widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
     # TODO: Change save button to upload/create/edit depending on context
     submit = SubmitField('Save')
 
@@ -62,6 +63,6 @@ class PublicationUploadForm(FlaskForm):
     abstract = TextAreaField('Abstract', validators=[DataRequired()])
     link = StringField('URL Link')
     # TODO: Validate pdf files only
-    files = MultipleFileField('Add files')
+    files = MultipleFileField('Add files', default = [])
     # TODO: Change save button to upload/create/edit depending on context
     submit = SubmitField('Save')

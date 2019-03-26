@@ -14,6 +14,14 @@ from app import app, db, models
 from app.forms import LoginForm, RegistrationForm, ScanUploadForm, PublicationUploadForm
 from app.models import User, Scan, File, Publication
 
+@app.context_processor
+def bem_processor():
+  def bem_class(el, part, modify):
+    base = el + '__' + part
+    classes = [ base + '--' + mod for mod, val in modify.items() if val]
+    return ' '.join([ base ] + classes)
+  return dict(bem = bem_class)
+
 class SlugConverter(BaseConverter):
   regex = r'[^/]+'
   model = None
@@ -55,7 +63,7 @@ def requiresAdmin(f):
     @login_required
     def decorated_function(*args, **kwargs):
         if not current_user.isAdmin():
-            return render_template('403.html', message='You must be an administrator to access this page.') ,403
+            return render_template('403.html', message='You must be an administrator to access this page.', menu='home') ,403
         return f(*args, **kwargs)
     return decorated_function
 
@@ -64,13 +72,13 @@ def requiresContributor(f):
     @login_required
     def decorated_function(*args, **kwargs):
         if not current_user.isContributor():
-            return render_template('403.html', message='You must be a contributor to access this page.') ,403
+            return render_template('403.html', message='You must be a contributor to access this page.', menu='home') ,403
         return f(*args, **kwargs)
     return decorated_function
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-  return render_template('index.html')
+  return render_template('index.html', menu='home')
 
 @app.route('/uploads/<path:path>')
 def send_uploads(path):
@@ -78,7 +86,7 @@ def send_uploads(path):
 
 @app.route('/about', methods=['GET', 'POST'])
 def about():
-  return render_template('about.html', title='About')
+  return render_template('about.html', title='About', menu='about')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -95,7 +103,7 @@ def login():
           return redirect(next_page)
         else:
           error = 'Invalid email and/or password'
-    return render_template('login.html', title='Sign In', form=form, error=error)
+    return render_template('login.html', title='Sign In', form=form, error=error, menu='home')
 
 @app.route('/logout')
 def logout():
@@ -116,20 +124,27 @@ def register():
       db.session.commit()
       flash('You are now registered and may log in')
       return redirect(url_for('login'))
-    return render_template('register.html', title='Register', form=form, error=error)
+    return render_template('register.html', title='Register', form=form, error=error, menu='home')
 
 @app.route('/library/', methods=['GET'])
 def library():
   scans = Scan.query.filter_by(published=True).order_by(db.func.random()).limit(50).all()
 
-  return render_template('library.html', title="Library", scans=scans)
+  return render_template('library.html', title="Library", scans=scans, menu='library')
 
 @app.route('/library/create/', methods=['GET', 'POST'])
 @requiresContributor
 def library_create():
     form = ScanUploadForm()
-    form.publications.choices = form.publications.data
-    if form.scientific_name.data and form.validate_on_submit():
+
+    # Get the records for the currently selected publications
+    pubsearch = form.publications_search.data or []
+    pubselected = (form.publications.data or []) + pubsearch
+    form.publications.data = pubselected
+    pubs = Publication.query.filter(Publication.id.in_(pubselected)).all()
+    form.publications.choices = [(pub.id, pub.title) for pub in pubs]
+
+    if form.validate_on_submit():
       # TODO: Restrict list of uploadable file types
       # Save upload to temporary file
       filename, fileExt = os.path.splitext(form.file.data.filename)
@@ -157,8 +172,6 @@ def library_create():
 
       url_slug = generate_slug(form.scientific_name.data)
 
-      pubs = Publication.query.filter(Publication.id.in_(form.publications.data)).all()
-
       scan = Scan(
         author_id = current_user.id,
         scientific_name = form.scientific_name.data,
@@ -177,21 +190,27 @@ def library_create():
 
     if form.pub_query.data:
       pubs = Publication.query.filter(Publication.title.contains(form.pub_query.data))
-      form.publications.choices = [(pub.id, pub.title) for pub in pubs]
+      form.publications_search.choices = set([(pub.id, pub.title) for pub in pubs]) - set(form.publications.choices)
 
-    return render_template('upload.html', title='Upload New', form=form)
+    return render_template('upload.html', title='Upload New', form=form, menu='library')
 
 @app.route('/<scan:scan>/')
 def scan(scan):
   # TODO: Hide if unpublished
-  return render_template('scan.html', title=scan.scientific_name, scan=scan)
+  return render_template('scan.html', title=scan.scientific_name, scan=scan, menu='library')
 
 @app.route('/<scan:scan>/edit/', methods=['GET', 'POST'])
 def edit_scan(scan):
   # TODO: Check user can edit
   form = ScanUploadForm(obj=scan, pub_query=request.args.get("pub_query"))
-  pubIds = [(pubId,) for pubId in form.publications.data] if form.publications.data else []
-  form.publications.choices = [(pub.id, pub.title) for pub in scan.publications] + pubIds
+  # pubIds = [(pubId,) for pubId in form.publications.data] if form.publications.data else []
+  # form.publications.choices = [(pub.id, pub.title) for pub in scan.publications] + pubIds
+
+  pubsearch = form.publications_search.data or []
+  pubselected = (form.publications.data or [pub.id for pub in scan.publications]) + pubsearch
+  form.publications.data = pubselected
+  pubs = Publication.query.filter(Publication.id.in_(pubselected)).all()
+  form.publications.choices = [(pub.id, pub.title) for pub in pubs]
 
   if form.validate_on_submit():
     scan.scientific_name = form.scientific_name.data
@@ -205,13 +224,11 @@ def edit_scan(scan):
 
   app.logger.warn(scan.publications)
 
-  form.publications.data = [pub.id for pub in scan.publications]
-
   if form.pub_query.data:
     pubs = Publication.query.filter(Publication.title.contains(form.pub_query.data))
-    form.publications.choices = set([(pub.id, pub.title) for pub in pubs] + form.publications.choices)
+    form.publications_search.choices = set([(pub.id, pub.title) for pub in pubs]) - set(form.publications.choices)
 
-  return render_template('upload.html', title=scan.scientific_name, form=form, edit=True)
+  return render_template('upload.html', title=scan.scientific_name, form=form, edit=True, menu='library')
 
 @app.route('/publications/create/', methods=['GET', 'POST'])
 @requiresContributor
@@ -244,12 +261,16 @@ def create_publication():
 
       return redirect(url_for('edit_publication', publication=publication))
 
-    return render_template('create-publication.html', title='Create', form=form)
+    return render_template('create-publication.html', title='Create', form=form, menu='publications')
+
+@app.route('/publications')
+def publications():
+  return 'Publications'
 
 @app.route('/<publication:publication>/')
 def publication(publication):
   # TODO: Hide if unpublished
-  return render_template('publication.html', title=publication.title, publication=publication)
+  return render_template('publication.html', title=publication.title, publication=publication, menu='publications')
 
 @app.route('/<publication:publication>/edit/', methods=['GET', 'POST'])
 @requiresContributor
@@ -283,4 +304,4 @@ def edit_publication(publication):
 
       return redirect(url_for('edit_publication', publication=publication))
 
-    return render_template('create-publication.html', title='Create', form=form)
+    return render_template('create-publication.html', title='Create', form=form, menu='publications')
