@@ -14,6 +14,8 @@ from app import app, db, models
 from app.forms import LoginForm, RegistrationForm, ScanUploadForm, PublicationUploadForm
 from app.models import User, Scan, File, Publication
 import mimetypes
+import subprocess
+import json
 
 mimetypes.add_type('application/javascript', '.mjs')
 
@@ -173,9 +175,11 @@ def register():
 
 @app.route('/library/', methods=['GET'])
 def library():
-  scans = Scan.query.filter_by(published=True).order_by(db.func.random()).limit(50).all()
+  # scans = Scan.query.filter_by(published=True).order_by(db.func.random()).limit(50).all()
+  sort = Scan.scientific_name if request.args.get("sort") else db.func.random()
+  scans = Scan.query.order_by(sort).limit(50).all()
 
-  return render_template('library.html', title="Library", scans=scans, menu='library')
+  return render_vue('library', [s.serialize() for s in scans], title="Library", menu='library')
 
 @app.route('/library/create/', methods=['GET', 'POST'])
 @requiresContributor
@@ -226,7 +230,7 @@ def library_create():
       form.publications_search.choices = set([(pub.id, pub.title) for pub in pubs]) - set(form.publications.choices)
 
     if request.accept_mimetypes.accept_html:
-      return render_template('base.html', content=vue('library/create'), title='Upload New', menu='library')
+      return render_template('base.html', content=vue('library/create', g.csrf_token), title='Upload New', menu='library')
 
     return jsonify({ 'errors': form.errors, 'data': { k: v for k, v in form.data.items() if k != 'file'  } })
 
@@ -272,7 +276,7 @@ def edit_scan(scan):
     form.publications_search.choices = set([(pub.id, pub.title) for pub in pubs]) - set(form.publications.choices)
 
   if request.accept_mimetypes.accept_html:
-    return render_template('base.html', content=vue('library/create'), title='Edit', menu='library')
+    return render_template('base.html', content=vue('library/create', g.csrf_token), title='Edit', menu='library')
 
   return jsonify({ 'errors': form.errors, 'data': form.json_data(), 'scan': scan.serialize() })
 
@@ -374,15 +378,18 @@ def upload():
 
   return jsonify(result)
 
-def vue(path):
-  import subprocess
+def render_vue(path, data, title, menu):
+  if request.accept_mimetypes.accept_html:
+    return render_template('base.html', content=vue(path, data), title=title, menu=menu)
+  return jsonify(data)
 
-  pipes = subprocess.Popen(['node', '--experimental-modules', 'node/route.mjs', path, g.csrf_token], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+def vue(path, defaultData = None):
+  pipes = subprocess.Popen(['node', '--experimental-modules', 'node/route.mjs', path, json.dumps(defaultData)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   std_out, std_err = pipes.communicate()
 
   if pipes.returncode != 0:
       # an error happened!
-      err_msg = "%s. Code: %s" % (std_err.strip(), pipes.returncode)
+      err_msg = "%s. Code: %s" % (std_err.decode().strip(), pipes.returncode)
       raise Exception(err_msg)
 
   elif len(std_err):

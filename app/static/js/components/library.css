@@ -1,0 +1,30 @@
+.Library {
+
+}
+
+.Library__results {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.Library__results > * {
+  margin: 0;
+  padding: 0;
+}
+
+.Library__result {
+  display: flex;
+  flex-direction: column;
+  margin: 7.5px 2.5px;
+}
+
+.Library__thumb {
+  height: 100px;
+}
+
+.Library__title {
+  padding: 15px 10px;
+}

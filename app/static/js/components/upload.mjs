@@ -134,9 +134,9 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
   props: [
     "error",
   ],
-  inject: [
-    "csrf"
-  ],
+  inject: {
+    csrf: 'defaultData'
+  },
   data() {
       return {
           scan: null,
@@ -206,7 +206,7 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
     <input type="hidden" name="csrf_token" :value="csrf">
         <span v-if="error" class="error">[{{ error }}]</span>
         <h2 class="Upload__section-title">1. Browse and preview STL file</h2>
-        <div v-if="scan && scan.ctm" class="Subgrid" style="grid-column-start: 1; grid-auto-flow: dense">
+        <div v-if="scan && scan.ctm" class="Subgrid" style="grid-column-start: 1; grid-column-end: 4; grid-auto-flow: dense">
             <ctm-viewer ref="canvas" :src="'/' + scan.ctm" height=400px width=500px></ctm-viewer>
             <span class="Upload__stills">
                 2. Take Stills - Move image into appropriate position and click the button below (Minimum of 1 snapshot image, maximum of 6 images).

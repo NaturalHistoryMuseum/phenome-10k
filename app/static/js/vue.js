@@ -6,7 +6,7 @@ const router = createRouter(VueRouter);
 
 const app = new Vue({
   provide: {
-    csrf: window.csrf
+    defaultData: window.p10k_defaultData
   },
   name: 'root',
   router,

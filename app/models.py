@@ -75,9 +75,13 @@ class Scan(db.Model):
 
     def serialize(self):
         return {
-            'id': self.id, 'ctm': self.ctm.location,
+            'id': self.id,
+            'ctm': self.ctm and self.ctm.location,
             'publications': [pub.serialize() for pub in self.publications],
-            'attachments': [a.location for a in self.attachments]
+            'attachments': [a.location for a in self.attachments],
+            'url_slug': '/' + (self.url_slug if self.url_slug else str(self.id)),
+            'thumbnail': len(self.attachments) > 0 and ('/' + self.attachments[0].location),
+            'scientific_name': self.scientific_name
         }
 
     @staticmethod
@@ -123,8 +127,8 @@ class Publication(db.Model):
         return {
           'id': self.id,
           'author_id': self.author_id,
-          'date_created': self.date_created,
-          'date_modified': self.date_modified,
+        #   'date_created': self.date_created,
+        #   'date_modified': self.date_modified,
           'title': self.title,
           'published': self.published,
           'url_slug': self.url_slug,

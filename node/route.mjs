@@ -8,25 +8,30 @@ Vue.use(Router);
 
 const resolve = object => (object.call ? object() : object);
 
+const path = '/' + process.argv[2];
 const router = createRouter(Router);
-const [Page] = router.getMatchedComponents('/' + process.argv[2]);
-const csrf = process.argv[3];
+const [Page] = router.getMatchedComponents(path);
+const defaultJson = process.argv[3];
+const defaultData = JSON.parse(defaultJson);
 
-resolve(Page).then(({ default: Page }) => {
+resolve(Page).then(async ({ default: Page }) => {
   const scripts = Page.scripts || [];
+  const css = Page.css || [];
 
   const app = new Vue({
+    router,
     data() {
-      return { scripts };
+      return { scripts, css };
     },
     provide: {
-      csrf
+      defaultData
     },
     components: {
       Page
     },
     template: `<body>
-    <div id="root"><Page :csrf="csrf" /></div>
+    <link v-for="sheet in css" rel="stylesheet" :href="sheet" />
+    <div id="root"><router-view /></div>
     <script src="https://unpkg.com/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/vue-router/dist/vue-router.js"></script>
     <script src="/static/js/vue.js" type="module"></script>
@@ -34,14 +39,19 @@ resolve(Page).then(({ default: Page }) => {
     </body>`
   });
 
+  router.push(path);
+
+  await new Promise((res, rej) => router.onReady(res, rej));
+
   // Step 2: Create a renderer
   const renderer = SSR.createRenderer()
 
   // in 2.5.0+, returns a Promise if no callback is passed:
-  renderer.renderToString(app).then(html => {
+  return renderer.renderToString(app).then(html => {
     process.stdout.write(
-      `<!DOCTYPE html><script>window.csrf = ${JSON.stringify(csrf)};</script>${html}`)
-  }).catch(err => {
-    console.log(err);
+      `<script>window.p10k_defaultData = ${defaultJson};</script>${html}`)
   })
+}).catch(err => {
+  console.error(err.stack);
+  process.exit(1);
 });
