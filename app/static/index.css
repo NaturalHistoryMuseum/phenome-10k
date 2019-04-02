@@ -74,6 +74,16 @@ a:link:hover {
 
 .Base__content {
   grid-area: content;
+  grid-column-start: 1;
+}
+
+.Subgrid {
+  display: grid;
+  grid-template-columns: 228px 161px auto;
+}
+
+.Subgrid > * {
+  grid-column-start: 3;
 }
 
 .Nav {

@@ -39,8 +39,9 @@
   </div>
   <div class="Base__sidebar Sidebar">
     <img src="/static/logo.png" alt="" class="Sidebar__logo">
+    {% block sidebar %}{% endblock %}
   </div>
-  <main class="Base__content">
+  <main class="Base__content Subgrid">
     {% with messages = get_flashed_messages() %}
     {% if messages %}
     <ul>
@@ -50,7 +51,7 @@
     </ul>
     {% endif %}
     {% endwith %}
-    {% block content %}{% endblock %}
+    {% block content %}{{ content | safe }}{% endblock %}
   </main>
 </body>
 </html>

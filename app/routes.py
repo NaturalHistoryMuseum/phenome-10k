@@ -4,7 +4,7 @@ import os
 import uuid
 from functools import wraps
 from zipfile import ZipFile
-from flask import request, render_template, redirect, url_for, flash, send_from_directory
+from flask import request, render_template, redirect, url_for, flash, send_from_directory, jsonify, g
 from flask_login import current_user, login_user, login_required, logout_user
 from werkzeug.routing import ValidationError, BaseConverter
 from werkzeug.urls import url_parse
@@ -13,6 +13,49 @@ from stl.mesh import Mesh
 from app import app, db, models
 from app.forms import LoginForm, RegistrationForm, ScanUploadForm, PublicationUploadForm
 from app.models import User, Scan, File, Publication
+import mimetypes
+
+mimetypes.add_type('application/javascript', '.mjs')
+
+def convert_file(file):
+  if not file:
+    return (None, None)
+  filename, fileExt = os.path.splitext(file.filename)
+  with tempfile.NamedTemporaryFile(suffix=fileExt) as uploadFile:
+    file.save(uploadFile.name)
+
+    # Convert to bin if ascii
+    file.seek(0)
+    if file.read(5) == b'solid':
+      # TODO: Don't override original file
+      Mesh.from_file(uploadFile.name).save(uploadFile.name)
+
+    # Convert to ctm in uploads storage
+    # TODO: Check errors, secure_filename, no duplicates
+    ctmFile = models.File()
+    ctmFile.filename = filename + '.ctm'
+    ctmFile.location = 'uploads/' + ctmFile.filename
+    ctmFile.owner = current_user
+    ctmFile.mime_type = 'application/zip'
+    ctmConvert = subprocess.run(["ctmconv", uploadFile.name, ctmFile.location], stderr=subprocess.PIPE)
+    if ctmConvert.returncode > 0:
+      # TODO: Deal with this error properly
+      app.logger.warn(ctmConvert.stderr)
+
+    # Zip source file & save to large file storage
+    # TODO: (secure_filename)(no duplicates)
+    # TODO: Configure large file storage
+    zip = models.File()
+    zip.filename = file.filename + '.zip'
+    zip.location = 'uploads/' + zip.filename
+    zip.owner = current_user
+    zip.mime_type = 'application/zip'
+    with ZipFile(zip.location, 'w') as zipFile:
+      zipFile.write(uploadFile.name)
+
+    return (zip, ctmFile)
+
+
 
 @app.context_processor
 def bem_processor():
@@ -27,13 +70,13 @@ class SlugConverter(BaseConverter):
   model = None
 
   def to_python(self, slug):
-    model = self.model.query.filter_by(url_slug=slug).first()
+    model = self.model.findBySlug(slug)
     if model == None:
       raise ValidationError
     return model
 
   def to_url(self, value):
-    return BaseConverter.to_url(self, value.url_slug)
+    return BaseConverter.to_url(self, value.url_slug or value.id)
 
 class ScanConverter(SlugConverter):
   model = Scan
@@ -45,6 +88,8 @@ app.url_map.converters['scan'] = ScanConverter
 app.url_map.converters['publication'] = PublicationConverter
 
 def generate_slug(name):
+  if not name:
+    return None
   # TODO: Use a different function that's more similar to what wordpress does
   # (maybe just replace `_` with `-`?)
   url_slug = secure_filename(name).lower()
@@ -147,28 +192,7 @@ def library_create():
     if form.validate_on_submit():
       # TODO: Restrict list of uploadable file types
       # Save upload to temporary file
-      filename, fileExt = os.path.splitext(form.file.data.filename)
-      with tempfile.NamedTemporaryFile(suffix=fileExt) as uploadFile:
-        form.file.data.save(uploadFile.name)
-
-        # Convert to bin if ascii
-        form.file.data.seek(0)
-        if form.file.data.read(5) == b'solid':
-          # TODO: Don't override original file
-          Mesh.from_file(uploadFile.name).save(uploadFile.name)
-
-        # Convert to ctm in uploads storage
-        # TODO: Check errors, secure_filename, no duplicates
-        ctmConvert = subprocess.run(["ctmconv", uploadFile.name, 'uploads/' + filename + '.ctm'], stderr=subprocess.PIPE)
-        if ctmConvert.returncode > 0:
-          # TODO: Deal with this error properly
-          app.logger.warn(ctmConvert.stderr)
-
-        # Zip source file & save to large file storage
-        # TODO: (secure_filename)(no duplicates)
-        # TODO: Configure large file storage
-        with ZipFile('uploads/' + form.file.data.filename + '.zip', 'w') as zipFile:
-          zipFile.write(uploadFile.name)
+      (zipFile, ctmFile) = convert_file(form.file.data)
 
       url_slug = generate_slug(form.scientific_name.data)
 
@@ -180,11 +204,20 @@ def library_create():
         specimen_id = form.specimen_id.data,
         description = form.description.data,
         url_slug = url_slug,
-        publications = pubs
+        publications = pubs,
+        source = zipFile,
+        ctm = ctmFile
       )
 
       db.session.add(scan)
       db.session.commit()
+
+
+      if request.accept_mimetypes.accept_json:
+        return jsonify({
+          'id': scan.id,
+          'ctm': scan.ctm.location
+         })
 
       return redirect(url_for('edit_scan', scan=scan))
 
@@ -192,14 +225,17 @@ def library_create():
       pubs = Publication.query.filter(Publication.title.contains(form.pub_query.data))
       form.publications_search.choices = set([(pub.id, pub.title) for pub in pubs]) - set(form.publications.choices)
 
-    return render_template('upload.html', title='Upload New', form=form, menu='library')
+    if request.accept_mimetypes.accept_html:
+      return render_template('base.html', content=vue('library/create'), title='Upload New', menu='library')
+
+    return jsonify({ 'errors': form.errors, 'data': { k: v for k, v in form.data.items() if k != 'file'  } })
 
 @app.route('/<scan:scan>/')
 def scan(scan):
   # TODO: Hide if unpublished
   return render_template('scan.html', title=scan.scientific_name, scan=scan, menu='library')
 
-@app.route('/<scan:scan>/edit/', methods=['GET', 'POST'])
+@app.route('/<scan:scan>/edit', methods=['GET', 'POST'])
 def edit_scan(scan):
   # TODO: Check user can edit
   form = ScanUploadForm(obj=scan, pub_query=request.args.get("pub_query"))
@@ -211,6 +247,7 @@ def edit_scan(scan):
   form.publications.data = pubselected
   pubs = Publication.query.filter(Publication.id.in_(pubselected)).all()
   form.publications.choices = [(pub.id, pub.title) for pub in pubs]
+  form.publications_search.choices = form.publications.choices
 
   if form.validate_on_submit():
     scan.scientific_name = form.scientific_name.data
@@ -219,16 +256,25 @@ def edit_scan(scan):
     scan.specimen_id = form.specimen_id.data
     scan.description = form.description.data
     scan.publications = Publication.query.filter(Publication.id.in_(form.publications.data)).all()
+    for file in form.attachments.data:
+        # TODO: Don't overwrite
+        file.save('uploads/' + file.filename)
+        scan.attachments.append(File(
+          filename = file.filename,
+          location = 'uploads/' + file.filename,
+          owner_id = current_user.id
+        ))
     db.session.commit()
     return redirect(url_for('edit_scan', scan=scan) + '?pub_query=' + form.pub_query.data)
-
-  app.logger.warn(scan.publications)
 
   if form.pub_query.data:
     pubs = Publication.query.filter(Publication.title.contains(form.pub_query.data))
     form.publications_search.choices = set([(pub.id, pub.title) for pub in pubs]) - set(form.publications.choices)
 
-  return render_template('upload.html', title=scan.scientific_name, form=form, edit=True, menu='library')
+  if request.accept_mimetypes.accept_html:
+    return render_template('base.html', content=vue('library/create'), title='Edit', menu='library')
+
+  return jsonify({ 'errors': form.errors, 'data': form.json_data(), 'scan': scan.serialize() })
 
 @app.route('/publications/create/', methods=['GET', 'POST'])
 @requiresContributor
@@ -265,7 +311,9 @@ def create_publication():
 
 @app.route('/publications')
 def publications():
-  return 'Publications'
+  title = request.args.get('title')
+  pubs = Publication.query.filter(Publication.title.ilike('%{0}%'.format(title)))
+  return jsonify([pub.serialize() for pub in pubs])
 
 @app.route('/<publication:publication>/')
 def publication(publication):
@@ -288,7 +336,7 @@ def edit_publication(publication):
 
       for file in form.files.data:
         # TODO: Don't overwrite
-        if file == '':
+        if file == None:
           continue
         file.save('uploads/' + file.filename)
         f = File(
@@ -305,3 +353,39 @@ def edit_publication(publication):
       return redirect(url_for('edit_publication', publication=publication))
 
     return render_template('create-publication.html', title='Create', form=form, menu='publications')
+
+@app.route('/upload', methods=['POST'])
+@requiresContributor
+def upload():
+  files = request.files.getlist('file')
+  result = []
+  for file in files:
+    (zipFile, ctmFile) = convert_file(file)
+    db.session.add(zipFile)
+    db.session.add(ctmFile)
+    db.session.commit()
+    result.append({
+      'zip': zipFile.id,
+      'ctm': {
+        'id': ctmFile.id,
+        'url': ctmFile.location
+      }
+    })
+
+  return jsonify(result)
+
+def vue(path):
+  import subprocess
+
+  pipes = subprocess.Popen(['node', '--experimental-modules', 'node/route.mjs', path, g.csrf_token], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  std_out, std_err = pipes.communicate()
+
+  if pipes.returncode != 0:
+      # an error happened!
+      err_msg = "%s. Code: %s" % (std_err.strip(), pipes.returncode)
+      raise Exception(err_msg)
+
+  elif len(std_err):
+    app.logger.error(std_err.decode())
+
+  return std_out.decode()

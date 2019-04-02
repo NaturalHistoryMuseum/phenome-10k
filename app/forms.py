@@ -41,9 +41,9 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Please use a different email address.')
 
 class ScanUploadForm(FlaskForm):
-    # TODO: For new upload, add validators=[FileRequired()]
-    file = FileField('Scan file', validators=[FileRequired()])
-    scientific_name = StringField('Scientific Name', validators=[DataRequired()])
+    file = FileField('Scan file')
+    stills = MultipleFileField('Stills')
+    scientific_name = StringField('Scientific Name')
     alt_name = StringField('Alternate Name')
     specimen_location = StringField('Specimen Location')
     specimen_id = StringField('Specimen ID')
@@ -52,8 +52,14 @@ class ScanUploadForm(FlaskForm):
     pub_search = SubmitField('Search')
     publications_search = SelectMultipleField('Publications', choices = [], coerce = int, widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
     publications = SelectMultipleField('Publications', choices = [], coerce = int, widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
+    attachments = MultipleFileField('Add files', default = [])
     # TODO: Change save button to upload/create/edit depending on context
     submit = SubmitField('Save')
+
+    def json_data(self):
+        return {
+            k: v for k, v in self.data.items() if not isinstance(self[k], FileField)
+        }
 
 class PublicationUploadForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])

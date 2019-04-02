@@ -27,7 +27,6 @@ if not app.debug:
     app.logger.setLevel(logging.INFO)
     app.logger.info('Phenome10k startup')
 
-
 from app import routes, models, errors
 
 @app.shell_context_processor

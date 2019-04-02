@@ -1,0 +1,16 @@
+{
+  "name": "p10k",
+  "version": "1.0.0",
+  "description": "To activate the virtual environment:",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "vue": "^2.6.10",
+    "vue-router": "^3.0.2",
+    "vue-server-renderer": "^2.6.10"
+  }
+}
