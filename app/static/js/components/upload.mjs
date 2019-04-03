@@ -185,7 +185,7 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
     },
     async upload(form){
         const { responseText } = await xhrUpload(form, p => this.progress = p);
-        const scan = JSON.parse(responseText);
+        const { scan } = JSON.parse(responseText);
         this.scan = scan;
     },
     async pubSearch(event) {
@@ -196,8 +196,7 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
   },
   components: {
       Upload3D,
-      'ctm-viewer': CtmViewer,
-      NestedList
+      'ctm-viewer': CtmViewer
   },
   template: `
     <form class="Upload__form Subgrid" :action="formAction" method="post" @submit.prevent="submit" enctype="multipart/form-data" novalidate style="display:contents">
@@ -266,7 +265,7 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
     <fieldset>
         <legend>Geologic Age</legend>
         <ul>
-            <li v-for="option in form.geologic_age.choices"><label><input type="checkbox" name="geologic_age" :value="option.id" :checked="form.geologic_age.data.some(tag => option.id===tag.id)">{{ option.name }}</label></li>
+            <li v-for="option in form.geologic_age.choices"><label><input type="checkbox" name="geologic_age" :value="option.id" :checked="(form.geologic_age.data || [] ).some(tag => option.id===tag.id)">{{ option.name }}</label></li>
         </ul>
     </fieldset>
         <p><button>Submit</button></p>

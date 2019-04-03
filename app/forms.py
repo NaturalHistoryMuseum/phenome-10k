@@ -4,6 +4,7 @@ from wtforms.validators import DataRequired, Email, ValidationError
 from flask_wtf.file import FileRequired, FileAllowed
 import json, urllib.request
 from app.models import User, Tag
+from app import db
 
 data = urllib.request.urlopen("http://country.io/names.json").read()
 countries = list(json.loads(data).items())
@@ -60,9 +61,9 @@ class ScanUploadForm(FlaskForm):
     def serialize(self):
         return {
             k: {
-                'data': [ datum.serialize() for datum in v ] if isinstance(v, list) else v if not isinstance(self[k], FileField) else None,
+                'data': [ datum.serialize() if isinstance(datum, db.Model) else datum for datum in v ] if isinstance(v, list) else v if not isinstance(self[k], FileField) else None,
                 'errors': self[k].errors,
-                'choices': [ choice[1].serialize() for choice in self[k].choices ] if isinstance(self[k], SelectMultipleField) else None
+                'choices': [ choice[1].serialize() if isinstance(choice[1], db.Model) else choice for choice in self[k].choices ] if isinstance(self[k], SelectMultipleField) else None
             } for k, v in self.data.items()
         }
 

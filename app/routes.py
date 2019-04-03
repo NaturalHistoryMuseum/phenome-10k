@@ -205,87 +205,44 @@ def library():
 
   return render_vue('library', data, title="Library", menu='library')
 
-@app.route('/library/create/', methods=['GET', 'POST'])
-@requiresContributor
-def library_create():
-    form = ScanUploadForm()
-
-    # Get the records for the currently selected publications
-    pubsearch = form.publications_search.data or []
-    pubselected = (form.publications.data or []) + pubsearch
-    form.publications.data = pubselected
-    pubs = Publication.query.filter(Publication.id.in_(pubselected)).all()
-    form.publications.choices = [(pub.id, pub.title) for pub in pubs]
-
-    if form.validate_on_submit():
-      # TODO: Restrict list of uploadable file types
-      # Save upload to temporary file
-      (zipFile, ctmFile) = convert_file(form.file.data)
-
-      url_slug = generate_slug(form.scientific_name.data)
-
-      scan = Scan(
-        author_id = current_user.id,
-        scientific_name = form.scientific_name.data,
-        alt_name = form.alt_name.data,
-        specimen_location = form.specimen_location.data,
-        specimen_id = form.specimen_id.data,
-        description = form.description.data,
-        url_slug = url_slug,
-        publications = pubs,
-        source = zipFile,
-        ctm = ctmFile,
-        tags = form.geologic_age.data
-      )
-
-      db.session.add(scan)
-      db.session.commit()
-
-
-      if request.accept_mimetypes.accept_json:
-        return jsonify({
-          'id': scan.id,
-          'ctm': scan.ctm.location if scan.ctm else None
-         })
-
-      return redirect(url_for('edit_scan', scan=scan))
-
-    if form.pub_query.data:
-      pubs = Publication.query.filter(Publication.title.contains(form.pub_query.data))
-      form.publications_search.choices = set([(pub.id, pub.title) for pub in pubs]) - set(form.publications.choices)
-
-    data = {
-      'form': form.serialize(),
-      'csrf_token': g.csrf_token
-    }
-
-    if request.accept_mimetypes.accept_html:
-      return render_template('base.html', content=vue('library/create', data), title='Upload New', menu='library')
-
-    return jsonify({ 'errors': form.errors, 'form': data.form })
-
 @app.route('/<scan:scan>/')
 def scan(scan):
   # TODO: Hide if unpublished
   return render_template('scan.html', title=scan.scientific_name, scan=scan, menu='library')
 
 @app.route('/<scan:scan>/edit', methods=['GET', 'POST'])
-def edit_scan(scan):
+@app.route('/library/create/', methods=['GET', 'POST'])
+@requiresContributor
+def edit_scan(scan = None):
   # TODO: Check user can edit
   form = ScanUploadForm(obj=scan, pub_query=request.args.get("pub_query"))
-  app.logger.warn(scan.geologic_age)
-  app.logger.warn(form.geologic_age.data)
-  # pubIds = [(pubId,) for pubId in form.publications.data] if form.publications.data else []
-  # form.publications.choices = [(pub.id, pub.title) for pub in scan.publications] + pubIds
 
+  # Get the records for the currently selected publications
   pubsearch = form.publications_search.data or []
-  pubselected = (form.publications.data or [pub.id for pub in scan.publications]) + pubsearch
+  scanpubs = [pub.id for pub in scan.publications] if scan else []
+  pubselected = (form.publications.data or scanpubs) + pubsearch
   form.publications.data = pubselected
   pubs = Publication.query.filter(Publication.id.in_(pubselected)).all()
   form.publications.choices = [(pub.id, pub.title) for pub in pubs]
   form.publications_search.choices = form.publications.choices
 
   if form.validate_on_submit():
+    if scan == None:
+      scan = Scan(
+        author_id = current_user.id,
+      )
+      db.session.add(scan)
+
+    # TODO: Restrict list of uploadable file types
+    # Save upload to temporary file
+    if form.file.data:
+        (zipFile, ctmFile) = convert_file(form.file.data)
+        scan.source = zipFile
+        scan.ctm = ctmFile
+
+    if scan.url_slug == None:
+      scan.url_slug = generate_slug(form.scientific_name.data)
+
     scan.scientific_name = form.scientific_name.data
     scan.alt_name = form.alt_name.data
     scan.specimen_location = form.specimen_location.data
@@ -293,6 +250,7 @@ def edit_scan(scan):
     scan.description = form.description.data
     scan.publications = Publication.query.filter(Publication.id.in_(form.publications.data)).all()
     scan.tags = form.geologic_age.data
+
     for file in form.attachments.data:
         # TODO: Don't overwrite
         file.save('uploads/' + file.filename)
@@ -302,6 +260,7 @@ def edit_scan(scan):
           owner_id = current_user.id
         ))
     db.session.commit()
+
     return redirect(url_for('edit_scan', scan=scan) + '?pub_query=' + form.pub_query.data)
 
   if form.pub_query.data:
@@ -314,9 +273,13 @@ def edit_scan(scan):
   }
 
   if request.accept_mimetypes.accept_html:
-    return render_template('base.html', content=vue('library/create', data), title='Edit', menu='library')
+    return render_template('base.html', content=vue('library/create', data), title='Edit' if scan else 'Upload New', menu='library')
 
-  return jsonify({ 'errors': form.errors, 'scan': scan.serialize(), 'form': data.get('form') })
+  return jsonify({
+    'errors': form.errors,
+    'scan': scan.serialize() if scan else None,
+    'form': data.get('form')
+  })
 
 @app.route('/publications/create/', methods=['GET', 'POST'])
 @requiresContributor

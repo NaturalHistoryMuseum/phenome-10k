@@ -107,6 +107,9 @@ class File(db.Model):
 
     owner = db.relationship('User')
 
+    def serialize(self):
+        return '/' + self.location
+
     def __repr__(self):
         return '<File {}>'.format(self.filename)
 
