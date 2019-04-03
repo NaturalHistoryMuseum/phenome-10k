@@ -28,3 +28,7 @@
 .Library__title {
   padding: 15px 10px;
 }
+
+.Library__sort-active {
+  font-weight: bold;
+}

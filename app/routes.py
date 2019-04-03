@@ -12,7 +12,7 @@ from werkzeug.utils import secure_filename
 from stl.mesh import Mesh
 from app import app, db, models
 from app.forms import LoginForm, RegistrationForm, ScanUploadForm, PublicationUploadForm
-from app.models import User, Scan, File, Publication
+from app.models import User, Scan, File, Publication, Tag
 import mimetypes
 import subprocess
 import json
@@ -173,13 +173,37 @@ def register():
       return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form, error=error, menu='home')
 
+@app.route('/tag', methods=['GET','POST'])
+def tag():
+  t = "''"
+  tax = "''"
+  if request.method=='POST':
+    t = request.form.get('type')
+    tax = request.form.get('taxonomy')
+    tag = Tag(name = request.form.get('name'), taxonomy = tax, category = t)
+    db.session.add(tag)
+    db.session.commit()
+  return '<form method=post><input name=type value='+ t +' placeholder=category><input autofocus name=name placeholder=name><input placeholder=taxonomy name=taxonomy value='+tax+'><input type=submit></form>'
+
 @app.route('/library/', methods=['GET'])
 def library():
   # scans = Scan.query.filter_by(published=True).order_by(db.func.random()).limit(50).all()
-  sort = Scan.scientific_name if request.args.get("sort") else db.func.random()
-  scans = Scan.query.order_by(sort).limit(50).all()
+  sort = request.args.get("sort")
 
-  return render_vue('library', [s.serialize() for s in scans], title="Library", menu='library')
+  if(sort == 'geologic_age'):
+    data ={
+      'groups': [ { 'group': tag.name, 'items': [s.serialize() for s in tag.scans ] } for tag in Tag.query.filter_by(category=sort).all() ]
+    }
+  else:
+    if sort == 'name':
+      query = Scan.scientific_name
+    else:
+      query = db.func.random()
+    data = [ s.serialize() for s in Scan.query.order_by(query).limit(50).all() ]
+
+
+
+  return render_vue('library', data, title="Library", menu='library')
 
 @app.route('/library/create/', methods=['GET', 'POST'])
 @requiresContributor
@@ -210,7 +234,8 @@ def library_create():
         url_slug = url_slug,
         publications = pubs,
         source = zipFile,
-        ctm = ctmFile
+        ctm = ctmFile,
+        tags = form.geologic_age.data
       )
 
       db.session.add(scan)
@@ -220,7 +245,7 @@ def library_create():
       if request.accept_mimetypes.accept_json:
         return jsonify({
           'id': scan.id,
-          'ctm': scan.ctm.location
+          'ctm': scan.ctm.location if scan.ctm else None
          })
 
       return redirect(url_for('edit_scan', scan=scan))
@@ -229,10 +254,15 @@ def library_create():
       pubs = Publication.query.filter(Publication.title.contains(form.pub_query.data))
       form.publications_search.choices = set([(pub.id, pub.title) for pub in pubs]) - set(form.publications.choices)
 
-    if request.accept_mimetypes.accept_html:
-      return render_template('base.html', content=vue('library/create', g.csrf_token), title='Upload New', menu='library')
+    data = {
+      'form': form.serialize(),
+      'csrf_token': g.csrf_token
+    }
 
-    return jsonify({ 'errors': form.errors, 'data': { k: v for k, v in form.data.items() if k != 'file'  } })
+    if request.accept_mimetypes.accept_html:
+      return render_template('base.html', content=vue('library/create', data), title='Upload New', menu='library')
+
+    return jsonify({ 'errors': form.errors, 'form': data.form })
 
 @app.route('/<scan:scan>/')
 def scan(scan):
@@ -243,6 +273,8 @@ def scan(scan):
 def edit_scan(scan):
   # TODO: Check user can edit
   form = ScanUploadForm(obj=scan, pub_query=request.args.get("pub_query"))
+  app.logger.warn(scan.geologic_age)
+  app.logger.warn(form.geologic_age.data)
   # pubIds = [(pubId,) for pubId in form.publications.data] if form.publications.data else []
   # form.publications.choices = [(pub.id, pub.title) for pub in scan.publications] + pubIds
 
@@ -260,6 +292,7 @@ def edit_scan(scan):
     scan.specimen_id = form.specimen_id.data
     scan.description = form.description.data
     scan.publications = Publication.query.filter(Publication.id.in_(form.publications.data)).all()
+    scan.tags = form.geologic_age.data
     for file in form.attachments.data:
         # TODO: Don't overwrite
         file.save('uploads/' + file.filename)
@@ -275,10 +308,15 @@ def edit_scan(scan):
     pubs = Publication.query.filter(Publication.title.contains(form.pub_query.data))
     form.publications_search.choices = set([(pub.id, pub.title) for pub in pubs]) - set(form.publications.choices)
 
-  if request.accept_mimetypes.accept_html:
-    return render_template('base.html', content=vue('library/create', g.csrf_token), title='Edit', menu='library')
+  data = {
+      'form': form.serialize(),
+      'csrf_token': g.csrf_token
+  }
 
-  return jsonify({ 'errors': form.errors, 'data': form.json_data(), 'scan': scan.serialize() })
+  if request.accept_mimetypes.accept_html:
+    return render_template('base.html', content=vue('library/create', data), title='Edit', menu='library')
+
+  return jsonify({ 'errors': form.errors, 'scan': scan.serialize(), 'form': data.get('form') })
 
 @app.route('/publications/create/', methods=['GET', 'POST'])
 @requiresContributor
@@ -335,8 +373,6 @@ def edit_publication(publication):
       publication.journal = form.journal.data
       publication.link = form.link.data
       publication.abstract = form.abstract.data
-
-      app.logger.warn(form.files.data)
 
       for file in form.files.data:
         # TODO: Don't overwrite

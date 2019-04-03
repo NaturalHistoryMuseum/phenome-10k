@@ -120,10 +120,10 @@ export default {
             const res = await fetch(`/${id}/edit`, {
                 headers: { accept: 'application/javascript' }
             });
-            const { scan, data } = await res.json();
+            const { scan, form } = await res.json();
 
             this.scan = scan;
-            this.formData = data;
+            this.form = form;
         }
     },
     name: 'Upload',
@@ -134,16 +134,15 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
   props: [
     "error",
   ],
-  inject: {
-    csrf: 'defaultData'
-  },
+  inject: ['defaultData'],
   data() {
       return {
           scan: null,
           progress: null,
           stills: [],
-          formData: {},
-          pubList: []
+          pubList: [],
+          csrf: this.defaultData.csrf_token,
+          form: this.defaultData.form
         };
   },
   computed: {
@@ -158,7 +157,7 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
       },
       savedPublications() {
         const scanPubs = this.scan ? this.scan.publications : [];
-        const formPubIds = this.formData.publications || [];
+        const formPubIds = this.form.publications.data || [];
         const pubsList = [...scanPubs, ...this.pubList];
         return formPubIds.map(id => pubsList.find(pub => pub.id === id) || { id, title: id });
       }
@@ -172,7 +171,7 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
             body: data
         });
         const json = await res.json();
-        this.formData = json.data;
+        this.form = json.form;
     },
     async captureStill(){
         const file = `still-${this.stills.length}.png`
@@ -197,7 +196,8 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
   },
   components: {
       Upload3D,
-      'ctm-viewer': CtmViewer
+      'ctm-viewer': CtmViewer,
+      NestedList
   },
   template: `
     <form class="Upload__form Subgrid" :action="formAction" method="post" @submit.prevent="submit" enctype="multipart/form-data" novalidate style="display:contents">
@@ -219,26 +219,26 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
         <Upload3D v-else style="width: 100%; display: block;" @change="upload" :progress="progress"></Upload3D>
         <p>
             <h2 class="Upload__section-title">3. Scientific Name</h2>
-            <input name="scientific_name" class="Upload__form-input" :value="formData.scientific_name"/><br>
+            <input name="scientific_name" class="Upload__form-input" :value="form.scientific_name.data"/><br>
         </p>
         <fieldset>
             <legend><span class="Upload__section-title">4. Specimen</span> - Please enter relevant specimen information</legend>
             <p>
                 Alt Name<br>
-                <input name="alt_name" :value="formData.alt_name" class="Upload__form-input" /><br>
+                <input name="alt_name" :value="form.alt_name.data" class="Upload__form-input" /><br>
             </p>
             <p>
             Specimen Location<br>
-            <input type="text" name="specimen_location" :value="formData.specimen_location" class="Upload__form-input" /><br>
+            <input type="text" name="specimen_location" :value="form.specimen_location.data" class="Upload__form-input" /><br>
             </p>
             <p>
             Specimen ID<br>
-            <input type="text" name="specimen_id" :value="formData.specimen_id" class="Upload__form-input" /><br>
+            <input type="text" name="specimen_id" :value="form.specimen_id.data" class="Upload__form-input" /><br>
         </p>
         </fieldset>
       <p>
         <h2 class="Upload__section-title">6. Description</h2>
-        <textarea name="description" :value="formData.description" class="Upload__form-input" /><br>
+        <textarea name="description" :value="form.description.data" class="Upload__form-input" /><br>
     </p>
     <fieldset>
         <legend><span class="Upload__section-title">7. Publications</span> - Assign any relevant publications to the scan</legend>
@@ -246,7 +246,7 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
             <div class="ListSearch">
                 <div class="ListSearch__search Search">
                 <input type="text" name="pub_query" class="Search__input"  @keyup="pubSearch" />
-                <button name="pub_search" :value="formData.pub_search" class="Search__submit">Search</button>
+                <button name="pub_search" :value="form.pub_search.data" class="Search__submit">Search</button>
                 </div>
                 <div name="publications_search" class="ListSearch__results">
                   <ul>
@@ -260,6 +260,14 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
             </ul>
             </div>
         </div>
+    </fieldset>
+    <p>8. Categories - Assign the relevant tags to this entry. At least one catagory in each of Taxonomy, Geologic Age, Elements and Ontologic Age is required.</p>
+
+    <fieldset>
+        <legend>Geologic Age</legend>
+        <ul>
+            <li v-for="option in form.geologic_age.choices"><label><input type="checkbox" name="geologic_age" :value="option.id" :checked="form.geologic_age.data.some(tag => option.id===tag.id)">{{ option.name }}</label></li>
+        </ul>
     </fieldset>
         <p><button>Submit</button></p>
     </form>

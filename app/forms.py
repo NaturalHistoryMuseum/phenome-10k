@@ -3,7 +3,7 @@ from wtforms import widgets, StringField, PasswordField, BooleanField, SubmitFie
 from wtforms.validators import DataRequired, Email, ValidationError
 from flask_wtf.file import FileRequired, FileAllowed
 import json, urllib.request
-from app.models import User
+from app.models import User, Tag
 
 data = urllib.request.urlopen("http://country.io/names.json").read()
 countries = list(json.loads(data).items())
@@ -53,8 +53,18 @@ class ScanUploadForm(FlaskForm):
     publications_search = SelectMultipleField('Publications', choices = [], coerce = int, widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
     publications = SelectMultipleField('Publications', choices = [], coerce = int, widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
     attachments = MultipleFileField('Add files', default = [])
+    geologic_age = SelectMultipleField('Geologic Age', choices = [ (tag, tag) for tag in Tag.query.all() ], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
     # TODO: Change save button to upload/create/edit depending on context
     submit = SubmitField('Save')
+
+    def serialize(self):
+        return {
+            k: {
+                'data': [ datum.serialize() for datum in v ] if isinstance(v, list) else v if not isinstance(self[k], FileField) else None,
+                'errors': self[k].errors,
+                'choices': [ choice[1].serialize() for choice in self[k].choices ] if isinstance(self[k], SelectMultipleField) else None
+            } for k, v in self.data.items()
+        }
 
     def json_data(self):
         return {

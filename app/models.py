@@ -72,6 +72,11 @@ class Scan(db.Model):
     ctm = db.relationship('File', foreign_keys = 'Scan.ctm_id')
     publications = db.relationship('Publication', secondary='scan_publication')
     attachments = db.relationship('File', secondary='scan_attachment')
+    tags = db.relationship('Tag', secondary='scan_tag')
+
+    @property
+    def geologic_age(self):
+        return self.tags
 
     def serialize(self):
         return {
@@ -149,9 +154,26 @@ class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     category = db.Column(db.String(250))
     name = db.Column(db.String(250))
-    parent_id = db.Column(db.Integer, db.ForeignKey('tag.id'))
+    taxonomy = db.Column(db.String(250), unique=True)
 
-    parent = db.relationship('Tag')
+    scans = db.relationship('Scan', secondary='scan_tag')
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'category': self.category,
+            'name': self.name,
+            'taxonomy': self.taxonomy
+        }
+
+    def __eq__(self, obj):
+        return isinstance(obj, Tag) and obj.id == self.id
+
+    def __repr__(self):
+        return '<Tag {}>'.format(self.taxonomy)
+
+    def __hash__(self):
+        return hash(self.id)
 
 class ScanPublication(db.Model):
     id = db.Column(db.Integer, primary_key=True)
