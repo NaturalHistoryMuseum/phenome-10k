@@ -173,7 +173,9 @@ def register():
       return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form, error=error, menu='home')
 
+# This is just for development, please delete before going to production
 @app.route('/tag', methods=['GET','POST'])
+@requiresAdmin
 def tag():
   t = "''"
   tax = "''"
@@ -190,6 +192,9 @@ def library():
   # scans = Scan.query.filter_by(published=True).order_by(db.func.random()).limit(50).all()
   sort = request.args.get("sort")
 
+  # This is annoying... if we're sorting by name it's just sort,
+  # but if we're sorting by tag we need to group it all.
+  # Put it under the `groups` key so the view knows it needs to render differently
   if(sort == 'geologic_age'):
     data ={
       'groups': [ { 'group': tag.name, 'items': [s.serialize() for s in tag.scans ] } for tag in Tag.query.filter_by(category=sort).all() ]
@@ -200,8 +205,6 @@ def library():
     else:
       query = db.func.random()
     data = [ s.serialize() for s in Scan.query.order_by(query).limit(50).all() ]
-
-
 
   return render_vue('library', data, title="Library", menu='library')
 
@@ -357,31 +360,14 @@ def edit_publication(publication):
 
     return render_template('create-publication.html', title='Create', form=form, menu='publications')
 
-@app.route('/upload', methods=['POST'])
-@requiresContributor
-def upload():
-  files = request.files.getlist('file')
-  result = []
-  for file in files:
-    (zipFile, ctmFile) = convert_file(file)
-    db.session.add(zipFile)
-    db.session.add(ctmFile)
-    db.session.commit()
-    result.append({
-      'zip': zipFile.id,
-      'ctm': {
-        'id': ctmFile.id,
-        'url': ctmFile.location
-      }
-    })
-
-  return jsonify(result)
-
 def render_vue(path, data, title, menu):
   if request.accept_mimetypes.accept_html:
     return render_template('base.html', content=vue(path, data), title=title, menu=menu)
   return jsonify(data)
 
+
+# This is for server-side rendering a view in vue
+# pass the url path and an object to be provided as the defaultData property to the vue model
 def vue(path, defaultData = None):
   pipes = subprocess.Popen(['node', '--experimental-modules', 'node/route.mjs', path, json.dumps(defaultData)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   std_out, std_err = pipes.communicate()
