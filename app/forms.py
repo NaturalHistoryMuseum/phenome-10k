@@ -54,7 +54,8 @@ class ScanUploadForm(FlaskForm):
     publications_search = SelectMultipleField('Publications', choices = [], coerce = int, widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
     publications = SelectMultipleField('Publications', choices = [], coerce = int, widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
     attachments = MultipleFileField('Add files', default = [])
-    geologic_age = SelectMultipleField('Geologic Age', choices = [ (tag, tag) for tag in Tag.query.all() ], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
+    geologic_age = SelectMultipleField('Geologic Age', choices = [ (tag, tag) for tag in Tag.query.filter_by(category='geologic_age').all() ], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
+    ontogenic_age = SelectMultipleField('Ontogenic Age', choices = [ (tag, tag) for tag in Tag.query.filter_by(category='ontogenic_age').all() ], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
     # TODO: Change save button to upload/create/edit depending on context
     submit = SubmitField('Save')
 

@@ -191,20 +191,31 @@ def tag():
 def library():
   # scans = Scan.query.filter_by(published=True).order_by(db.func.random()).limit(50).all()
   sort = request.args.get("sort")
+  ontogenic_age = request.args.getlist("ontogenic_age")
+  geologic_age = request.args.getlist("geologic_age")
+
+  tagCondition = db.and_(
+    Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in ontogenic_age ])),
+    Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in geologic_age ]))
+  )
 
   # This is annoying... if we're sorting by name it's just sort,
   # but if we're sorting by tag we need to group it all.
   # Put it under the `groups` key so the view knows it needs to render differently
-  if(sort == 'geologic_age'):
+  if(sort in ('geologic_age', 'ontogenic_age')):
     data ={
-      'groups': [ { 'group': tag.name, 'items': [s.serialize() for s in tag.scans ] } for tag in Tag.query.filter_by(category=sort).all() ]
+      'groups': [ { 'group': tag.name, 'items': [s.serialize() for s in tag.scans ] } for tag in Tag.query.filter(Tag.scans.any(tagCondition)).filter_by(category=sort).all() ]
     }
   else:
     if sort == 'name':
       query = Scan.scientific_name
     else:
       query = db.func.random()
-    data = [ s.serialize() for s in Scan.query.order_by(query).limit(50).all() ]
+    data = {
+      'scans': [ s.serialize() for s in Scan.query.filter(tagCondition).order_by(query).limit(50).all() ]
+    }
+
+  data['tags'] = Tag.tree()
 
   return render_vue('library', data, title="Library", menu='library')
 
@@ -252,7 +263,7 @@ def edit_scan(scan = None):
     scan.specimen_id = form.specimen_id.data
     scan.description = form.description.data
     scan.publications = Publication.query.filter(Publication.id.in_(form.publications.data)).all()
-    scan.tags = form.geologic_age.data
+    scan.tags = form.geologic_age.data + form.ontogenic_age.data
 
     for file in form.attachments.data:
         # TODO: Don't overwrite

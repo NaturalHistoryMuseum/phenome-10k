@@ -32,3 +32,7 @@
 .Library__sort-active {
   font-weight: bold;
 }
+
+.Library__filter-active {
+  font-weight: bold;
+}

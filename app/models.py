@@ -24,7 +24,7 @@ class User(UserMixin, db.Model):
     country_code = db.Column(db.String(2))
     user_type = db.Column(db.String(64))
 
-    scans = db.relationship('Scan', backref='author', lazy='dynamic')
+    scans = db.relationship('Scan', backref='author')
 
     def isAdmin(self):
         return self.role == 'ADMIN'
@@ -72,11 +72,15 @@ class Scan(db.Model):
     ctm = db.relationship('File', foreign_keys = 'Scan.ctm_id')
     publications = db.relationship('Publication', secondary='scan_publication')
     attachments = db.relationship('File', secondary='scan_attachment')
-    tags = db.relationship('Tag', secondary='scan_tag')
+    tags = db.relationship('Tag', secondary='scan_tag', lazy='dynamic')
 
     @property
     def geologic_age(self):
-        return self.tags
+        return self.tags.filter_by(category='geologic_age')
+
+    @property
+    def ontogenic_age(self):
+        return self.tags.filter_by(category='ontogenic_age')
 
     def serialize(self):
         return {
@@ -168,6 +172,31 @@ class Tag(db.Model):
             'name': self.name,
             'taxonomy': self.taxonomy
         }
+
+    @staticmethod
+    def tree():
+        cats = {}
+        tree = []
+        children = None
+        lastTag = None
+
+        for tag in Tag.query.all():
+            l = tag.taxonomy.count('/') + 1
+
+            if not tag.category in cats:
+                children = cats[tag.category] = []
+                tree = [children]
+            elif l > len(tree):
+                children = lastTag['children'] = []
+                tree.append(children)
+            elif l < len(tree):
+                tree.pop()
+                children = tree[l - 1]
+
+            tag = tag.serialize()
+            children.append(tag)
+            lastTag = tag
+        return cats
 
     def __eq__(self, obj):
         return isinstance(obj, Tag) and obj.id == self.id

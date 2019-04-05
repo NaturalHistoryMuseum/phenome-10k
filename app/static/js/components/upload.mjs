@@ -268,6 +268,14 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
             <li v-for="option in form.geologic_age.choices"><label><input type="checkbox" name="geologic_age" :value="option.id" :checked="(form.geologic_age.data || [] ).some(tag => option.id===tag.id)">{{ option.name }}</label></li>
         </ul>
     </fieldset>
+
+    <fieldset>
+        <legend>Ontogenic Age</legend>
+        <ul>
+            <li v-for="option in form.ontogenic_age.choices"><label><input type="checkbox" name="ontogenic_age" :value="option.id" :checked="(form.ontogenic_age.data || [] ).some(tag => option.id===tag.id)">{{ option.name }}</label></li>
+        </ul>
+    </fieldset>
+
         <p><button>Submit</button></p>
     </form>
     `
