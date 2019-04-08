@@ -44,7 +44,7 @@ class RegistrationForm(FlaskForm):
 class ScanUploadForm(FlaskForm):
     file = FileField('Scan file')
     stills = MultipleFileField('Stills')
-    scientific_name = StringField('Scientific Name')
+    scientific_name = StringField('Scientific Name', validators = [DataRequired()])
     alt_name = StringField('Alternate Name')
     specimen_location = StringField('Specimen Location')
     specimen_id = StringField('Specimen ID')
@@ -54,19 +54,25 @@ class ScanUploadForm(FlaskForm):
     publications_search = SelectMultipleField('Publications', choices = [], coerce = int, widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
     publications = SelectMultipleField('Publications', choices = [], coerce = int, widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
     attachments = MultipleFileField('Add files', default = [])
-    geologic_age = SelectMultipleField('Geologic Age', choices = [ (tag, tag) for tag in Tag.query.filter_by(category='geologic_age').all() ], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
-    ontogenic_age = SelectMultipleField('Ontogenic Age', choices = [ (tag, tag) for tag in Tag.query.filter_by(category='ontogenic_age').all() ], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
-    # TODO: Change save button to upload/create/edit depending on context
+    geologic_age = SelectMultipleField('Geologic Age', choices = [ (tag, tag) for tag in Tag.query.filter_by(category='geologic_age').all() ], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput(), validators=[DataRequired()])
+    ontogenic_age = SelectMultipleField('Ontogenic Age', choices = [ (tag, tag) for tag in Tag.query.filter_by(category='ontogenic_age').all() ], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput(), validators=[DataRequired()])
+    published = BooleanField('Publish')
     submit = SubmitField('Save')
 
     def serialize(self):
-        return {
+        data = {
             k: {
-                'data': [ datum.serialize() if isinstance(datum, db.Model) else datum for datum in v ] if isinstance(v, list) else v if not isinstance(self[k], FileField) else None,
+                'data': None if isinstance(self[k], FileField) else [ datum.serialize() if isinstance(datum, db.Model) else datum for datum in v ] if isinstance(v, list) else v,
                 'errors': self[k].errors,
                 'choices': [ choice[1].serialize() if isinstance(choice[1], db.Model) else choice for choice in self[k].choices ] if isinstance(self[k], SelectMultipleField) else None
             } for k, v in self.data.items()
         }
+
+        tagTree = Tag.tree()
+        data['geologic_age']['choices'] = tagTree['geologic_age']
+        data['ontogenic_age']['choices'] = tagTree['ontogenic_age']
+
+        return data
 
     def json_data(self):
         return {

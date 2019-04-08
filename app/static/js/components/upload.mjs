@@ -1,3 +1,5 @@
+import Tree from './tree.mjs';
+
 const xhrUpload = (form, progress) => {
     const formData = new FormData(form);
     const xhr = new XMLHttpRequest()
@@ -65,9 +67,10 @@ const Upload3D = {
             <progress class="Upload3D__progress-bar" :value="progress" max="100"></progress>
             <div class="Upload3D__progress-text">{{ progress }}%</div>
         </div>
+        <div v-for="error in errors">{{ error }}</div>
       </div>
     `,
-    props:['progress'],
+    props:['progress', 'errors'],
     data(){
         return {
             dragging: false,
@@ -113,19 +116,27 @@ const Upload3D = {
     }
 }
 
-export default {
-    async mounted(){
-        const id = this.$route.params.id;
-        if(id) {
-            const res = await fetch(`/${id}/edit`, {
-                headers: { accept: 'application/javascript' }
-            });
-            const { scan, form } = await res.json();
+const FormField = {
+    props: ['errors'],
+    template: `<label>
+      <slot></slot>
+      <div v-for="error in errors">{{ error }}</div>
+    </label>`
+}
 
-            this.scan = scan;
-            this.form = form;
-        }
+const TextInput = {
+    components: {
+        FormField
     },
+    inheritAttrs: false,
+    props: ['label', 'data'],
+    template: `<FormField :errors="data.errors">
+      <slot>{{ label }}</slot>
+      <input class="Upload__form-input" :value="data.data" v-bind="$attrs"/>
+    </FormField>`
+}
+
+export default {
     name: 'Upload',
 scripts: ["/static/js/jsc3d/jsc3d.js",
     "/static/js/jsc3d/jsc3d.ctm.js",
@@ -137,7 +148,7 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
   inject: ['defaultData'],
   data() {
       return {
-          scan: null,
+          scan: this.defaultData.scan,
           progress: null,
           stills: [],
           pubList: [],
@@ -170,8 +181,11 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
             headers: { accept: 'application/json' },
             body: data
         });
+        const url = res.url.replace(new URL(res.url).origin, '');
+        this.$router.replace(url);
         const json = await res.json();
         this.form = json.form;
+        window.scrollTo(0 ,0);
     },
     async captureStill(){
         const file = `still-${this.stills.length}.png`
@@ -195,8 +209,11 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
     }
   },
   components: {
+      TextInput,
+      FormField,
       Upload3D,
-      'ctm-viewer': CtmViewer
+      'ctm-viewer': CtmViewer,
+      Tree
   },
   template: `
     <form class="Upload__form Subgrid" :action="formAction" method="post" @submit.prevent="submit" enctype="multipart/form-data" novalidate style="display:contents">
@@ -211,33 +228,35 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
                 2. Take Stills - Move image into appropriate position and click the button below (Minimum of 1 snapshot image, maximum of 6 images).
 
                 <button type="button" @click="captureStill">Capture</button>
+                <div v-for="error in form.stills.errors">{{ error }}</div>
 
                 <img v-for="url in stillUrls" :src="url" class="Upload__still" />
             </span>
         </div>
-        <Upload3D v-else style="width: 100%; display: block;" @change="upload" :progress="progress"></Upload3D>
+        <Upload3D v-else style="width: 100%; display: block;" @change="upload" :progress="progress" :errors="form.file.errors"></Upload3D>
         <p>
-            <h2 class="Upload__section-title">3. Scientific Name</h2>
-            <input name="scientific_name" class="Upload__form-input" :value="form.scientific_name.data"/><br>
+            <TextInput name="scientific_name" :data="form.scientific_name">
+                <h2 class="Upload__section-title">3. Scientific Name</h2>
+            </TextInput>
+            <br>
         </p>
         <fieldset>
             <legend><span class="Upload__section-title">4. Specimen</span> - Please enter relevant specimen information</legend>
             <p>
-                Alt Name<br>
-                <input name="alt_name" :value="form.alt_name.data" class="Upload__form-input" /><br>
+                <TextInput name="alt_name" :data="form.alt_name" label="Alt Name" />
             </p>
             <p>
-            Specimen Location<br>
-            <input type="text" name="specimen_location" :value="form.specimen_location.data" class="Upload__form-input" /><br>
+                <TextInput name="specimen_location" :data="form.specimen_location" label="Specimen Location" />
             </p>
             <p>
-            Specimen ID<br>
-            <input type="text" name="specimen_id" :value="form.specimen_id.data" class="Upload__form-input" /><br>
-        </p>
+                <TextInput name="specimen_id" :data="form.specimen_id" label="Specimen ID" />
+            </p>
         </fieldset>
       <p>
-        <h2 class="Upload__section-title">6. Description</h2>
-        <textarea name="description" :value="form.description.data" class="Upload__form-input" /><br>
+        <FormField :errors="form.description.errors">
+            <h2 class="Upload__section-title">6. Description</h2>
+            <textarea name="description" :value="form.description.data" class="Upload__form-input" />
+        </FormField>
     </p>
     <fieldset>
         <legend><span class="Upload__section-title">7. Publications</span> - Assign any relevant publications to the scan</legend>
@@ -264,9 +283,10 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
 
     <fieldset>
         <legend>Geologic Age</legend>
-        <ul>
-            <li v-for="option in form.geologic_age.choices"><label><input type="checkbox" name="geologic_age" :value="option.id" :checked="(form.geologic_age.data || [] ).some(tag => option.id===tag.id)">{{ option.name }}</label></li>
-        </ul>
+        <Tree :items="form.geologic_age.choices" #node="option" childKey="children">
+          <li><label><input type="checkbox" name="geologic_age" :value="option.id" :checked="(form.geologic_age.data || [] ).some(tag => option.id===tag.id)">{{ option.name }}</label></li>
+        </Tree>
+        <div v-for="error in form.geologic_age.errors">{{ error }}</div>
     </fieldset>
 
     <fieldset>
@@ -274,8 +294,9 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
         <ul>
             <li v-for="option in form.ontogenic_age.choices"><label><input type="checkbox" name="ontogenic_age" :value="option.id" :checked="(form.ontogenic_age.data || [] ).some(tag => option.id===tag.id)">{{ option.name }}</label></li>
         </ul>
+        <div v-for="error in form.ontogenic_age.errors">{{ error }}</div>
     </fieldset>
-
+        <label><input type="checkbox" name="published" :checked="form.published.data"> Publish</label>
         <p><button>Submit</button></p>
     </form>
     `

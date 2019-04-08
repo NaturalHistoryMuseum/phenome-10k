@@ -1,8 +1,10 @@
+import Tree from './tree.mjs';
+
 const Results = {
   name: 'Results',
   props: ['results'],
   template: `
-  <ul v-else class="Library__results">
+  <ul class="Library__results">
     <li v-for="scan in results"><a :href="scan.url_slug" class="Library__result">
       <img :src="scan.thumbnail" alt="" class="Library__thumb" />
      <span class="Library__title">{{ scan.scientific_name }}</span>
@@ -20,6 +22,7 @@ const Group = {
 const TagTree = {
   name: 'TagTree',
   props: ['tags'],
+  components: { Tree },
   methods: {
     getFilterLink(category, tag) {
       const query = Object.assign({}, this.$route.query);
@@ -42,12 +45,11 @@ const TagTree = {
       return categories.has(tag) && 'Library__filter-active';
     }
   },
-  template: `<ul>
-    <li v-for="tag in tags" :class="getFilterClass(tag.category, tag.taxonomy)">
+  template: `<Tree :items="tags" #node="tag" childKey="children">
+    <li :class="getFilterClass(tag.category, tag.taxonomy)">
       <router-link :to="getFilterLink(tag.category, tag.taxonomy)">{{ tag.name }}</router-link>
-      <TagTree v-if="tag.children" :tags="tag.children" />
     </li>
-  </ul>`
+  </Tree>`
 }
 
 export default {

@@ -194,7 +194,8 @@ def library():
   ontogenic_age = request.args.getlist("ontogenic_age")
   geologic_age = request.args.getlist("geologic_age")
 
-  tagCondition = db.and_(
+  scanConditions = db.and_(
+    Scan.published,
     Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in ontogenic_age ])),
     Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in geologic_age ]))
   )
@@ -204,7 +205,7 @@ def library():
   # Put it under the `groups` key so the view knows it needs to render differently
   if(sort in ('geologic_age', 'ontogenic_age')):
     data ={
-      'groups': [ { 'group': tag.name, 'items': [s.serialize() for s in tag.scans ] } for tag in Tag.query.filter(Tag.scans.any(tagCondition)).filter_by(category=sort).all() ]
+      'groups': [ { 'group': tag.name, 'items': [s.serialize() for s in tag.scans if s.published ] } for tag in Tag.query.filter(Tag.scans.any(scanConditions)).filter_by(category=sort).all() ]
     }
   else:
     if sort == 'name':
@@ -212,7 +213,7 @@ def library():
     else:
       query = db.func.random()
     data = {
-      'scans': [ s.serialize() for s in Scan.query.filter(tagCondition).order_by(query).limit(50).all() ]
+      'scans': [ s.serialize() for s in Scan.query.filter(scanConditions).order_by(query).limit(50).all() ]
     }
 
   data['tags'] = Tag.tree()
@@ -240,7 +241,7 @@ def edit_scan(scan = None):
   form.publications.choices = [(pub.id, pub.title) for pub in pubs]
   form.publications_search.choices = form.publications.choices
 
-  if form.validate_on_submit():
+  if request.method == 'POST':
     if scan == None:
       scan = Scan(
         author_id = current_user.id,
@@ -253,6 +254,8 @@ def edit_scan(scan = None):
         (zipFile, ctmFile) = convert_file(form.file.data)
         scan.source = zipFile
         scan.ctm = ctmFile
+        db.session.add(zipFile)
+        db.session.add(ctmFile)
 
     if scan.url_slug == None:
       scan.url_slug = generate_slug(form.scientific_name.data)
@@ -268,14 +271,32 @@ def edit_scan(scan = None):
     for file in form.attachments.data:
         # TODO: Don't overwrite
         file.save('uploads/' + file.filename)
-        scan.attachments.append(File(
+        attachment = File(
           filename = file.filename,
           location = 'uploads/' + file.filename,
           owner_id = current_user.id
-        ))
-    db.session.commit()
+        )
+        db.session.add(attachment)
+        scan.attachments.append(attachment)
 
-    return redirect(url_for('edit_scan', scan=scan) + '?pub_query=' + form.pub_query.data)
+    if form.published.data:
+      form_valid = form.validate()
+      if not scan.source:
+        form_valid = False
+        form.file.errors.append('A scan file is required')
+
+      if not scan.attachments:
+        form_valid = False
+        form.stills.errors.append('A still is required')
+
+      if form_valid:
+        scan.published = True
+        db.session.commit()
+        return redirect(url_for('edit_scan', scan=scan))
+
+    scan.published = False
+
+    db.session.commit()
 
   if form.pub_query.data:
     pubs = Publication.query.filter(Publication.title.contains(form.pub_query.data))
@@ -283,17 +304,14 @@ def edit_scan(scan = None):
 
   data = {
       'form': form.serialize(),
+      'scan': scan.serialize() if scan else None,
       'csrf_token': g.csrf_token
   }
 
   if request.accept_mimetypes.accept_html:
     return render_template('base.html', content=vue('library/create', data), title='Edit' if scan else 'Upload New', menu='library')
 
-  return jsonify({
-    'errors': form.errors,
-    'scan': scan.serialize() if scan else None,
-    'form': data.get('form')
-  })
+  return jsonify(data)
 
 @app.route('/publications/create/', methods=['GET', 'POST'])
 @requiresContributor
