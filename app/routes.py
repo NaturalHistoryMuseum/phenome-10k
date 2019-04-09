@@ -12,7 +12,7 @@ from werkzeug.utils import secure_filename
 from stl.mesh import Mesh
 from app import app, db, models
 from app.forms import LoginForm, RegistrationForm, ScanUploadForm, PublicationUploadForm
-from app.models import User, Scan, File, Publication, Tag
+from app.models import User, Scan, File, Publication, Tag, Taxonomy
 import mimetypes
 import subprocess
 import json
@@ -193,11 +193,13 @@ def library():
   sort = request.args.get("sort")
   ontogenic_age = request.args.getlist("ontogenic_age")
   geologic_age = request.args.getlist("geologic_age")
+  taxonomy = request.args.getlist("taxonomy")
 
   scanConditions = db.and_(
     Scan.published,
     Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in ontogenic_age ])),
-    Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in geologic_age ]))
+    Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in geologic_age ])),
+    Scan.taxonomy.any(Taxonomy.id.in_(taxonomy)) if len(taxonomy) > 0 else True
   )
 
   # This is annoying... if we're sorting by name it's just sort,
@@ -217,6 +219,7 @@ def library():
     }
 
   data['tags'] = Tag.tree()
+  data['tags']['taxonomy'] = Taxonomy.tree()
 
   return render_vue('library', data, title="Library", menu='library')
 
@@ -268,12 +271,40 @@ def edit_scan(scan = None):
     scan.publications = Publication.query.filter(Publication.id.in_(form.publications.data)).all()
     scan.tags = form.geologic_age.data + form.ontogenic_age.data
 
+    if form.gbif_id.data:
+      scan.gbif_id = form.gbif_id.data
+
+      import urllib.request, json
+      with urllib.request.urlopen("http://api.gbif.org/v1/species/" + str(scan.gbif_id) + "/parents") as url:
+        tags = json.loads(url.read().decode())
+      with urllib.request.urlopen("http://api.gbif.org/v1/species/" + str(scan.gbif_id)) as url:
+        tags.append(json.loads(url.read().decode()))
+
+      tagIds = [ tag['key'] for tag in tags ]
+      existingTags = Taxonomy.query.filter(Taxonomy.id.in_(tagIds)).all()
+      existingTagIds = [ tag.id for tag in existingTags ]
+      scan.taxonomy = existingTags
+
+      for tag in tags:
+        if tag['key'] in existingTagIds:
+          continue
+
+        newTag = Taxonomy(
+          id = tag['key'],
+          name = tag['vernacularName'] if 'vernacularName' in tag else tag['canonicalName'],
+          parent_id = tag['parentKey'] if 'parentKey' in tag else None
+        )
+        db.session.add(newTag)
+        scan.taxonomy.append(newTag)
+
     for file in form.attachments.data:
-        # TODO: Don't overwrite
-        file.save('uploads/' + file.filename)
+        import string
+        import random
+        location = 'uploads/' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=6)) + file.filename
+        file.save(location)
         attachment = File(
           filename = file.filename,
-          location = 'uploads/' + file.filename,
+          location = location,
           owner_id = current_user.id
         )
         db.session.add(attachment)

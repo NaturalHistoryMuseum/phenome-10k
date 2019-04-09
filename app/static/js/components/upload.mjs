@@ -132,7 +132,7 @@ const TextInput = {
     props: ['label', 'data'],
     template: `<FormField :errors="data.errors">
       <slot>{{ label }}</slot>
-      <input class="Upload__form-input" :value="data.data" v-bind="$attrs"/>
+      <input class="Upload__form-input" v-once :value="data.data" v-bind="$attrs" v-on="$listeners"/>
     </FormField>`
 }
 
@@ -153,7 +153,9 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
           stills: [],
           pubList: [],
           csrf: this.defaultData.csrf_token,
-          form: this.defaultData.form
+          form: this.defaultData.form,
+          gbifData: [],
+          gbifSelected: null
         };
   },
   computed: {
@@ -174,6 +176,11 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
       }
   },
   methods: {
+    async searchGbif(term) {
+        const res = await fetch(`//api.gbif.org/v1/species/suggest?q=${term}&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&rank=SPECIES`);
+        const results = await res.json();
+        this.gbifData = results;
+    },
     async submit({ target }){
         const data = new FormData(target);
         const res =  await fetch(target.action, {
@@ -235,9 +242,12 @@ scripts: ["/static/js/jsc3d/jsc3d.js",
         </div>
         <Upload3D v-else style="width: 100%; display: block;" @change="upload" :progress="progress" :errors="form.file.errors"></Upload3D>
         <p>
-            <TextInput name="scientific_name" :data="form.scientific_name">
+            <TextInput name="scientific_name" :data="form.scientific_name" @keyup="e => searchGbif(e.target.value)">
                 <h2 class="Upload__section-title">3. Scientific Name</h2>
             </TextInput>
+            <ul>
+              <li v-for="(entry, ix) in gbifData" :key="entry.key"><label><input type="radio" name="gbif_id" :value="entry.key" v-model="gbifSelected"><i>{{ entry.canonicalName }}</i> {{ entry.scientificName.replace(entry.canonicalName, '') }} ({{ entry.kingdom }})</label></li>
+            </ul>
             <br>
         </p>
         <fieldset>

@@ -4,3 +4,8 @@ To activate the virtual environment:
 source venv/bin/activate
 flask run
 ```
+
+
+Todo:
+ - Stop thumbnails being overwritten
+ - Allow using .vue files

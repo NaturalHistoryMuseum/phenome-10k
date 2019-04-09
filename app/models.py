@@ -73,6 +73,7 @@ class Scan(db.Model):
     publications = db.relationship('Publication', secondary='scan_publication')
     attachments = db.relationship('File', secondary='scan_attachment')
     tags = db.relationship('Tag', secondary='scan_tag', lazy='dynamic')
+    taxonomy = db.relationship('Taxonomy', secondary='scan_taxonomy')
 
     @property
     def geologic_age(self):
@@ -159,11 +160,22 @@ class Publication(db.Model):
 
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    category = db.Column(db.String(250))
+    category = db.Column(db.String(250), nullable=False)
     name = db.Column(db.String(250))
     taxonomy = db.Column(db.String(250), unique=True)
-
+    parent_id = db.Column(db.Integer, db.ForeignKey('tag.id'))
     scans = db.relationship('Scan', secondary='scan_tag')
+
+    @property
+    def children(self):
+        return Tag.query.filter(db.and_(Tag.parent_id==self.id, Tag.category==self.category))
+
+    def serializeTree(self):
+        data = self.serialize()
+        data['children'] = [child.serializeTree() for child in self.children]
+        if len(data['children']) == 1:
+            return data['children'][0]
+        return data
 
     def serialize(self):
         return {
@@ -176,26 +188,12 @@ class Tag(db.Model):
     @staticmethod
     def tree():
         cats = {}
-        tree = []
-        children = None
-        lastTag = None
 
-        for tag in Tag.query.all():
-            l = tag.taxonomy.count('/') + 1
-
-            if not tag.category in cats:
-                children = cats[tag.category] = []
-                tree = [children]
-            elif l > len(tree):
-                children = lastTag['children'] = []
-                tree.append(children)
-            elif l < len(tree):
-                tree.pop()
-                children = tree[l - 1]
-
-            tag = tag.serialize()
-            children.append(tag)
-            lastTag = tag
+        for tag in Tag.query.filter_by(parent_id=None).all():
+            if tag.category in cats:
+                cats[tag.category].append(tag.serializeTree())
+            else:
+                cats[tag.category] = [tag.serializeTree()]
         return cats
 
     def __eq__(self, obj):
@@ -207,6 +205,33 @@ class Tag(db.Model):
     def __hash__(self):
         return hash(self.id)
 
+class Taxonomy(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(250), nullable=False)
+    parent_id = db.Column(db.Integer, db.ForeignKey('taxonomy.id'))
+    scans = db.relationship('Scan', secondary='scan_taxonomy')
+    children = db.relationship('Taxonomy')
+
+    def serializeTree(self):
+        data = self.serialize()
+        data['children'] = [child.serializeTree() for child in self.children]
+        if len(data['children']) == 1:
+            return data['children'][0]
+        return data
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name
+        }
+
+    @staticmethod
+    def tree():
+        return [ tag.serializeTree() for tag in Taxonomy.query.filter_by(parent_id=None).all() ]
+
+    def __repr__(self):
+        return '<Taxonomy {}>'.format(self.name)
+
 class ScanPublication(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250))
@@ -217,6 +242,10 @@ class ScanTag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'))
     scan_id = db.Column(db.Integer, db.ForeignKey('scan.id'))
+
+class ScanTaxonomy(db.Model):
+    taxonomy_id = db.Column(db.Integer, db.ForeignKey('taxonomy.id'), primary_key=True)
+    scan_id = db.Column(db.Integer, db.ForeignKey('scan.id'), primary_key=True)
 
 class ScanAttachment(db.Model):
     id = db.Column(db.Integer, primary_key=True)

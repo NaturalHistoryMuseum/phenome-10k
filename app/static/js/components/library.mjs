@@ -57,7 +57,8 @@ export default {
   components: {
     Group,
     Results,
-    TagTree
+    TagTree,
+    Tree
   },
   inject: ['defaultData'],
   css: ['/static/js/components/library.css'],
@@ -87,6 +88,26 @@ export default {
     },
     getSortLinkClass(field) {
       return this.$route.query.sort === field ? 'Library__sort-active' : ''
+    },
+    getTaxonFilterLink(tag) {
+      const query = Object.assign({}, this.$route.query);
+
+      const values = new Set([].concat(query.taxonomy))
+
+      if(values.has(tag)) {
+        values.delete(tag);
+      }else{
+        values.add(tag);
+      }
+
+      query.taxonomy = Array.from(values);
+
+      return { query };
+    },
+    getTaxonFilterClass(tag) {
+      const current = this.$route.query.taxonomy;
+      const categories = new Set(Array.isArray(current) ? current : [current]);
+      return categories.has(tag) && 'Library__filter-active';
     }
   },
   template:`<div class="Library Subgrid" style="display: contents">
@@ -105,6 +126,13 @@ export default {
 
       <h4>Ontogenic Age:</h4>
       <TagTree :tags="tags.ontogenic_age" />
+
+      <h4>Taxonomy:</h4>
+      <Tree :items="tags.taxonomy" #node="taxonomy" childKey="children">
+        <li :class="getTaxonFilterClass(taxonomy.id)">
+          <router-link :to="getTaxonFilterLink(taxonomy.id)">{{ taxonomy.name }}</router-link>
+        </li>
+      </Tree>
     </div>
     <div v-if="groups">
       <Group v-for="group in groups" v-if="group.items.length" :key="group.name" :name="group.group" :items="group.items" />
