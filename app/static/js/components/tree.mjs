@@ -14,7 +14,7 @@ const Tree = {
       }
       children.push(li);
     }
-    return h('ul', children);
+    return h('ul', context.data, children);
   }
 }
 
