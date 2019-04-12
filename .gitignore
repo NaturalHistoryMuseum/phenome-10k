@@ -3,3 +3,5 @@ __pycache__
 venv
 node_modules
 *.pyc
+app/static/dist
+app/vue/dist

@@ -429,7 +429,7 @@ def render_vue(path, data, title, menu):
 # This is for server-side rendering a view in vue
 # pass the url path and an object to be provided as the defaultData property to the vue model
 def vue(path, defaultData = None):
-  pipes = subprocess.Popen(['node', '--experimental-modules', 'node/route.mjs', path, json.dumps(defaultData)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  pipes = subprocess.Popen(['node', '--experimental-modules', 'app/vue/server.js', path, json.dumps(defaultData)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   std_out, std_err = pipes.communicate()
 
   if pipes.returncode != 0:
