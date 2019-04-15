@@ -226,7 +226,7 @@ def library():
 @app.route('/<scan:scan>/')
 def scan(scan):
   # TODO: Hide if unpublished
-  return render_template('scan.html', title=scan.scientific_name, scan=scan, menu='library')
+  return render_vue(scan.url_slug, scan.serialize(), title=scan.scientific_name, menu='library')
 
 @app.route('/<scan:scan>/edit', methods=['GET', 'POST'])
 @app.route('/library/create/', methods=['GET', 'POST'])

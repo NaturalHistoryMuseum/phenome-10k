@@ -62,10 +62,12 @@ export default {
   },
   inject: ['defaultData'],
   data(){
+    const defaultData = this.$route.meta.data || this.defaultData;
+
     return {
-      groups: this.defaultData.groups,
-      results: this.defaultData.scans,
-      tags: this.defaultData.tags,
+      groups: defaultData.groups,
+      results: defaultData.scans,
+      tags: defaultData.tags,
       menu: {
         geologicAge: false
       }
@@ -75,12 +77,6 @@ export default {
     '$route': 'fetchData'
   },
   methods: {
-    async fetchData() {
-      const res = await fetch(window.location, { headers: { accept: 'application/javascript' } });
-      const data = await res.json();
-      this.groups = data.groups;
-      this.results = data.scans;
-    },
     getSortLink(sort) {
       const query = Object.assign({}, this.$route.query);
       query.sort = sort;

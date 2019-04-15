@@ -5,7 +5,7 @@
     <span v-if="error" class="error">[{{ error }}]</span>
     <h2 class="Upload__section-title">1. Browse and preview STL file</h2>
     <div v-if="scan && scan.ctm" class="Subgrid" style="grid-column-start: 1; grid-column-end: 4; grid-auto-flow: dense">
-      <ctm-viewer ref="canvas" :src="'/' + scan.ctm" height=400px width=500px></ctm-viewer>
+      <CtmViewer ref="canvas" :src="scan.ctm" height=400px width=500px />
       <span class="Upload__stills">
         2. Take Stills - Move image into appropriate position and click the button below (Minimum of 1 snapshot image, maximum of 6 images).
 
@@ -24,9 +24,9 @@
     </ul>
     <fieldset>
       <legend><span class="Upload__section-title">4. Specimen</span> - Please enter relevant specimen information</legend>
-      <TextInput name="alt_name" :data="form.alt_name" label="Alt Name" />
-      <TextInput name="specimen_location" :data="form.specimen_location" label="Specimen Location" />
-      <TextInput name="specimen_id" :data="form.specimen_id" label="Specimen ID" />
+      <TextInput name="alt_name" :data="form.alt_name">Alt Name</TextInput>
+      <TextInput name="specimen_location" :data="form.specimen_location">Specimen Location</TextInput>
+      <TextInput name="specimen_id" :data="form.specimen_id">Specimen ID</TextInput>
     </fieldset>
     <FormField :errors="form.description.errors">
       <h2 class="Upload__section-title">6. Description</h2>
@@ -77,7 +77,7 @@
 
 <script>
 import Tree from '../tree.js';
-import CtmViewer from './CtmViewer';
+import CtmViewer from '../CtmViewer';
 import Upload3D from './Upload3D';
 
 const xhrUpload = (form, progress) => {
@@ -115,14 +115,11 @@ const FormField = {
 }
 
 const TextInput = {
-    components: {
-        FormField
-    },
     inheritAttrs: false,
     props: ['label', 'data'],
     data(){
         return {
-            initialValue: this.data.value
+            initialValue: this.data.data
         }
     },
     render(h) {
@@ -221,7 +218,7 @@ export default {
       TextInput,
       FormField,
       Upload3D,
-      'ctm-viewer': CtmViewer,
+      CtmViewer,
       Tree
   }
 }

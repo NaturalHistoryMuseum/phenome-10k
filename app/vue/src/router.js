@@ -7,8 +7,9 @@ export default () => {
   return new Router({
     mode: 'history',
     routes: [
-      { path: '/library', component: () => import('./components/Library') },
+      { path: '/library', component: () => import('./components/Library'), name: 'library' },
       { path: '/library/create', component: () => import('./components/Upload') },
+      { path: '/:id', component: () => import('./components/Scan') },
       { path: '/:id/edit', component: () => import('./components/Upload') }
     ]
   });

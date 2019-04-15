@@ -40,7 +40,7 @@ module.exports = merge(baseConfig, {
     // do not externalize dependencies that need to be processed by webpack.
     // you can add more file types here e.g. raw *.vue files
     // you should also whitelist deps that modifies `global` (e.g. polyfills)
-    whitelist: /\.css$/
+    whitelist: /\.css$|jsc3d/
   }),
 
   // This is the plugin that turns the entire output of the server build
