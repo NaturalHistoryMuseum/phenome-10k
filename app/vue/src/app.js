@@ -4,11 +4,13 @@ import App from './App.vue';
 
 export function createApp ({ defaultData }) {
   const router = createRouter();
+
+  router.onReady(() => {
+    router.currentRoute.meta.data = defaultData;
+  })
+
   const app = new Vue({
     router,
-    provide: {
-      defaultData
-    },
     render: h => h(App)
   });
 

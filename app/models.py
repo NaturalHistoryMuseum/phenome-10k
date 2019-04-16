@@ -71,7 +71,7 @@ class Scan(db.Model):
     source = db.relationship('File', foreign_keys = 'Scan.file_id')
     ctm = db.relationship('File', foreign_keys = 'Scan.ctm_id')
     publications = db.relationship('Publication', secondary='scan_publication')
-    attachments = db.relationship('File', secondary='scan_attachment')
+    attachments = db.relationship('ScanAttachment')
     tags = db.relationship('Tag', secondary='scan_tag', lazy='dynamic')
     taxonomy = db.relationship('Taxonomy', secondary='scan_taxonomy')
 
@@ -87,10 +87,11 @@ class Scan(db.Model):
         return {
             'id': self.id,
             'ctm': self.ctm and self.ctm.serialize(),
+            'source': self.source and self.source.serialize(),
             'publications': [pub.serialize() for pub in self.publications],
-            'attachments': [a.location for a in self.attachments],
+            'attachments': [a.serialize() for a in self.attachments],
             'url_slug': '/' + (self.url_slug if self.url_slug else str(self.id)),
-            'thumbnail': len(self.attachments) > 0 and ('/' + self.attachments[0].location),
+            'thumbnail': len(self.attachments) > 0 and self.attachments[0].file.serialize(),
             'scientific_name': self.scientific_name,
             'gbif_id': self.gbif_id,
             'published': self.published,
@@ -114,12 +115,13 @@ class Scan(db.Model):
 
 class File(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(250))
-    filename = db.Column(db.String(250))
-    location = db.Column(db.String(250))
+    title = db.Column(db.String(250), nullable=False)
+    filename = db.Column(db.String(250), nullable=False)
+    location = db.Column(db.String(250), nullable=False)
     date_created = db.Column(db.DateTime, index=True, server_default=func.now())
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    mime_type = db.Column(db.String(250))
+    mime_type = db.Column(db.String(250), nullable=False)
+    size = db.Column(db.Integer)
 
     owner = db.relationship('User')
 
@@ -172,7 +174,7 @@ class Publication(db.Model):
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     category = db.Column(db.String(250), nullable=False)
-    name = db.Column(db.String(250))
+    name = db.Column(db.String(250), nullable=False)
     taxonomy = db.Column(db.String(250), unique=True)
     parent_id = db.Column(db.Integer, db.ForeignKey('tag.id'))
     scans = db.relationship('Scan', secondary='scan_tag')
@@ -260,6 +262,16 @@ class ScanTaxonomy(db.Model):
 
 class ScanAttachment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(250))
+    name = db.Column(db.String(250), nullable=False)
     scan_id = db.Column(db.Integer, db.ForeignKey('scan.id'))
     file_id = db.Column(db.Integer, db.ForeignKey('file.id'))
+
+    file = db.relationship('File', foreign_keys = 'ScanAttachment.file_id')
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'file': self.file.serialize(),
+            'size': self.file.size
+        }

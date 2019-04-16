@@ -46,7 +46,7 @@ const Group = {
   render(h) {
     return h('div', [
       this.name,
-      h(Results, { results: this.items })
+      h(Results, { props: { results: this.items } })
     ]);
   }
 }
@@ -60,21 +60,29 @@ export default {
     Tree,
     SideSection
   },
-  inject: ['defaultData'],
+  computed: {
+    data() {
+      return this.$route.meta.data;
+    },
+    groups(){
+      return this.data.groups;
+    },
+    results(){
+      return this.data.scans;
+    },
+    tags(){
+      return this.data.tags;
+    },
+    populatedGroups(){
+      return this.groups.filter(group => group.items.length)
+    }
+  },
   data(){
-    const defaultData = this.$route.meta.data || this.defaultData;
-
     return {
-      groups: defaultData.groups,
-      results: defaultData.scans,
-      tags: defaultData.tags,
       menu: {
         geologicAge: false
       }
     }
-  },
-  watch: {
-    '$route': 'fetchData'
   },
   methods: {
     getSortLink(sort) {
@@ -85,11 +93,14 @@ export default {
       }
     },
     getSortLinkClass(field) {
-      let cls = 'Library__sort-item';
-      if(this.$route.query.sort === field) {
-        cls += ` ${cls}--active`;
+      const cls = 'Library__sort-item';
+
+      const o = {
+        [cls]: true,
+        [`${cls}--active`]: this.$route.query.sort === field
       }
-      return cls;
+
+      return o;
     },
     getTaxonFilterLink(tag) {
       const query = Object.assign({}, this.$route.query);
@@ -111,11 +122,6 @@ export default {
       const categories = new Set(Array.isArray(current) ? current : [current]);
       return categories.has(tag) && 'Library__filter-active';
     }
-  },
-  computed: {
-    populatedGroups(){
-      return this.groups.filter(group => group.items.length)
-    }
   }
 }
 </script>
@@ -123,33 +129,6 @@ export default {
 <style>
 .Library {
 
-}
-
-.Library__results {
-  display: flex;
-  flex-wrap: wrap;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.Library__results > * {
-  margin: 0;
-  padding: 0;
-}
-
-.Library__result {
-  display: flex;
-  flex-direction: column;
-  margin: 7.5px 2.5px;
-}
-
-.Library__thumb {
-  height: 100px;
-}
-
-.Library__title {
-  padding: 15px 10px;
 }
 
 .Library__sort {

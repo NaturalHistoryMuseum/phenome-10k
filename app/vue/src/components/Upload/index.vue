@@ -144,35 +144,43 @@ export default {
   props: [
     "error",
   ],
-  inject: ['defaultData'],
   data() {
       return {
-          scan: this.defaultData.scan,
           progress: null,
           stills: [],
           pubList: [],
-          csrf: this.defaultData.csrf_token,
-          form: this.defaultData.form,
           gbifData: [],
           gbifSelected: null
         };
   },
   computed: {
-      stillUrls() {
-          return [
-              ...this.scan.attachments.map(a => '/' + a),
-              ...this.stills.map(file => URL.createObjectURL(file))
-          ]
-      },
-      formAction(){
-        return this.scan ? `/${this.scan.id}/edit` : '';
-      },
-      savedPublications() {
-        const scanPubs = this.scan ? this.scan.publications : [];
-        const formPubIds = this.form.publications.data || [];
-        const pubsList = [...scanPubs, ...this.pubList];
-        return formPubIds.map(id => pubsList.find(pub => pub.id === id) || { id, title: id });
-      }
+    data(){
+      return this.$route.meta.data;
+    },
+    scan(){
+      return this.data.scan;
+    },
+    csrf(){
+      return this.data.csrf_token;
+    },
+    form(){
+      return this.data.form;
+    },
+    stillUrls() {
+        return [
+            ...this.scan.attachments.map(a => a.file),
+            ...this.stills.map(file => URL.createObjectURL(file))
+        ]
+    },
+    formAction(){
+      return this.scan ? `/${this.scan.id}/edit` : '';
+    },
+    savedPublications() {
+      const scanPubs = this.scan ? this.scan.publications : [];
+      const formPubIds = this.form.publications.data || [];
+      const pubsList = [...scanPubs, ...this.pubList];
+      return formPubIds.map(id => pubsList.find(pub => pub.id === id) || { id, title: id });
+    }
   },
   methods: {
     async searchGbif(term) {

@@ -2,8 +2,7 @@ const SSR = require( 'vue-server-renderer');
 const serverBundle = require('./dist/vue-ssr-server-bundle.json');
 const clientManifest = require('../static/dist/vue-ssr-client-manifest.json');
 
-const url = '/' + process.argv[2];
-const defaultJson = process.argv[3];
+const [/*nodeBinary*/, /*entryScript*/, url, defaultJson] = process.argv;
 const defaultData = JSON.parse(defaultJson);
 
 const context = { url, defaultData };

@@ -4,20 +4,22 @@ import os
 import uuid
 from functools import wraps
 from zipfile import ZipFile
-from flask import request, render_template, redirect, url_for, flash, send_from_directory, jsonify, g
+from flask import request, render_template, redirect, url_for, flash, send_from_directory, jsonify, g, Response
+from flask.helpers import safe_join
 from flask_login import current_user, login_user, login_required, logout_user
 from werkzeug.routing import ValidationError, BaseConverter
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
+from werkzeug.exceptions import NotFound, BadRequest
 from stl.mesh import Mesh
 from app import app, db, models
 from app.forms import LoginForm, RegistrationForm, ScanUploadForm, PublicationUploadForm
-from app.models import User, Scan, File, Publication, Tag, Taxonomy
+from app.models import User, Scan, File, Publication, Tag, Taxonomy, ScanAttachment
 import mimetypes
 import subprocess
 import json
-
-mimetypes.add_type('application/javascript', '.mjs')
+from PIL import Image
+import io
 
 def convert_file(file):
   if not file:
@@ -56,16 +58,6 @@ def convert_file(file):
       zipFile.write(uploadFile.name)
 
     return (zip, ctmFile)
-
-
-
-@app.context_processor
-def bem_processor():
-  def bem_class(el, part, modify):
-    base = el + '__' + part
-    classes = [ base + '--' + mod for mod, val in modify.items() if val]
-    return ' '.join([ base ] + classes)
-  return dict(bem = bem_class)
 
 class SlugConverter(BaseConverter):
   regex = r'[^/]+'
@@ -129,7 +121,42 @@ def index():
 
 @app.route('/uploads/<path:path>')
 def send_uploads(path):
+  width = request.args.get('w')
+
+  if width == None:
     return send_from_directory('../uploads', path)
+
+  thumbnail_file = path + '-' + width + '.png'
+
+  try:
+    return send_from_directory('../thumbnails', thumbnail_file)
+  except NotFound:
+    thumbnail_file = safe_join('thumbnails/', thumbnail_file)
+
+    try:
+      width = int(width)
+    except ValueError:
+      raise BadRequest('Thumbnail width must be an integer number')
+
+    if width < 1:
+      raise BadRequest('Thumbnail width must be greater than zero')
+
+    try:
+      im = Image.open(safe_join('uploads', path))
+    except FileNotFoundError:
+      raise NotFound()
+    except OSError:
+      raise BadRequest()
+
+    if(width >= im.width):
+      return send_from_directory('../uploads', path)
+
+    height = im.height * width / im.width
+    im.thumbnail((width, height))
+    byteIO = io.BytesIO()
+    im.save(byteIO, format='PNG')
+    im.save(thumbnail_file, format='PNG')
+    return Response(byteIO.getvalue(), mimetype="image/png", direct_passthrough=True)
 
 @app.route('/about', methods=['GET', 'POST'])
 def about():
@@ -221,12 +248,12 @@ def library():
   data['tags'] = Tag.tree()
   data['tags']['taxonomy'] = Taxonomy.tree()
 
-  return render_vue('library', data, title="Library", menu='library')
+  return render_vue(data, title="Library", menu='library')
 
 @app.route('/<scan:scan>/')
 def scan(scan):
   # TODO: Hide if unpublished
-  return render_vue(scan.url_slug, scan.serialize(), title=scan.scientific_name, menu='library')
+  return render_vue(scan.serialize(), title=scan.scientific_name, menu='library')
 
 @app.route('/<scan:scan>/edit', methods=['GET', 'POST'])
 @app.route('/library/create/', methods=['GET', 'POST'])
@@ -300,12 +327,21 @@ def edit_scan(scan = None):
     for file in form.attachments.data:
         import string
         import random
-        location = 'uploads/' + ''.join(random.choices(string.ascii_uppercase + string.digits, k=6)) + file.filename
+        filename = secure_filename(file.filename)
+        location = safe_join('uploads', ''.join(random.choices(string.ascii_uppercase + string.digits, k=6)) + filename)
         file.save(location)
-        attachment = File(
-          filename = file.filename,
-          location = location,
-          owner_id = current_user.id
+        attachment = ScanAttachment(
+          name = filename,
+          file = File(
+            # Todo: This should be a user-supplied string
+            title = filename,
+            filename = filename,
+            location = location,
+            owner_id = current_user.id,
+            size = os.stat(location).st_size,
+            # Todo: Get this properly - use python-magic?
+            mime_type = 'image/png'
+          )
         )
         db.session.add(attachment)
         scan.attachments.append(attachment)
@@ -339,10 +375,7 @@ def edit_scan(scan = None):
       'csrf_token': g.csrf_token
   }
 
-  if request.accept_mimetypes.accept_html:
-    return render_template('base.html', content=vue('library/create', data), title='Edit' if scan else 'Upload New', menu='library')
-
-  return jsonify(data)
+  return render_vue(data, title='Edit' if scan else 'Upload New', menu='library')
 
 @app.route('/publications/create/', methods=['GET', 'POST'])
 @requiresContributor
@@ -420,15 +453,16 @@ def edit_publication(publication):
 
     return render_template('create-publication.html', title='Create', form=form, menu='publications')
 
-def render_vue(path, data, title, menu):
+def render_vue(data, title, menu):
   if request.accept_mimetypes.accept_html:
-    return render_template('base.html', content=vue(path, data), title=title, menu=menu)
+    return render_template('base.html', content=vue(data), title=title, menu=menu)
   return jsonify(data)
 
 
 # This is for server-side rendering a view in vue
 # pass the url path and an object to be provided as the defaultData property to the vue model
-def vue(path, defaultData = None):
+def vue(defaultData = None):
+  path = request.full_path
   pipes = subprocess.Popen(['node', '--experimental-modules', 'app/vue/server.js', path, json.dumps(defaultData)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   std_out, std_err = pipes.communicate()
 

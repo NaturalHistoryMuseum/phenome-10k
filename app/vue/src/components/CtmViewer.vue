@@ -31,40 +31,28 @@ export default {
     },
     $viewer: null,
     mounted(){
-      const viewer = new JSC3D.Viewer(this.$refs.canvas);
-      viewer.setParameter('SceneUrl', this.src);
-      viewer.setParameter('RenderMode', 'smooth');
-      viewer.setParameter('Renderer', 'webgl');
-      viewer.setParameter('ModelColor', '#666666');
-      viewer.setParameter('Definition', 'high');
-      viewer.setParameter('ProgressBar', 'on');
-      viewer.setParameter('BackgroundColor1', '#09090a');
-      viewer.setParameter('BackgroundColor2', '#676767');
-      viewer.init();
-      viewer.update();
+      this.$nextTick(() => {
+        const viewer = new JSC3D.Viewer(this.$refs.canvas);
+        viewer.setParameter('SceneUrl', this.src);
+        viewer.setParameter('RenderMode', 'smooth');
+        viewer.setParameter('Renderer', 'webgl');
+        viewer.setParameter('ModelColor', '#666666');
+        viewer.setParameter('Definition', 'high');
+        viewer.setParameter('ProgressBar', 'on');
+        viewer.setParameter('BackgroundColor1', '#09090a');
+        viewer.setParameter('BackgroundColor2', '#676767');
 
-      // Resize the viewer when the canvas size changes
-      this.ro = new ResizeObserver((entries, observer) => {
-        const ratio = this.width / this.height;
+        this.viewer = viewer;
 
-        // Only care about the most recent entry
-        const { width, height } = entries.pop().contentRect;
+        this.resize();
 
-        // Set the canvas's JS dimensions, as the css may override them,
-        // causing the contentRect to be different to the apparent canvas dimensions
-        this.$refs.canvas.width = width;
+        this.resizeLisener = () => this.resize();
 
-        // If we're in full screen, use the full height of the content rect,
-        // otherwise just use the ratio given by the props
-        this.$refs.canvas.height = document.fullscreenElement ? height : width / ratio;
-
-        // Re-initialise the viewer to take into account the new size
-        viewer.init();
+        window.addEventListener('resize', this.resizeLisener);
       });
-      this.ro.observe(this.$refs.canvas)
     },
     beforeDestroy(){
-      this.ro.disconnect();
+      window.removeEventListener('resize', this.resizeLisener);
     },
     methods: {
       /**
@@ -82,12 +70,39 @@ export default {
       /**
        * Enable or disable fullscreen
        */
-      toggelFullscreen(){
+      async toggelFullscreen(){
         if(!document.fullscreenElement) {
-          this.$refs.canvas.requestFullscreen()
+          await this.$refs.canvas.requestFullscreen()
         } else {
-          document.exitFullscreen()
+          await document.exitFullscreen()
         }
+        this.resize();
+      },
+
+      resize(){
+        const canvas = this.$refs.canvas;
+
+        // Resize the viewer when the canvas size changes
+        const width = canvas.clientWidth;
+        const height = canvas.clientHeight;
+
+        const ratio = parseInt(this.width, 10) / parseInt(this.height, 10);
+
+        // Set the canvas's JS dimensions, as the css may override them,
+        // causing the contentRect to be different to the apparent canvas dimensions
+        canvas.width = width;
+
+        // If we're in full screen, use the full height of the content rect,
+        // otherwise just use the ratio given by the props
+        canvas.height = document.fullscreenElement ? height : (width / ratio);
+
+        // Stop re-init creating new webGL instance (reuse the old one)
+        if(this.viewer.webglBackend) {
+          this.viewer.useWebGL = false;
+        }
+
+        // Re-initialise the viewer to take into account the new size
+        this.viewer.init();
       }
   }
 }

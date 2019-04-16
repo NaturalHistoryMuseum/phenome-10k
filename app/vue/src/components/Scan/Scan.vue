@@ -90,20 +90,27 @@
           </p>
         </div>
       </div>
-      <div class="Scan__column">
-        <h2>Files</h2>
+      <div class="Scan__column-files">
+        <h2 class="Scan__files-header">Files</h2>
 
-        <div class="Scan__files">
-          <h3>Stills</h3>
-          Download
+        <Files title="Stills" download="#">
           <div class="Scan__file" v-for="still in scan.stills" :key="still">
-            <img :src="still">
-            <div>
-              Img name<br>
-              Img size
+            <img :src="still.file + '?w=80'">
+            <div class="Scan__file-info">
+              {{ still.name }}<br>
+              {{ still.size / 1000 }}k
             </div>
           </div>
-        </div>
+        </Files>
+
+        <Files title="3D / Web GL" :download="scan.source">
+          <div class="Scan__file">
+            <img :src="scan.thumbnail + '?w=80'">
+            <div class="Scan__file-info">
+              (STL)
+            </div>
+          </div>
+        </Files>
       </div>
     </div>
   </div>
@@ -173,28 +180,46 @@
   font-size: 11px;
 }
 
-.Scan__files {
-  display: flex;
-  flex-wrap: wrap;
+.Scan__column {
+  flex: auto;
+}
+
+.Scan__column-files {
+  flex-basis: 25%;
+}
+
+.Scan__files-header {
+  font-family: 'Supria Sans W01 Bold', Arial, Helvetica, sans-serif;
+  font-size: 12px;
 }
 
 .Scan__file {
-  width: 100%;
   display: flex;
+  margin: 0.5px;
+  align-items: center;
+}
+
+.Scan__file-info {
+  margin: 10px;
+  min-width: 80px;
+  font-family: 'Supria Sans W01 Regular', Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  line-height: initial;
 }
 </style>
 
 <script>
-import CtmViewer from './CtmViewer';
+import CtmViewer from '../CtmViewer';
+import Files from './Files'
 
 export default {
   components: {
-    CtmViewer
+    CtmViewer,
+    Files
   },
-  inject: ['defaultData'],
   computed: {
     scan() {
-      return this.defaultData
+      return this.$route.meta.data;
     },
     title() {
       return this.scan.scientific_name[0].toUpperCase() + this.scan.scientific_name.substr(1)
