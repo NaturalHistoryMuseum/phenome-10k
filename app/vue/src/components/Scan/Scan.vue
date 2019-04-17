@@ -93,6 +93,8 @@
       <div class="Scan__column-files">
         <h2 class="Scan__files-header">Files</h2>
 
+        <!-- TODO: Clicking on these items should show them in the viewer -->
+        <!-- TODO: Generate a download zip for groups of files -->
         <Files title="Stills" download="#">
           <div class="Scan__file" v-for="still in scan.stills" :key="still">
             <img :src="still.file + '?w=80'">

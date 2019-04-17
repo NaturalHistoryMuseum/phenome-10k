@@ -250,6 +250,10 @@ def library():
 
   return render_vue(data, title="Library", menu='library')
 
+@app.route('/library/manage-uploads')
+def manage_uploads():
+  pass
+
 @app.route('/<scan:scan>/')
 def scan(scan):
   # TODO: Hide if unpublished
@@ -416,6 +420,10 @@ def publications():
   pubs = Publication.query.filter(Publication.title.ilike('%{0}%'.format(title)))
   return jsonify([pub.serialize() for pub in pubs])
 
+@app.route('/publications/manage-publications/')
+def manage_publications():
+  pass
+
 @app.route('/<publication:publication>/')
 def publication(publication):
   # TODO: Hide if unpublished
@@ -452,6 +460,10 @@ def edit_publication(publication):
       return redirect(url_for('edit_publication', publication=publication))
 
     return render_template('create-publication.html', title='Create', form=form, menu='publications')
+
+@app.route('/contribute')
+def contribute():
+  pass
 
 def render_vue(data, title, menu):
   if request.accept_mimetypes.accept_html:

@@ -31,7 +31,7 @@ a:link:hover {
   display: grid;
   grid-template-columns: 389px auto auto minmax(auto, 389px);
   grid-template-rows: auto auto auto 1fr;
-  grid-template-areas: "sidebar user    user    ."
+  grid-template-areas: "sidebar subnav  user    ."
                        "sidebar nav     auth    ."
                        "sidebar content content ."
                        "sidebar .       .       .";
@@ -40,6 +40,27 @@ a:link:hover {
 .Base__nav {
   grid-area: nav;
   justify-self: start;
+}
+
+.Base__subnav {
+  grid-area: subnav;
+  align-items: center;
+}
+
+.Base__subnav li:not(:last-child)::after {
+  content: '|';
+  color: #333;
+}
+
+.Base__subnav li a {
+  padding: 20px 15px;
+  font-size: 11px;
+  font-family: 'Supria Sans W01 Regular', Arial, Helvetica, sans-serif;
+  text-transform: uppercase;
+}
+
+.Base__subnav li a:hover {
+  color: #096;
 }
 
 .Base__sidebar {
