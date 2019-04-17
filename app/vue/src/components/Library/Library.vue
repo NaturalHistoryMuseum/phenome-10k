@@ -1,5 +1,5 @@
 <template>
-  <div class="Library Subgrid" style="display: contents">
+  <div class="Library Subgrid">
     <div class="Library__sort">
       Sort by:
       <ul class="Library__sort-list">
@@ -128,7 +128,7 @@ export default {
 
 <style>
 .Library {
-
+  display: contents;
 }
 
 .Library__sort {

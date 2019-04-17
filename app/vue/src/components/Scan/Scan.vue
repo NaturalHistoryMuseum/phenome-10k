@@ -1,6 +1,9 @@
 <template>
-  <div class="Scan">
+  <div class="Scan Subgrid">
     <CtmViewer :src="scan.ctm" />
+    <div class="Content-Sidebar">
+      <router-link :to="{ name: 'library' }" class="Scan__back">« Back</router-link>
+    </div>
     <h1 class="Scan__title">{{ title }}</h1>
     <p v-if="!scan.published">Not published</p>
 
@@ -96,7 +99,7 @@
         <!-- TODO: Clicking on these items should show them in the viewer -->
         <!-- TODO: Generate a download zip for groups of files -->
         <Files title="Stills" download="#">
-          <div class="Scan__file" v-for="still in scan.stills" :key="still">
+          <div class="Scan__file" v-for="still in scan.stills" :key="still.id">
             <img :src="still.file + '?w=80'">
             <div class="Scan__file-info">
               {{ still.name }}<br>
@@ -124,6 +127,12 @@
   font-family: 'Supria Sans W01 Regular', Arial, Helvetica, sans-serif;
   font-size: 12px;
   line-height: 20px;
+  display: contents;
+}
+
+.Scan__back {
+  grid-column-start: 3;
+  justify-self: start;
 }
 
 .Scan__grid {
