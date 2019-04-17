@@ -14,7 +14,6 @@ import JSC3D from "jsc3d/jsc3d/jsc3d.js"
 import "jsc3d/jsc3d/jsc3d.ctm.js"
 import "jsc3d/jsc3d/jsc3d.webgl.js"
 import "jsc3d/jsc3d/jsc3d.touch.js"
-import ResizeObserver from 'resize-observer-polyfill';
 
 export default {
     name: 'ctm',

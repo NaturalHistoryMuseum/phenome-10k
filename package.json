@@ -1,13 +1,13 @@
 {
-  "name": "p10k",
+  "name": "phenome-10k",
   "version": "1.0.0",
-  "description": "To activate the virtual environment:",
+  "description": "Hosting of 3D biological models for the academic and educational community.",
   "main": "index.js",
   "scripts": {
     "install": "napa"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Paul Kiddle <p.kiddle@nhm.ac.uk>",
+  "license": "MIT",
   "dependencies": {
     "css-loader": "^2.1.1",
     "exports-loader": "^0.7.0",
@@ -17,7 +17,6 @@
     "napa": "^3.0.0",
     "node-sass": "^4.11.0",
     "null-loader": "^0.1.1",
-    "resize-observer-polyfill": "^1.5.1",
     "rimraf": "^2.6.3",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",
