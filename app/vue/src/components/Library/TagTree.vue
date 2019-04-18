@@ -1,7 +1,8 @@
 <template>
-  <Tree :items="tags" #node="tag" childKey="children" class="Content-Sidebar__subgrid">
+  <Tree :items="tags" #node="tag" childKey="children">
     <li :class="getFilterClass(tag.category, tag.taxonomy)">
       <router-link :to="getFilterLink(tag.category, tag.taxonomy)">{{ tag.name }}</router-link>
+      <component :is="tag.children" />
     </li>
   </Tree>
 </template>
@@ -30,11 +31,9 @@ export default {
       return { query };
     },
     getFilterClass(category, tag) {
-      const cls = "Content-Sidebar__subgrid";
-
       const current = this.$route.query[category];
       const categories = new Set(Array.isArray(current) ? current : [current]);
-      return categories.has(tag) ? ['Library__filter-active', cls] : cls;
+      return categories.has(tag) ? 'Library__filter-active' : '';
     }
   }
 }

@@ -225,11 +225,15 @@ class Taxonomy(db.Model):
     scans = db.relationship('Scan', secondary='scan_taxonomy')
     children = db.relationship('Taxonomy')
 
-    def serializeTree(self):
+    def serializeTree(self, depth = float('inf')):
+        if len(self.children) == 1:
+            return self.children[0].serializeTree(depth)
+
         data = self.serialize()
-        data['children'] = [child.serializeTree() for child in self.children]
-        if len(data['children']) == 1:
-            return data['children'][0]
+        if depth > 0:
+            data['children'] = [child.serializeTree(depth - 1) for child in self.children]
+        else:
+            data['children'] = []
         return data
 
     def serialize(self):

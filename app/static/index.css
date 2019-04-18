@@ -30,11 +30,10 @@ a:link:hover {
 .Base {
   display: grid;
   grid-template-columns: 389px auto auto minmax(auto, 389px);
-  grid-template-rows: auto auto auto 1fr;
+  grid-template-rows: auto auto 1fr;
   grid-template-areas: "sidebar subnav  user    ."
                        "sidebar nav     auth    ."
-                       "sidebar content content ."
-                       "sidebar .       .       .";
+                       "sidebar content content .";
 }
 
 .Base__nav {
@@ -101,6 +100,7 @@ a:link:hover {
 .Subgrid {
   display: grid;
   grid-template-columns: 228px 161px [main-start] auto;
+  align-content: start;
 }
 
 .Subgrid > * {
@@ -111,7 +111,7 @@ a:link:hover {
   grid-column-start: 1;
   grid-column-end: main-start;
   display: grid;
-  grid-template-columns: 222px 13px auto;
+  grid-template-columns: 235px auto;
   justify-items: end;
   align-items: center;
   font-family: 'HelveticaNeueW01-55Roma' Arial, Helvetica, sans-serif;
@@ -120,6 +120,7 @@ a:link:hover {
   font-size: 11px;
   line-height: initial;
   row-gap: 2px;
+  align-content: start;
 }
 
 .Content-Sidebar > *,

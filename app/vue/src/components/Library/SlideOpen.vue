@@ -1,45 +1,29 @@
 <template>
-  <div class="SideSection">
-    <div class="SideSection__title">
-      <button @click="open = !open" class="SideSection__button">
-        {{ title }}
-      </button>
-      <img :src="'/static/' + (open ? 'minus' : 'plus') + '.png'" style="grid-column-start: 2">
-    </div>
-    <SlideOpen>
-      <div v-show="open" class="">
-        <slot />
-      </div>
-    </SlideOpen>
-  </div>
+  <transition name="SlideOpen" @enter="enter" @afterEnter="afterEnter" @leave="leave">
+    <slot />
+  </transition>
 </template>
 
 <style>
-.SideSection__button {
-  appearance: none;
-  font: inherit;
-  background: transparent;
-  border: none;
+.SlideOpen-enter-active {
+  transition: height 0.3s ease-out;
+  overflow: hidden;
 }
 
-.SideSection__title {
-  display: flex;
-  justify-content: flex-end;
+.SlideOpen-leave-active {
+  transition: height 0.3s ease-out;
+  overflow: hidden;
+}
+
+.SlideOpen-enter,
+.SlideOpen-leave-to {
+  height: 0;
 }
 </style>
 
 <script>
-import SlideOpen from './SlideOpen.vue';
-
 export default {
-  name: 'SideSection',
-  props: ['title'],
-  components: { SlideOpen },
-  data() {
-    return {
-      open: false
-    }
-  },
+  name: 'SlideOpen',
   methods: {
     enter(element) {
       const width = getComputedStyle(element).width;

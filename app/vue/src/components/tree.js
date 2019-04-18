@@ -7,11 +7,18 @@ const Tree = {
     const { items, childKey } = context.props;
 
     for (const item of items){
-      const [li] = context.scopedSlots.node(item);
       const childItems = item[childKey];
-      if(childItems) {
-        li.children.push(h(Tree, { ...context.data, props: { items: childItems, childKey } }));
-      }
+      const nextLevel = childItems && h(Tree, { ...context.data, props: { items: childItems, childKey } });
+      const extended = Object.create(item, {
+        [childKey]: {
+          value: { render: () => nextLevel }
+        },
+        hasChildren: {
+          value: childItems && childItems.length
+        }
+      });
+
+      const [li] = context.scopedSlots.node(extended);
       children.push(li);
     }
     return h('ul', context.data, children);

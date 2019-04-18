@@ -12,17 +12,21 @@
       <h3 class="Library__filter-header">Filter by:</h3>
 
       <SideSection title="Geologic Age">
-        <TagTree :tags="tags.geologic_age"  class="Content-Sidebar__subgrid" />
+        <TagTree :tags="tags.geologic_age" />
       </SideSection>
 
       <SideSection title="Ontogenic Age">
-        <TagTree :tags="tags.ontogenic_age" class="Content-Sidebar__subgrid" />
+        <TagTree :tags="tags.ontogenic_age"/>
       </SideSection>
 
       <SideSection title="Taxonomy">
-        <Tree :items="tags.taxonomy" #node="taxonomy" childKey="children" class="Content-Sidebar__subgrid" >
-          <li :class="getTaxonFilterClass(taxonomy.id)" class="Content-Sidebar__subgrid" >
+        <Tree :items="tags.taxonomy" #node="taxonomy" childKey="children" >
+          <li :class="getTaxonFilterClass(taxonomy.id)">
+            <button v-if="taxonomy.hasChildren" class="Library__tax-expand" @click="$set(open, taxonomy.id, !open[taxonomy.id])">{{ open[taxonomy.id] ? '-' : '+' }}</button>
             <router-link :to="getTaxonFilterLink(taxonomy.id)">{{ taxonomy.name }}</router-link>
+            <!--SlideOpen :key="taxonomy.id"-->
+              <component v-if="open[taxonomy.id]" :is="taxonomy.children" />
+            <!--/SlideOpen-->
           </li>
         </Tree>
       </SideSection>
@@ -39,6 +43,7 @@ import Tree from '../tree.js';
 import Results from './Results'
 import TagTree from './TagTree'
 import SideSection from './SideSection'
+import SlideOpen from './SlideOpen.vue';
 
 const Group = {
   name: 'Group',
@@ -58,7 +63,8 @@ export default {
     Results,
     TagTree,
     Tree,
-    SideSection
+    SideSection,
+    SlideOpen
   },
   computed: {
     data() {
@@ -79,6 +85,7 @@ export default {
   },
   data(){
     return {
+      open: {},
       menu: {
         geologicAge: false
       }
@@ -120,7 +127,10 @@ export default {
     getTaxonFilterClass(tag) {
       const current = this.$route.query.taxonomy;
       const categories = new Set(Array.isArray(current) ? current : [current]);
-      return categories.has(tag) && 'Library__filter-active';
+      return {
+        'Library__filter-active': categories.has(tag),
+        'Library__taxon': true
+      };
     }
   }
 }
@@ -129,6 +139,34 @@ export default {
 <style>
 .Library {
   display: contents;
+}
+
+.Library__taxon {
+  list-style: none;
+}
+
+.Library__tax-expand {
+  appearance: none;
+  background: transparent;
+  border: none;
+  padding: 2px;
+  line-height: 6px;
+}
+
+.Library__taxon {
+  background: linear-gradient(to right, transparent 0px, gray 1px, transparent 1px),
+              linear-gradient(to bottom, transparent 6px, gray 7px, transparent 7px);
+  background-repeat: no-repeat;
+  background-size: 7px auto;
+  padding-left: 9px;
+}
+
+.Library__taxon:last-child {
+  background-size: 7px 6px, 7px auto;
+}
+
+.Library__taxon ul {
+  padding-left: 4px;
 }
 
 .Library__sort {
@@ -177,16 +215,4 @@ export default {
   padding: 0;
   margin: 0 0 10px 0;
 }
-
-.Library__sidebar-transition-enter-active,
-.Library__sidebar-transition-leave-active {
-  transition: height 1s ease-in-out;
-  overflow: hidden;
-}
-
-.Library__sidebar-transition-enter,
-.Library__sidebar-transition-leave-to {
-  height: 0;
-}
-
 </style>
