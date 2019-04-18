@@ -1,7 +1,14 @@
 body {
-  background: linear-gradient(#0a0a0a, #656766 1150px);
+  background: top left/cover url(homepage.jpg), linear-gradient(#0a0a0a, #656766 1150px);
   font-family: 'Neo Sans W01', 'Helvetica', Arial, sans-serif;
   color: white;
+}
+
+/* Prevent the bg image from shrinking too much in case it obscures foreground text */
+@media (max-width: 1536px) and (max-height: 960px) {
+  body {
+    background-size: 1536px;
+  }
 }
 
 a {
