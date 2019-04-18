@@ -10,10 +10,9 @@
 </style>
 
 <script>
-import JSC3D from "jsc3d/jsc3d/jsc3d.js"
-import "jsc3d/jsc3d/jsc3d.ctm.js"
-import "jsc3d/jsc3d/jsc3d.webgl.js"
-import "jsc3d/jsc3d/jsc3d.touch.js"
+import CTM from 'jsc3d/build/jsc3d.ctm.js';
+import JSC3D from "jsc3d/build/jsc3d.js";
+CTM.register(JSC3D.LoaderSelector);
 
 export default {
     name: 'ctm',
