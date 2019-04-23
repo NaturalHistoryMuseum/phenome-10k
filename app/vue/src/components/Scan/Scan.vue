@@ -98,7 +98,7 @@
 
         <!-- TODO: Clicking on these items should show them in the viewer -->
         <!-- TODO: Generate a download zip for groups of files -->
-        <Files title="Stills" download="#">
+        <Files title="Stills" :download="scan.url_slug + '/stills'">
           <div class="Scan__file" v-for="still in scan.stills" :key="still.id">
             <img :src="still.file + '?w=80'">
             <div class="Scan__file-info">

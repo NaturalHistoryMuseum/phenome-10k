@@ -3,8 +3,8 @@ import subprocess
 import os
 import uuid
 from functools import wraps
-from zipfile import ZipFile
-from flask import request, render_template, redirect, url_for, flash, send_from_directory, jsonify, g, Response
+from zipfile import ZipFile, ZIP_DEFLATED
+from flask import request, render_template, redirect, url_for, flash, send_from_directory, jsonify, g, Response, send_file
 from flask.helpers import safe_join
 from flask_login import current_user, login_user, login_required, logout_user
 from werkzeug.routing import ValidationError, BaseConverter
@@ -54,7 +54,7 @@ def convert_file(file):
     zip.location = 'uploads/' + zip.filename
     zip.owner = current_user
     zip.mime_type = 'application/zip'
-    with ZipFile(zip.location, 'w') as zipFile:
+    with ZipFile(zip.location, 'w', ZIP_DEFLATED) as zipFile:
       zipFile.write(uploadFile.name)
 
     return (zip, ctmFile)
@@ -267,6 +267,20 @@ def manage_uploads():
 def scan(scan):
   # TODO: Hide if unpublished
   return render_vue(scan.serialize(), title=scan.scientific_name, menu='library')
+
+@app.route('/<scan:scan>/stills')
+@login_required
+def scan_stills(scan):
+  """Return a zip file containing all of the stills attached to this scan"""
+  zip_buffer = io.BytesIO()
+  with ZipFile(zip_buffer, "w") as zip_file:
+    for still in scan.attachments:
+      zip_file.write(still.file.location, still.file.filename)
+
+  zip_buffer.seek(0)
+  filename = scan.url_slug + '_stills.zip'
+
+  return send_file(zip_buffer, as_attachment=True, attachment_filename=filename)
 
 @app.route('/<scan:scan>/edit', methods=['GET', 'POST'])
 @app.route('/library/create/', methods=['GET', 'POST'])
