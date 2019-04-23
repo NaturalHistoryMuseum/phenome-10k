@@ -56,6 +56,7 @@ class ScanUploadForm(FlaskForm):
     attachments = MultipleFileField('Add files', default = [])
     geologic_age = SelectMultipleField('Geologic Age', choices = [ (tag, tag) for tag in Tag.query.filter_by(category='geologic_age').all() ], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput(), validators=[DataRequired()])
     ontogenic_age = SelectMultipleField('Ontogenic Age', choices = [ (tag, tag) for tag in Tag.query.filter_by(category='ontogenic_age').all() ], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput(), validators=[DataRequired()])
+    elements = SelectMultipleField('Elements', choices = [ (tag, tag) for tag in Tag.query.filter_by(category='elements').all() ], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput(), validators=[DataRequired()])
     gbif_id = StringField()
     published = BooleanField('Publish')
     submit = SubmitField('Save')
@@ -72,6 +73,7 @@ class ScanUploadForm(FlaskForm):
         tagTree = Tag.tree()
         data['geologic_age']['choices'] = tagTree['geologic_age']
         data['ontogenic_age']['choices'] = tagTree['ontogenic_age']
+        data['elements']['choices'] = tagTree['elements']
 
         return data
 

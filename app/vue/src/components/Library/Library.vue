@@ -22,6 +22,10 @@
         <TagTree :tags="tags.ontogenic_age"/>
       </SideSection>
 
+      <SideSection title="Elements" :count="selectedTagCount('elements')">
+        <TagTree :tags="tags.elements"/>
+      </SideSection>
+
       <SideSection title="Taxonomy" :count="selectedTagCount('taxonomy')" childClass="Library__sidebar-row">
         <Tree :items="tags.taxonomy" #node="taxonomy" childKey="children" class="Library__taxon-tree">
           <li class="Library__taxon">
@@ -131,7 +135,7 @@ export default {
     getTaxonFilterLink(tag) {
       const query = Object.assign({}, this.$route.query);
 
-      const values = new Set([].concat(query.taxonomy).map(str => parseInt(str, 10)))
+      const values = new Set([].concat(query.taxonomy || []).map(str => parseInt(str, 10)))
 
       if(values.has(tag)) {
         values.delete(tag);
@@ -144,7 +148,7 @@ export default {
       return { query };
     },
     getTaxonFilterClass(tag) {
-      const current = this.$route.query.taxonomy;
+      const current = this.$route.query.taxonomy || [];
       const categories = new Set([].concat(current).map(str => parseInt(str, 10)));
       return {
         'Library__filter-active': categories.has(tag)

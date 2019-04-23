@@ -83,6 +83,10 @@ class Scan(db.Model):
     def ontogenic_age(self):
         return self.tags.filter_by(category='ontogenic_age')
 
+    @property
+    def elements(self):
+        return self.tags.filter_by(category='elements')
+
     def serialize(self):
         return {
             'id': self.id,

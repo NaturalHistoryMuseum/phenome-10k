@@ -204,12 +204,19 @@ def register():
 @app.route('/tag', methods=['GET','POST'])
 @requiresAdmin
 def tag():
+  import calendar
+  import time
   t = "''"
   tax = "''"
   if request.method=='POST':
     t = request.form.get('type')
     tax = request.form.get('taxonomy')
-    tag = Tag(name = request.form.get('name'), taxonomy = tax, category = t)
+    parent = '/'.join(tax.split('/')[0:-1])
+    if (parent != ''):
+      parent_id = Tag.query.filter_by(taxonomy = parent).first().id
+    else:
+      parent_id = None
+    tag = Tag(id = int(calendar.timegm(time.gmtime())), name = request.form.get('name'), taxonomy = tax, category = t, parent_id = parent_id)
     db.session.add(tag)
     db.session.commit()
   return '<form method=post><input name=type value='+ t +' placeholder=category><input autofocus name=name placeholder=name><input placeholder=taxonomy name=taxonomy value='+tax+'><input type=submit></form>'
@@ -220,12 +227,14 @@ def library():
   sort = request.args.get("sort")
   ontogenic_age = request.args.getlist("ontogenic_age")
   geologic_age = request.args.getlist("geologic_age")
+  elements = request.args.getlist("elements")
   taxonomy = request.args.getlist("taxonomy")
 
   scanConditions = db.and_(
     Scan.published,
     Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in ontogenic_age ])),
     Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in geologic_age ])),
+    Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in elements ])),
     Scan.taxonomy.any(Taxonomy.id.in_(taxonomy)) if len(taxonomy) > 0 else True
   )
 
@@ -300,7 +309,7 @@ def edit_scan(scan = None):
     scan.specimen_id = form.specimen_id.data
     scan.description = form.description.data
     scan.publications = Publication.query.filter(Publication.id.in_(form.publications.data)).all()
-    scan.tags = form.geologic_age.data + form.ontogenic_age.data
+    scan.tags = form.geologic_age.data + form.ontogenic_age.data + form.elements.data
 
     if form.gbif_id.data:
       scan.gbif_id = form.gbif_id.data

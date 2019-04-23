@@ -70,6 +70,14 @@
       </ul>
       <div v-for="error in form.ontogenic_age.errors" :key="error">{{ error }}</div>
     </fieldset>
+
+    <fieldset>
+      <legend>Elements</legend>
+      <ul>
+        <li v-for="option in form.elements.choices" :key="option.id"><label><input type="checkbox" name="elements" :value="option.id" :checked="(form.elements.data || [] ).some(tag => option.id===tag.id)">{{ option.name }}</label></li>
+      </ul>
+      <div v-for="error in form.elements.errors" :key="error">{{ error }}</div>
+    </fieldset>
     <label><input type="checkbox" name="published" :checked="form.published.data"> Publish</label>
     <p><button>Submit</button></p>
   </form>

@@ -37,7 +37,7 @@ export default {
     getFilterLink(category, tag) {
       const query = Object.assign({}, this.$route.query);
 
-      const values = new Set([].concat(query[category]))
+      const values = new Set([].concat(query[category] || []))
 
       if(values.has(tag)) {
         values.delete(tag);
