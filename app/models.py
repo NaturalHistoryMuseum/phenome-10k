@@ -90,6 +90,7 @@ class Scan(db.Model):
     def serialize(self):
         return {
             'id': self.id,
+            'type': 'scan',
             'ctm': self.ctm and self.ctm.serialize(),
             'source': self.source and self.source.serialize(),
             'publications': [pub.serialize() for pub in self.publications],
@@ -156,6 +157,7 @@ class Publication(db.Model):
     def serialize(self):
         return {
           'id': self.id,
+          'type': 'publication',
           'author_id': self.author_id,
         #   'date_created': self.date_created,
         #   'date_modified': self.date_modified,
@@ -166,7 +168,8 @@ class Publication(db.Model):
           'authors': self.authors,
           'journal': self.journal,
           'link': self.link,
-          'abstract': self.abstract
+          'abstract': self.abstract,
+          'files': [ file.serialize() for file in self.files ]
         }
 
     files = db.relationship('File', secondary='publication_file')

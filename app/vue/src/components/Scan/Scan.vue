@@ -66,7 +66,7 @@
             <dl class="Scan__datalist">
               <div>
                 <dt>Title:</dt>
-                <dd>{{ publication.title }}</dd>
+                <dd><router-link class="Scan__link" :to="{ name: 'scan-or-pub', params: { id: publication.url_slug } }">{{ publication.title }}</router-link></dd>
               </div>
               <div>
                 <dt>Year:</dt>
@@ -89,7 +89,7 @@
 
           <p>
             Link:<br>
-            <a :href="publication.link">{{ publication.link }}</a>
+            <a class="Scan__link" :href="publication.link">{{ publication.link }}</a>
           </p>
         </div>
       </div>
@@ -116,6 +116,8 @@
             </div>
           </div>
         </Files>
+
+        <Files v-for="publication in scan.publications" :key="publication.id" :title="'PDF — ' + publication.title" :download="publication.files[0]" />
       </div>
     </div>
   </div>
