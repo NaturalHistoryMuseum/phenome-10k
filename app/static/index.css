@@ -116,7 +116,6 @@ a:link:hover {
   align-items: center;
   font-family: 'HelveticaNeueW01-55Roma' Arial, Helvetica, sans-serif;
   color: #666;
-  text-transform: uppercase;
   font-size: 11px;
   line-height: initial;
   row-gap: 2px;
@@ -189,4 +188,5 @@ a.Nav__item:hover {
   position: fixed;
   top: 0;
   left: 100px;
+  pointer-events: none;
 }

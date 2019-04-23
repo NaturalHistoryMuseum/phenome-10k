@@ -1,11 +1,30 @@
 <template>
-  <Tree :items="tags" #node="tag" childKey="children">
-    <li :class="getFilterClass(tag.category, tag.taxonomy)">
-      <router-link :to="getFilterLink(tag.category, tag.taxonomy)">{{ tag.name }}</router-link>
+  <Tree :items="tags" #node="tag" childKey="children" class="TagTree">
+    <li class="TagTree__list-item">
+      <span class="Library__sidebar-row">
+        <router-link  :class="getFilterClass(tag.category, tag.taxonomy)" :to="getFilterLink(tag.category, tag.taxonomy)">{{ tag.name }}</router-link>
+      </span>
       <component :is="tag.children" />
     </li>
   </Tree>
 </template>
+
+<style>
+.TagTree {
+  margin: 0;
+  padding: 0;
+}
+
+.TagTree__link {
+  text-transform: uppercase;
+}
+
+.TagTree .TagTree .TagTree__link {
+  text-transform: none;
+}
+
+</style>
+
 
 <script>
 import Tree from '../tree.js';
@@ -33,7 +52,10 @@ export default {
     getFilterClass(category, tag) {
       const current = this.$route.query[category];
       const categories = new Set(Array.isArray(current) ? current : [current]);
-      return categories.has(tag) ? 'Library__filter-active' : '';
+      return {
+        'Library__filter-active' : categories.has(tag),
+        'TagTree__link': true
+      }
     }
   }
 }

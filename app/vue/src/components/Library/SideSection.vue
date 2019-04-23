@@ -1,13 +1,16 @@
 <template>
   <div class="SideSection">
-    <div class="SideSection__title">
+    <div class="Library__sidebar-row SideSection__title">
       <button @click="open = !open" class="SideSection__button">
         {{ title }}
       </button>
-      <img :src="'/static/' + (open ? 'minus' : 'plus') + '.png'" style="grid-column-start: 2">
+      <img :src="'/static/' + (open ? 'minus' : 'plus') + '.png'">
+      <div v-if="count">
+        ({{ count }})
+      </div>
     </div>
     <SlideOpen>
-      <div v-show="open" class="">
+      <div v-show="open" :class="childClass">
         <slot />
       </div>
     </SlideOpen>
@@ -16,15 +19,16 @@
 
 <style>
 .SideSection__button {
+  text-transform: uppercase;
   appearance: none;
   font: inherit;
   background: transparent;
   border: none;
+  color: inherit;
 }
 
 .SideSection__title {
-  display: flex;
-  justify-content: flex-end;
+  color: #096;
 }
 </style>
 
@@ -33,7 +37,7 @@ import SlideOpen from './SlideOpen.vue';
 
 export default {
   name: 'SideSection',
-  props: ['title'],
+  props: ['title', 'count', 'childClass'],
   components: { SlideOpen },
   data() {
     return {

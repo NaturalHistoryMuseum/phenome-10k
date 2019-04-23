@@ -8,22 +8,27 @@
         <li :class="getSortLinkClass('ontogenic_age')"><router-link :to="getSortLink('ontogenic_age')">Ontogenic Age</router-link></li>
       </ul>
     </div>
-    <div class="Content-Sidebar">
-      <h3 class="Library__filter-header">Filter by:</h3>
+    <div class="Content-Sidebar" style="display: block">
+      <div class="Library__sidebar-row">
+        <h3 class="Library__filter-header">Filter by:</h3>
+        <router-link v-if="showClearLink" :to="clearLink" class="Library__sidebar-clear">Clear All</router-link>
+      </div>
 
-      <SideSection title="Geologic Age">
+      <SideSection title="Geologic Age" :count="selectedTagCount('geologic_age')">
         <TagTree :tags="tags.geologic_age" />
       </SideSection>
 
-      <SideSection title="Ontogenic Age">
+      <SideSection title="Ontogenic Age" :count="selectedTagCount('ontogenic_age')">
         <TagTree :tags="tags.ontogenic_age"/>
       </SideSection>
 
-      <SideSection title="Taxonomy">
-        <Tree :items="tags.taxonomy" #node="taxonomy" childKey="children" >
-          <li :class="getTaxonFilterClass(taxonomy.id)">
-            <button v-if="taxonomy.hasChildren" class="Library__tax-expand" @click="$set(open, taxonomy.id, !open[taxonomy.id])">{{ open[taxonomy.id] ? '-' : '+' }}</button>
-            <router-link :to="getTaxonFilterLink(taxonomy.id)">{{ taxonomy.name }}</router-link>
+      <SideSection title="Taxonomy" :count="selectedTagCount('taxonomy')" childClass="Library__sidebar-row">
+        <Tree :items="tags.taxonomy" #node="taxonomy" childKey="children" class="Library__taxon-tree">
+          <li class="Library__taxon">
+            <button v-if="taxonomy.hasChildren" class="Library__tax-expand" @click="$set(open, taxonomy.id, !open[taxonomy.id])">
+              <img :src="'/static/' + (open[taxonomy.id] ? 'minus' : 'plus') + '.png'">
+            </button>
+            <router-link :class="getTaxonFilterClass(taxonomy.id)" :to="getTaxonFilterLink(taxonomy.id)">{{ taxonomy.name }}</router-link>
             <!--SlideOpen :key="taxonomy.id"-->
               <component v-if="open[taxonomy.id]" :is="taxonomy.children" />
             <!--/SlideOpen-->
@@ -81,6 +86,16 @@ export default {
     },
     populatedGroups(){
       return this.groups.filter(group => group.items.length)
+    },
+    showClearLink() {
+      return ['geologic_age', 'ontogenic_age', 'elements', 'taxonomy'].some(this.selectedTagCount);
+    },
+    clearLink() {
+      const query = Object.assign({}, this.$route.query);
+      query.geologic_age = query.ontogenic_age = query.elements = query.taxonomy = [];
+      return {
+        query
+      }
     }
   },
   data(){
@@ -99,6 +114,10 @@ export default {
         query
       }
     },
+    selectedTagCount(tag){
+      const t = this.$route.query[tag];
+      return t ? (Array.isArray(t) ? t.length : 1) : 0;
+    },
     getSortLinkClass(field) {
       const cls = 'Library__sort-item';
 
@@ -112,7 +131,7 @@ export default {
     getTaxonFilterLink(tag) {
       const query = Object.assign({}, this.$route.query);
 
-      const values = new Set([].concat(query.taxonomy))
+      const values = new Set([].concat(query.taxonomy).map(str => parseInt(str, 10)))
 
       if(values.has(tag)) {
         values.delete(tag);
@@ -126,10 +145,9 @@ export default {
     },
     getTaxonFilterClass(tag) {
       const current = this.$route.query.taxonomy;
-      const categories = new Set(Array.isArray(current) ? current : [current]);
+      const categories = new Set([].concat(current).map(str => parseInt(str, 10)));
       return {
-        'Library__filter-active': categories.has(tag),
-        'Library__taxon': true
+        'Library__filter-active': categories.has(tag)
       };
     }
   }
@@ -149,8 +167,9 @@ export default {
   appearance: none;
   background: transparent;
   border: none;
-  padding: 2px;
+  padding: 0;
   line-height: 6px;
+  margin: 1px -2px 0;
 }
 
 .Library__taxon {
@@ -210,9 +229,30 @@ export default {
 }
 
 .Library__filter-header {
+  text-transform: uppercase;
   font-weight: normal;
   font-size: inherit;
   padding: 0;
   margin: 0 0 10px 0;
+}
+
+.Library__sidebar-row {
+   display: grid;
+   grid-template-columns: 222px 20px auto;
+   margin: 5px 0;
+}
+
+.Library__sidebar-row :first-child {
+  justify-self: end;
+}
+
+.Library__sidebar-clear {
+  grid-column-start: 3;
+  text-transform: uppercase;
+  color: #096;
+
+}
+
+.Library__taxon-tree {
 }
 </style>
