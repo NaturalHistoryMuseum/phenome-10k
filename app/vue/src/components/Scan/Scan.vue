@@ -117,7 +117,9 @@
           </div>
         </Files>
 
-        <Files v-for="publication in scan.publications" :key="publication.id" :title="'PDF — ' + publication.title" :download="publication.files[0]" />
+        <template v-for="publication in scan.publications">
+          <Files v-for="file in publication.files" :key="file" :title="'PDF — ' + publication.title" :download="file" />
+        </template>
       </div>
     </div>
   </div>
