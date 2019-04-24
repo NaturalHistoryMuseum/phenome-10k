@@ -27,13 +27,13 @@
   {% if not current_user.is_anonymous %}
   <ul class="Base__subnav Nav__list">
     {% if menu == 'library' %}
-      <li><a href="{{ url_for('library', mine=True) }}">View My Uploads</a></li>
+      <li><a href="{{ url_for('library', mine='') }}">View My Uploads</a></li>
       <li><a href="{{ url_for('manage_uploads') }}">Manage Uploads</a></li>
       <li><a href="{{ url_for('edit_scan') }}">Add New</a></li>
       <li><a href="{{ url_for('contribute') }}">Contribute</a></li>
     {% elif menu == 'publications' %}
       <li><a href="{{ url_for('publications') }}">View all pubs</a></li>
-      <li><a href="{{ url_for('publications', mine=True) }}">View my pubs</a></li>
+      <li><a href="{{ url_for('publications', mine='') }}">View my pubs</a></li>
       <li><a href="{{ url_for('manage_publications') }}">Manage Pubs</a></li>
       <li><a href="{{ url_for('create_publication') }}">Add New</a></li>
       <li><a href="{{ url_for('contribute') }}">Contribute</a></li>

@@ -229,13 +229,15 @@ def library():
   geologic_age = request.args.getlist("geologic_age")
   elements = request.args.getlist("elements")
   taxonomy = request.args.getlist("taxonomy")
+  mine = 'mine' in request.args.keys()
 
   scanConditions = db.and_(
     Scan.published,
     Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in ontogenic_age ])),
     Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in geologic_age ])),
     Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in elements ])),
-    Scan.taxonomy.any(Taxonomy.id.in_(taxonomy)) if len(taxonomy) > 0 else True
+    Scan.taxonomy.any(Taxonomy.id.in_(taxonomy)) if len(taxonomy) > 0 else True,
+    Scan.author_id == current_user.id if mine and current_user.is_authenticated else True
   )
 
   # This is annoying... if we're sorting by name it's just sort,
@@ -246,10 +248,8 @@ def library():
       'groups': [ { 'group': tag.name, 'items': [s.serialize() for s in tag.scans if s.published ] } for tag in Tag.query.filter(Tag.scans.any(scanConditions)).filter_by(category=sort).all() ]
     }
   else:
-    if sort == 'name':
-      query = Scan.scientific_name
-    else:
-      query = db.func.random()
+    query = Scan.scientific_name
+
     data = {
       'scans': [ s.serialize() for s in Scan.query.filter(scanConditions).order_by(query).limit(50).all() ]
     }

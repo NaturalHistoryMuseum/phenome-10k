@@ -8,6 +8,13 @@
         <li :class="getSortLinkClass('ontogenic_age')"><router-link :to="getSortLink('ontogenic_age')">Ontogenic Age</router-link></li>
       </ul>
     </div>
+    <div class="Library__sort">
+      Viewing:
+      <ul class="Library__sort-list">
+        <li :class="getMineLinkClass(false)"><router-link :to="getMineLink(false)">All</router-link></li>
+        <li :class="getMineLinkClass(true)"><router-link :to="getMineLink(true)">Mine</router-link></li>
+      </ul>
+    </div>
     <div class="Content-Sidebar" style="display: block">
       <div class="Library__sidebar-row">
         <h3 class="Library__filter-header">Filter by:</h3>
@@ -111,6 +118,35 @@ export default {
     }
   },
   methods: {
+    /**
+     * Get the router-link `to` param for "View Mine"/"View All" links
+     * @param {boolean} mine true = view mine, false = view all
+     */
+    getMineLink(mine) {
+      const query = Object.assign({}, this.$route.query);
+      // We only care about the presence of the `mine` parameter, not its value
+      if(mine) {
+        query.mine = null;
+      } else {
+        delete query.mine;
+      }
+
+      return {
+        query
+      }
+    },
+    /**
+     * Get the css class for the "View Mine"/"View All" links
+     * @param {bool} mine true=view mine, false = view all
+     */
+    getMineLinkClass(mine) {
+      const cls = 'Library__sort-item';
+
+      return {
+        [cls]: true,
+        [`${cls}--active`]: mine === ('mine' in this.$route.query)
+      }
+    },
     getSortLink(sort) {
       const query = Object.assign({}, this.$route.query);
       query.sort = sort;
@@ -125,12 +161,10 @@ export default {
     getSortLinkClass(field) {
       const cls = 'Library__sort-item';
 
-      const o = {
+      return {
         [cls]: true,
-        [`${cls}--active`]: this.$route.query.sort === field
+        [`${cls}--active`]: (this.$route.query.sort || 'name') === field
       }
-
-      return o;
     },
     getTaxonFilterLink(tag) {
       const query = Object.assign({}, this.$route.query);
