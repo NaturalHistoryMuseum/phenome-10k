@@ -352,22 +352,29 @@ def edit_scan(scan = None):
         scan.taxonomy.append(newTag)
 
     for file in form.attachments.data:
-        import string
-        import random
-        filename = secure_filename(file.filename)
+      import string
+      import random
+      import magic
+
+      mimeType = magic.from_buffer(file.stream.read(1024), mime=True)
+      if (mimeType != 'image/png'):
+        form.stills.errors.append('Stills must be png files')
+      else:
+        file.stream.seek(0)
+        # Take the filename as the label and generate a new, safe filename
+        label = file.filename
+        filename = secure_filename(file.filename) + '.png'
         location = safe_join('uploads', ''.join(random.choices(string.ascii_uppercase + string.digits, k=6)) + filename)
         file.save(location)
         attachment = ScanAttachment(
-          name = filename,
+          name = label,
           file = File(
-            # Todo: This should be a user-supplied string
-            title = filename,
+            title = label,
             filename = filename,
             location = location,
             owner_id = current_user.id,
             size = os.stat(location).st_size,
-            # Todo: Get this properly - use python-magic?
-            mime_type = 'image/png'
+            mime_type = mimeType
           )
         )
         db.session.add(attachment)

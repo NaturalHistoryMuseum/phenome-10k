@@ -1,85 +1,92 @@
 <template>
-  <form class="Upload__form Subgrid" :action="formAction" method="post" @submit.prevent="submit" enctype="multipart/form-data" novalidate style="display:contents">
-    <h1 class="Upload__title">Upload New</h1>
+  <form class="Upload Subgrid" :action="formAction" method="post" @submit.prevent="submit" enctype="multipart/form-data" novalidate>
+    <h1 class="Upload__title">{{ scan ? "Edit: " + scan.scientific_name : "Upload New" }}</h1>
     <input type="hidden" name="csrf_token" :value="csrf">
     <span v-if="error" class="error">[{{ error }}]</span>
-    <h2 class="Upload__section-title">1. Browse and preview STL file</h2>
-    <div v-if="scan && scan.ctm" class="Subgrid" style="grid-column-start: 1; grid-column-end: 4; grid-auto-flow: dense">
-      <CtmViewer ref="canvas" :src="scan.ctm" height=400px width=500px />
-      <span class="Upload__stills">
-        2. Take Stills - Move image into appropriate position and click the button below (Minimum of 1 snapshot image, maximum of 6 images).
-
-        <button type="button" @click="captureStill">Capture</button>
-        <div v-for="error in form.stills.errors" :key="error">{{ error }}</div>
-
-        <img v-for="url in stillUrls" :src="url" :key="url" class="Upload__still" />
-      </span>
+    <div class="Upload__upload">
+      <h2 class="Upload__section-title">1. Browse and preview STL file</h2>
+      <CtmViewer v-if="scan && scan.ctm" ref="canvas" :src="scan.ctm" height=400px width=500px />
+      <Upload3D v-else @change="upload" :progress="progress" :errors="form.file.errors"></Upload3D>
     </div>
-    <Upload3D v-else style="width: 100%; display: block;" @change="upload" :progress="progress" :errors="form.file.errors"></Upload3D>
-    <TextInput name="scientific_name" :data="form.scientific_name" @keyup="e => searchGbif(e.target.value)">
-      <h2 class="Upload__section-title">3. Scientific Name</h2>
-    </TextInput>
-    <ul>
-      <li v-for="entry in gbifData" :key="entry.key"><label><input type="radio" name="gbif_id" :value="entry.key" v-model="gbifSelected"><i>{{ entry.canonicalName }}</i> {{ entry.scientificName.replace(entry.canonicalName, '') }} ({{ entry.kingdom }})</label></li>
-    </ul>
-    <fieldset>
-      <legend><span class="Upload__section-title">4. Specimen</span> - Please enter relevant specimen information</legend>
-      <TextInput name="alt_name" :data="form.alt_name">Alt Name</TextInput>
-      <TextInput name="specimen_location" :data="form.specimen_location">Specimen Location</TextInput>
-      <TextInput name="specimen_id" :data="form.specimen_id">Specimen ID</TextInput>
-    </fieldset>
-    <FormField :errors="form.description.errors">
-      <h2 class="Upload__section-title">6. Description</h2>
-      <textarea name="description" :value="form.description.data" class="Upload__form-input" />
-    </FormField>
-    <fieldset>
-      <legend><span class="Upload__section-title">7. Publications</span> - Assign any relevant publications to the scan</legend>
-      <div class="SelectViewer">
-        <div class="ListSearch">
-          <div class="ListSearch__search Search">
-            <input type="text" name="pub_query" class="Search__input"  @keyup="pubSearch" />
-            <button name="pub_search" :value="form.pub_search.data" class="Search__submit">Search</button>
+    <span class="Upload__stills">
+      <span class="Upload__section-title">2. Take Stills</span> - Move image into appropriate position and click the button below (Minimum of 1 snapshot image, maximum of 6 images).
+
+      <div class="Upload__still-name">
+        <label>Label: <input class="Upload__form-input" v-model="stillName"></label>
+        <button type="button" class="Upload__form-button" @click="captureStill">Capture</button>
+      </div>
+      <div v-for="error in form.stills.errors" :key="error">{{ error }}</div>
+
+      <div v-for="url in stillUrls" :key="url">
+        <img :src="url" class="Upload__still" />
+      </div>
+    </span>
+    <div class="Upload__details">
+      <TextInput name="scientific_name" :data="form.scientific_name" @keyup="e => searchGbif(e.target.value)">
+        <h2 class="Upload__section-title">3. Scientific Name</h2>
+      </TextInput>
+      <ul>
+        <li v-for="entry in gbifData" :key="entry.key"><label><input type="radio" name="gbif_id" :value="entry.key" v-model="gbifSelected"><i>{{ entry.canonicalName }}</i> {{ entry.scientificName.replace(entry.canonicalName, '') }} ({{ entry.kingdom }})</label></li>
+      </ul>
+      <fieldset>
+        <legend><span class="Upload__section-title">4. Specimen</span> - Please enter relevant specimen information</legend>
+        <TextInput name="alt_name" :data="form.alt_name">Alt Name</TextInput>
+        <TextInput name="specimen_location" :data="form.specimen_location">Specimen Location</TextInput>
+        <TextInput name="specimen_id" :data="form.specimen_id">Specimen ID</TextInput>
+      </fieldset>
+      <FormField :errors="form.description.errors">
+        <h2 class="Upload__section-title">6. Description</h2>
+        <textarea name="description" :value="form.description.data" class="Upload__form-input" />
+      </FormField>
+      <fieldset>
+        <legend><span class="Upload__section-title">7. Publications</span> - Assign any relevant publications to the scan</legend>
+        <div class="SelectViewer">
+          <div class="ListSearch">
+            <div class="ListSearch__search Search">
+              <input type="text" name="pub_query" class="Search__input"  @keyup="pubSearch" />
+              <button name="pub_search" :value="form.pub_search.data" class="Search__submit">Search</button>
+            </div>
+            <div name="publications_search" class="ListSearch__results">
+              <ul>
+                <li v-for="pub in pubList" :key="pub.id"><input name="publications_search" type="checkbox" :value="pub.id">{{ pub.title }}</li>
+              </ul>
+            </div>
           </div>
-          <div name="publications_search" class="ListSearch__results">
+          <div name="publications" class="ListSearch__results">
             <ul>
-              <li v-for="pub in pubList" :key="pub.id"><input name="publications_search" type="checkbox" :value="pub.id">{{ pub.title }}</li>
+              <li v-for="pub in savedPublications" :key="pub.id"><input name="publications" type="checkbox" :value="pub.id">{{ pub.title }}</li>
             </ul>
           </div>
         </div>
-        <div name="publications" class="ListSearch__results">
-          <ul>
-            <li v-for="pub in savedPublications" :key="pub.id"><input name="publications" type="checkbox" :value="pub.id">{{ pub.title }}</li>
-          </ul>
-        </div>
-      </div>
-    </fieldset>
-    <p>8. Categories - Assign the relevant tags to this entry. At least one catagory in each of Taxonomy, Geologic Age, Elements and Ontologic Age is required.</p>
+      </fieldset>
+      <p>8. Categories - Assign the relevant tags to this entry. At least one catagory in each of Taxonomy, Geologic Age, Elements and Ontologic Age is required.</p>
 
-    <fieldset>
-      <legend>Geologic Age</legend>
-      <Tree :items="form.geologic_age.choices" #node="option" childKey="children">
-        <li><label><input type="checkbox" name="geologic_age" :value="option.id" :checked="(form.geologic_age.data || [] ).some(tag => option.id===tag.id)">{{ option.name }}</label></li>
-      </Tree>
-      <div v-for="error in form.geologic_age.errors" :key="error">{{ error }}</div>
-    </fieldset>
+      <fieldset>
+        <legend>Geologic Age</legend>
+        <Tree :items="form.geologic_age.choices" #node="option" childKey="children">
+          <li><label><input type="checkbox" name="geologic_age" :value="option.id" :checked="(form.geologic_age.data || [] ).some(tag => option.id===tag.id)">{{ option.name }}</label></li>
+        </Tree>
+        <div v-for="error in form.geologic_age.errors" :key="error">{{ error }}</div>
+      </fieldset>
 
-    <fieldset>
-      <legend>Ontogenic Age</legend>
-      <ul>
-        <li v-for="option in form.ontogenic_age.choices" :key="option.id"><label><input type="checkbox" name="ontogenic_age" :value="option.id" :checked="(form.ontogenic_age.data || [] ).some(tag => option.id===tag.id)">{{ option.name }}</label></li>
-      </ul>
-      <div v-for="error in form.ontogenic_age.errors" :key="error">{{ error }}</div>
-    </fieldset>
+      <fieldset>
+        <legend>Ontogenic Age</legend>
+        <ul>
+          <li v-for="option in form.ontogenic_age.choices" :key="option.id"><label><input type="checkbox" name="ontogenic_age" :value="option.id" :checked="(form.ontogenic_age.data || [] ).some(tag => option.id===tag.id)">{{ option.name }}</label></li>
+        </ul>
+        <div v-for="error in form.ontogenic_age.errors" :key="error">{{ error }}</div>
+      </fieldset>
 
-    <fieldset>
-      <legend>Elements</legend>
-      <ul>
-        <li v-for="option in form.elements.choices" :key="option.id"><label><input type="checkbox" name="elements" :value="option.id" :checked="(form.elements.data || [] ).some(tag => option.id===tag.id)">{{ option.name }}</label></li>
-      </ul>
-      <div v-for="error in form.elements.errors" :key="error">{{ error }}</div>
-    </fieldset>
-    <label><input type="checkbox" name="published" :checked="form.published.data"> Publish</label>
-    <p><button>Submit</button></p>
+      <fieldset>
+        <legend>Elements</legend>
+        <ul>
+          <li v-for="option in form.elements.choices" :key="option.id"><label><input type="checkbox" name="elements" :value="option.id" :checked="(form.elements.data || [] ).some(tag => option.id===tag.id)">{{ option.name }}</label></li>
+        </ul>
+        <div v-for="error in form.elements.errors" :key="error">{{ error }}</div>
+      </fieldset>
+      <label><input type="checkbox" name="published" :checked="form.published.data"> Publish</label>
+      <p><button class="Upload__form-button">Submit</button></p>
+    </div>
   </form>
 </template>
 
@@ -153,18 +160,22 @@ export default {
     "error",
   ],
   data() {
-      return {
-          progress: null,
-          stills: [],
-          pubList: [],
-          gbifData: [],
-          gbifSelected: null
-        };
+    return {
+      progress: null,
+      stills: [],
+      pubList: [],
+      gbifData: [],
+      gbifSelected: null,
+      stillName: '',
+      data: this.$route.meta.data
+    };
+  },
+  watch:{
+    '$route.meta'(meta){
+      this.data = meta.data;
+    },
   },
   computed: {
-    data(){
-      return this.$route.meta.data;
-    },
     scan(){
       return this.data.scan;
     },
@@ -210,14 +221,28 @@ export default {
         window.scrollTo(0 ,0);
     },
     async captureStill(){
-        const file = `still-${this.stills.length}.png`
-        const still = await this.$refs.canvas.captureStill(file);
-        this.stills.push(still);
+      this.form.stills.errors = [];
 
-        const data = new FormData();
-        data.append('csrf_token', this.csrf);
-        data.append('attachments', still, file);
-        fetch(this.formAction, { method: 'POST', headers: { 'accept': 'application/json' }, body: data }).then(res => console.log(res));
+      if (!this.stillName) {
+        this.form.stills.errors = ['Please enter a name for the captured image'];
+        return;
+      }
+
+      // I don't know why the limit is six, it just is
+      if (this.stillUrls.length >= 6) {
+        this.form.stills.errors = ['There are too many stills, please remove a still.'];
+        return;
+      }
+
+      // Use the label as the filename and have the server convert it to a secure filename
+      const still = await this.$refs.canvas.captureStill(this.stillName);
+      this.stills.push(still);
+
+      const data = new FormData();
+      data.append('csrf_token', this.csrf);
+      data.append('attachments', still, this.stillName);
+      fetch(this.formAction, { method: 'POST', headers: { 'accept': 'application/json' }, body: data }).then(res => console.log(res));
+      this.stillName = '';
     },
     async upload(form){
         const { responseText } = await xhrUpload(form, p => this.progress = p);
@@ -241,13 +266,31 @@ export default {
 </script>
 
 <style>
+.Upload {
+  grid-column-start: 1;
+  grid-column-end: 4;
+  grid-template-areas: ".       . title  "
+                       "sidebar . upload "
+                       "sidebar . details"
+                       "sidebar . .      ";
+}
+
 .Upload__title {
-    color: #096;
-    font-weight: normal;
-    font-size: 24px;
-    font-family: 'Neo Sans W01', Helvetica, Arial, sans-serif;
-    text-transform: uppercase;
-    margin-bottom: 40px;
+  grid-area: title;
+  color: #096;
+  font-weight: normal;
+  font-size: 24px;
+  font-family: 'Neo Sans W01', Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+}
+
+.Upload__upload {
+  grid-area: upload;
+}
+
+.Upload__details {
+  grid-area: details;
 }
 
 .Upload__section-title {
@@ -269,14 +312,36 @@ export default {
     width: 100%;
 }
 
-.Upload__form fieldset {
+.Upload__form-button {
+  appearance: none;
+  display: block;
+  text-align: center;
+  color: #fff;
+  text-transform: uppercase;
+  background: #096;
+  padding: 6px 7px;
+  font-family: 'Supria Sans W01 Bold', Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  border: none;
+  font-weight: bold;
+}
+
+.Upload fieldset {
     border: none;
     padding: 0;
     margin: 0;
 }
 
 .Upload__stills {
-    grid-column-start: 1;
+  grid-area: sidebar;
+  font-size: 12px;
+  margin: 0 5px;
+}
+
+.Upload__still-name {
+  display: flex;
+  margin: 5px 0;
+  align-items: flex-end;
 }
 
 .Upload__still {

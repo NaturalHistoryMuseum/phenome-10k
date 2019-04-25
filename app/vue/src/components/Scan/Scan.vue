@@ -18,22 +18,6 @@
           </template>
         </p>
 
-        <!--
-          Location
-          Specimen ID
-          Description
-          Related publication:
-          Title
-          Year
-          Authors
-          Journal
-          Abstract
-          Link
-          Files:
-          Stills
-          3D/Web GL
-          PDF
-        -->
         <dl class="Scan__datalist">
           <div>
             <dt>Alt Name:</dt>
