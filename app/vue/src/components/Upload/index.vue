@@ -11,14 +11,16 @@
     <span class="Upload__stills">
       <span class="Upload__section-title">2. Take Stills</span> - Move image into appropriate position and click the button below (Minimum of 1 snapshot image, maximum of 6 images).
 
-      <div class="Upload__still-name">
+      <div class="Upload__still-capture-name">
         <label>Label: <input class="Upload__form-input" v-model="stillName"></label>
         <button type="button" class="Upload__form-button" @click="captureStill">Capture</button>
       </div>
       <div v-for="error in form.stills.errors" :key="error">{{ error }}</div>
 
-      <div v-for="url in stillUrls" :key="url">
-        <img :src="url" class="Upload__still" />
+      <div v-for="{ name, file, id } in stills" :key="file" class="Upload__still">
+        <button type="button" @click="removeStill(id)" class="Upload__remove-still">Remove Image ❌</button>
+        <img :src="file" class="Upload__still-image" />
+        <div class="Upload__still-name">{{ name }}</div>
       </div>
     </span>
     <div class="Upload__details">
@@ -162,7 +164,6 @@ export default {
   data() {
     return {
       progress: null,
-      stills: [],
       pubList: [],
       gbifData: [],
       gbifSelected: null,
@@ -195,10 +196,8 @@ export default {
         this.data.form = val;
       }
     },
-    stillUrls() {
-      const attachments = this.scan ? this.scan.attachments.map(a => a.file) : [];
-
-      return attachments.concat(this.stills.map(file => URL.createObjectURL(file)));
+    stills() {
+      return this.scan ? this.scan.stills : [];
     },
     formAction(){
       return this.scan ? this.$router.resolve({ name: 'edit-scan', params: this.scan }).href : '';
@@ -229,6 +228,17 @@ export default {
         this.form = json.form;
         window.scrollTo(0 ,0);
     },
+    /**
+     * Delete a still by its attachment id
+     */
+    async removeStill(id){
+      const res =  await fetch(`/stills/${id}/`, {
+        method: 'DELETE',
+        headers: { accept: 'application/json' }
+      });
+      const json = await res.json();
+      this.scan = json.scan;
+    },
     async captureStill(){
       this.form.stills.errors = [];
 
@@ -238,19 +248,20 @@ export default {
       }
 
       // I don't know why the limit is six, it just is
-      if (this.stillUrls.length >= 6) {
+      if (this.stills.length >= 6) {
         this.form.stills.errors = ['There are too many stills, please remove a still.'];
         return;
       }
 
       // Use the label as the filename and have the server convert it to a secure filename
       const still = await this.$refs.canvas.captureStill(this.stillName);
-      this.stills.push(still);
 
       const data = new FormData();
       data.append('csrf_token', this.csrf);
       data.append('attachments', still, this.stillName);
-      fetch(this.formAction, { method: 'POST', headers: { 'accept': 'application/json' }, body: data }).then(res => console.log(res));
+      const res = await fetch(this.formAction, { method: 'POST', headers: { 'accept': 'application/json' }, body: data });
+      const json = await res.json();
+      this.scan = json.scan;
       this.stillName = '';
     },
     async upload(form){
@@ -344,17 +355,47 @@ export default {
 .Upload__stills {
   grid-area: sidebar;
   font-size: 12px;
-  margin: 0 5px;
-}
-
-.Upload__still-name {
-  display: flex;
-  margin: 5px 0;
-  align-items: flex-end;
+  margin: 0 10px;
 }
 
 .Upload__still {
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+.Upload__remove-still {
+  appearance: none;
+  border: none;
+  background: none;
+  color: #666;
+  font-size: 10px;
+  font-family: 'Supria Sans W01 Regular', Arial, Helvetica, sans-serif;
+  align-self: flex-end;
+  cursor: pointer;
+  margin: 0 0 5px;
+  padding: 0;
+}
+
+.Upload__remove-still:hover {
+  text-decoration: underline;
+}
+
+.Upload__still-capture-name {
+  display: flex;
+  margin: 5px 0;
+  align-items: flex-end;
+  font-size: 12px;
+}
+
+.Upload__still-image {
     max-width: 100%;
+}
+
+.Upload__still-name {
+  font-family: 'Supria Sans W01 Regular', Arial, Helvetica, sans-serif;
+  color: #666;
+  margin-top: 5px;
 }
 
 .Search {

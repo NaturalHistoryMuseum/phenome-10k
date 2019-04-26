@@ -32,7 +32,7 @@
                 :name="scan.published ? null : 'published'" value="On"
                 >{{ scan.published ? 'Unpublish' : 'Publish' }}</button>
               <router-link :to="{ name: 'edit-scan' , params: { id: scan.id } }">Edit</router-link>
-              <button name="delete" :value="scan.id">Delete</button>
+              <button name="delete" :value="scan.id" @click="confirmDelete">Delete</button>
             </form>
           </td>
         </tr>
@@ -239,12 +239,27 @@ export default {
     }
   },
   methods: {
+    /**
+     * Ask the user to confirm whether they want to delete the record, prevent form sub if not
+     * @param e {Event} The form submit event
+     */
+    confirmDelete(e){
+      if(!confirm('This action will permenently delete the source file and all attachments.')) {
+        e.preventDefault();
+      }
+    },
+    /**
+     * Generate human readable creation date for a scan
+     */
     getDateCreated(scan){
       const date = new Date(scan.created);
       const pad = n => String(n).padStart(2, '0')
 
       return `${pad(date.getDay())}.${pad(date.getMonth())}.${date.getFullYear()}`;
     },
+    /**
+     * Generate an array of objects containing scan data item
+     */
     getScanData(scan){
       const data = [];
       if (scan.specimen_id) {
@@ -264,7 +279,9 @@ export default {
 
       return data;
     },
-
+    /**
+     * Generate the CSS class for a filter-by-letter link
+     */
     getLetterClass(letter) {
       return {
         'ManageUploads__letter': true,

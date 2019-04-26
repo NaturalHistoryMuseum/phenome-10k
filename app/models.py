@@ -331,6 +331,7 @@ class ScanAttachment(db.Model):
     file_id = db.Column(db.Integer, db.ForeignKey('file.id'))
 
     file = db.relationship('File', foreign_keys = 'ScanAttachment.file_id', cascade="all")
+    scan = db.relationship('Scan', foreign_keys = 'ScanAttachment.scan_id')
 
     def serialize(self):
         return {

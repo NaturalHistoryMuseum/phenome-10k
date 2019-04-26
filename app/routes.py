@@ -296,6 +296,21 @@ def scan(scan):
   # TODO: Hide if unpublished
   return render_vue(scan.serialize(), title=scan.scientific_name, menu='library')
 
+@app.route('/stills/<int:id>/', methods=['DELETE'])
+@login_required
+def delete_still(id):
+  """Url for deleting a still"""
+  attachment = ScanAttachment.query.get(id)
+  return_to = url_for('library')
+
+  if attachment and (attachment.scan.author_id == current_user.id or current_user.isAdmin()):
+    return_to = url_for('edit_scan', scan=attachment.scan)
+    db.session.delete(attachment)
+    db.session.commit()
+
+  # Use a 303 response to force browser to use GET for the next request
+  return redirect(return_to, code=303)
+
 @app.route('/<scan:scan>/stills/')
 @login_required
 def scan_stills(scan):
