@@ -1,6 +1,7 @@
 <template>
   <div class="Scan Subgrid">
-    <CtmViewer :src="scan.ctm" />
+    <img v-if="viewStill" :src="viewStill.file" />
+    <CtmViewer v-else :src="scan.ctm" />
     <div class="Content-Sidebar">
       <router-link :to="{ name: 'library' }" class="Scan__back">« Back</router-link>
     </div>
@@ -80,11 +81,9 @@
       <div class="Scan__column-files">
         <h2 class="Scan__files-header">Files</h2>
 
-        <!-- TODO: Clicking on these items should show them in the viewer -->
-        <!-- TODO: Generate a download zip for groups of files -->
         <Files title="Stills" :download="scan.url_slug + '/stills'">
           <div class="Scan__file" v-for="still in scan.stills" :key="still.id">
-            <img :src="still.file + '?w=80'">
+            <input type="image" :src="still.file + '?w=80'" @click="viewStill=still" />
             <div class="Scan__file-info">
               {{ still.name }}<br>
               {{ still.size / 1000 }}k
@@ -94,7 +93,7 @@
 
         <Files title="3D / Web GL" :download="scan.source">
           <div class="Scan__file">
-            <img :src="scan.thumbnail + '?w=80'">
+            <input type="image" :src="scan.thumbnail + '?w=80'" @click="viewStill=null" />
             <div class="Scan__file-info">
               (STL)
             </div>
@@ -215,6 +214,11 @@ export default {
   components: {
     CtmViewer,
     Files
+  },
+  data(){
+    return {
+      viewStill: null
+    };
   },
   computed: {
     scan() {
