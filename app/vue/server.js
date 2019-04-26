@@ -1,6 +1,10 @@
+const { Console } = require('console');
 const SSR = require( 'vue-server-renderer');
 const serverBundle = require('./dist/vue-ssr-server-bundle.json');
 const clientManifest = require('../static/dist/vue-ssr-client-manifest.json');
+
+// Override `console` to log everything to stderr, as we'll be expecting markup on stdout
+global.console = new Console({ stdout: process.stderr, stderr: process.stderr });
 
 const [/*nodeBinary*/, /*entryScript*/, url, defaultJson] = process.argv;
 const defaultData = JSON.parse(defaultJson);

@@ -176,23 +176,32 @@ export default {
     },
   },
   computed: {
-    scan(){
-      return this.data.scan;
+    scan: {
+      get(){
+        return this.data.scan;
+      },
+      set(value){
+        this.data.scan = value;
+      }
     },
     csrf(){
       return this.data.csrf_token;
     },
-    form(){
-      return this.data.form;
+    form: {
+      get(){
+        return this.data.form;
+      },
+      set(val) {
+        this.data.form = val;
+      }
     },
     stillUrls() {
-        return [
-            ...this.scan.attachments.map(a => a.file),
-            ...this.stills.map(file => URL.createObjectURL(file))
-        ]
+      const attachments = this.scan ? this.scan.attachments.map(a => a.file) : [];
+
+      return attachments.concat(this.stills.map(file => URL.createObjectURL(file)));
     },
     formAction(){
-      return this.scan ? `/${this.scan.id}/edit` : '';
+      return this.scan ? this.$router.resolve({ name: 'edit-scan', params: this.scan }).href : '';
     },
     savedPublications() {
       const scanPubs = this.scan ? this.scan.publications : [];

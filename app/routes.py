@@ -2,6 +2,7 @@ import tempfile
 import subprocess
 import os
 import uuid
+import math
 from functools import wraps
 from zipfile import ZipFile, ZIP_DEFLATED
 from flask import request, render_template, redirect, url_for, flash, send_from_directory, jsonify, g, Response, send_file
@@ -35,27 +36,25 @@ def convert_file(file):
       Mesh.from_file(uploadFile.name).save(uploadFile.name)
 
     # Convert to ctm in uploads storage
-    # TODO: Check errors, secure_filename, no duplicates
-    ctmFile = models.File()
-    ctmFile.filename = filename + '.ctm'
-    ctmFile.location = 'uploads/' + ctmFile.filename
-    ctmFile.owner = current_user
-    ctmFile.mime_type = 'application/zip'
+    ctmFile = File.fromName(filename + '.ctm')
+    ctmFile.mime_type = 'application/octet-stream'
+
     ctmConvert = subprocess.run(["ctmconv", uploadFile.name, ctmFile.location], stderr=subprocess.PIPE)
     if ctmConvert.returncode > 0:
       # TODO: Deal with this error properly
       app.logger.warn(ctmConvert.stderr)
 
+    ctmFile.size = os.stat(ctmFile.location).st_size
+
     # Zip source file & save to large file storage
-    # TODO: (secure_filename)(no duplicates)
     # TODO: Configure large file storage
-    zip = models.File()
-    zip.filename = file.filename + '.zip'
-    zip.location = 'uploads/' + zip.filename
-    zip.owner = current_user
+    zip = File.fromName(file.filename + '.zip')
     zip.mime_type = 'application/zip'
+
     with ZipFile(zip.location, 'w', ZIP_DEFLATED) as zipFile:
       zipFile.write(uploadFile.name)
+
+    zip.size = os.stat(zip.location).st_size
 
     return (zip, ctmFile)
 
@@ -119,7 +118,7 @@ def requiresContributor(f):
 def index():
   return render_template('index.html', menu='home')
 
-@app.route('/uploads/<path:path>')
+@app.route('/uploads/<path:path>/')
 def send_uploads(path):
   width = request.args.get('w')
 
@@ -158,11 +157,11 @@ def send_uploads(path):
     im.save(thumbnail_file, format='PNG')
     return Response(byteIO.getvalue(), mimetype="image/png", direct_passthrough=True)
 
-@app.route('/about', methods=['GET', 'POST'])
+@app.route('/about/', methods=['GET', 'POST'])
 def about():
   return render_template('about.html', title='About', menu='about')
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login/', methods=['GET', 'POST'])
 def login():
     form = LoginForm(next=request.args.get('next'))
     error = None
@@ -179,7 +178,7 @@ def login():
           error = 'Invalid email and/or password'
     return render_template('login.html', title='Sign In', form=form, error=error, menu='home')
 
-@app.route('/logout')
+@app.route('/logout/')
 def logout():
     logout_user()
     return redirect(url_for('index'))
@@ -201,7 +200,7 @@ def register():
     return render_template('register.html', title='Register', form=form, error=error, menu='home')
 
 # This is just for development, please delete before going to production
-@app.route('/tag', methods=['GET','POST'])
+@app.route('/tag/', methods=['GET','POST'])
 @requiresAdmin
 def tag():
   import calendar
@@ -251,7 +250,7 @@ def library():
     query = Scan.scientific_name
 
     data = {
-      'scans': [ s.serialize() for s in Scan.query.filter(scanConditions).order_by(query).limit(50).all() ]
+      'scans': [ s.serialize() for s in Scan.query.filter(scanConditions).order_by(query).all() ]
     }
 
   data['tags'] = Tag.tree()
@@ -259,16 +258,45 @@ def library():
 
   return render_vue(data, title="Library", menu='library')
 
-@app.route('/library/manage-uploads')
-def manage_uploads():
-  pass
+@app.route('/library/manage-uploads/', methods=['GET', 'POST'])
+@app.route('/library/manage-uploads/page/<int:page>/', methods=['GET', 'POST'])
+def manage_uploads(page=1):
+  """View a list of uploads with publish, edit, delete actions"""
+
+  # Process delete request
+  if request.method == 'POST':
+    scan_id = request.form.get('delete')
+    app.logger.warn(scan_id)
+    scan = Scan.query.get(scan_id)
+    db.session.delete(scan)
+    db.session.commit()
+    return redirect(request.full_path)
+
+  # To publish, we have to submit to the ScanUploadForm endpoint,
+  # which requires a CSRF token. Construct the form to generate one.
+  ScanUploadForm()
+
+  per_page = 50
+  offset = (page - 1) * per_page
+  query = Scan.query
+  startswith = request.args.get('char')
+  if(startswith):
+    query = query.filter(Scan.scientific_name.startswith(startswith))
+  scans = query.paginate(page, per_page)
+  data = {
+    'scans': [ s.serialize() for s in scans.items ],
+    'page': page,
+    'total_pages': math.ceil(scans.total / per_page),
+    'csrf_token': g.csrf_token
+  }
+  return render_vue(data, title="Manage Uploads", menu="library")
 
 @app.route('/<scan:scan>/')
 def scan(scan):
   # TODO: Hide if unpublished
   return render_vue(scan.serialize(), title=scan.scientific_name, menu='library')
 
-@app.route('/<scan:scan>/stills')
+@app.route('/<scan:scan>/stills/')
 @login_required
 def scan_stills(scan):
   """Return a zip file containing all of the stills attached to this scan"""
@@ -282,12 +310,22 @@ def scan_stills(scan):
 
   return send_file(zip_buffer, as_attachment=True, attachment_filename=filename)
 
-@app.route('/<scan:scan>/edit', methods=['GET', 'POST'])
+@app.route('/<scan:scan>/edit-scan', methods=['GET', 'POST'])
 @app.route('/library/create/', methods=['GET', 'POST'])
 @requiresContributor
 def edit_scan(scan = None):
   # TODO: Check user can edit
   form = ScanUploadForm(obj=scan, pub_query=request.args.get("pub_query"))
+
+  if scan:
+    if not form.geologic_age.data:
+      form.geologic_age.data = scan.geologic_age
+
+    if not form.ontogenic_age.data:
+      form.ontogenic_age.data = scan.ontogenic_age
+
+    if not form.elements.data:
+      form.elements.data = scan.elements
 
   # Get the records for the currently selected publications
   pubsearch = form.publications_search.data or []
@@ -323,15 +361,16 @@ def edit_scan(scan = None):
     scan.specimen_id = form.specimen_id.data
     scan.description = form.description.data
     scan.publications = Publication.query.filter(Publication.id.in_(form.publications.data)).all()
+
     scan.tags = form.geologic_age.data + form.ontogenic_age.data + form.elements.data
 
-    if form.gbif_id.data:
-      scan.gbif_id = form.gbif_id.data
+    gbif_id = form.gbif_id.data
 
+    if gbif_id and gbif_id != scan.gbif_id:
       import urllib.request, json
-      with urllib.request.urlopen("http://api.gbif.org/v1/species/" + str(scan.gbif_id) + "/parents") as url:
+      with urllib.request.urlopen("http://api.gbif.org/v1/species/" + str(gbif_id) + "/parents") as url:
         tags = json.loads(url.read().decode())
-      with urllib.request.urlopen("http://api.gbif.org/v1/species/" + str(scan.gbif_id)) as url:
+      with urllib.request.urlopen("http://api.gbif.org/v1/species/" + str(gbif_id)) as url:
         tags.append(json.loads(url.read().decode()))
 
       tagIds = [ tag['key'] for tag in tags ]
@@ -352,33 +391,30 @@ def edit_scan(scan = None):
         scan.taxonomy.append(newTag)
 
     for file in form.attachments.data:
+      if isinstance(file, ScanAttachment):
+        continue
       import string
       import random
       import magic
 
-      mimeType = magic.from_buffer(file.stream.read(1024), mime=True)
-      if (mimeType != 'image/png'):
+      # Take the filename as the label and generate a new, safe filename
+      label = file.filename
+      filename = secure_filename(file.filename) + '.png'
+
+      fileModel = File.fromBinary(filename, file.stream)
+
+      if (fileModel.mime_type != 'image/png'):
         form.stills.errors.append('Stills must be png files')
       else:
-        file.stream.seek(0)
-        # Take the filename as the label and generate a new, safe filename
-        label = file.filename
-        filename = secure_filename(file.filename) + '.png'
-        location = safe_join('uploads', ''.join(random.choices(string.ascii_uppercase + string.digits, k=6)) + filename)
-        file.save(location)
+        file.save(fileModel.location)
         attachment = ScanAttachment(
           name = label,
-          file = File(
-            title = label,
-            filename = filename,
-            location = location,
-            owner_id = current_user.id,
-            size = os.stat(location).st_size,
-            mime_type = mimeType
-          )
+          file = fileModel
         )
         db.session.add(attachment)
         scan.attachments.append(attachment)
+
+    form_valid = True
 
     if form.published.data:
       form_valid = form.validate()
@@ -392,12 +428,12 @@ def edit_scan(scan = None):
 
       if form_valid:
         scan.published = True
-        db.session.commit()
-        return redirect(url_for('edit_scan', scan=scan))
+    else:
+      scan.published = False
 
-    scan.published = False
-
-    db.session.commit()
+    if form_valid:
+      db.session.commit()
+      return redirect(request.args.get('redirect') or url_for('edit_scan', scan=scan))
 
   if form.pub_query.data:
     pubs = Publication.query.filter(Publication.title.contains(form.pub_query.data))
@@ -428,14 +464,7 @@ def create_publication():
       )
 
       for file in form.files.data:
-        # TODO: Don't overwrite
-        file.save('uploads/' + file.filename)
-        publication.files.append(File(
-          filename = file.filename,
-          location = 'uploads/' + file.filename,
-          owner_id = current_user.id,
-          mime_type = 'application/pdf',
-        ))
+        publication.files.append(File.fromUpload(file))
 
       db.session.add(publication)
       db.session.commit()
@@ -444,7 +473,7 @@ def create_publication():
 
     return render_template('create-publication.html', title='Create', form=form, menu='publications')
 
-@app.route('/publications')
+@app.route('/publications/')
 def publications():
   title = request.args.get('title')
   pubs = Publication.query.filter(Publication.title.ilike('%{0}%'.format(title)))
@@ -459,7 +488,7 @@ def publication(publication):
   # TODO: Hide if unpublished
   return render_template('publication.html', title=publication.title, publication=publication, menu='publications')
 
-@app.route('/<publication:publication>/edit/', methods=['GET', 'POST'])
+@app.route('/<publication:publication>/edit-pub', methods=['GET', 'POST'])
 @requiresContributor
 def edit_publication(publication):
     form = PublicationUploadForm(obj=publication)
@@ -475,13 +504,7 @@ def edit_publication(publication):
         # TODO: Don't overwrite
         if file == None:
           continue
-        file.save('uploads/' + file.filename)
-        f = File(
-          filename = file.filename,
-          location = 'uploads/' + file.filename,
-          owner_id = current_user.id,
-          mime_type = 'application/pdf',
-        )
+        f = File.fromUpload(file)
         db.session.add(f)
         publication.files.append(f)
 
@@ -491,7 +514,7 @@ def edit_publication(publication):
 
     return render_template('create-publication.html', title='Create', form=form, menu='publications')
 
-@app.route('/contribute')
+@app.route('/contribute/')
 def contribute():
   pass
 
@@ -505,7 +528,7 @@ def render_vue(data, title, menu):
 # pass the url path and an object to be provided as the defaultData property to the vue model
 def vue(defaultData = None):
   path = request.full_path
-  pipes = subprocess.Popen(['node', '--experimental-modules', 'app/vue/server.js', path, json.dumps(defaultData)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  pipes = subprocess.Popen(['node', 'app/vue/server.js', path, json.dumps(defaultData)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   std_out, std_err = pipes.communicate()
 
   if pipes.returncode != 0:

@@ -77,11 +77,6 @@ class ScanUploadForm(FlaskForm):
 
         return data
 
-    def json_data(self):
-        return {
-            k: v for k, v in self.data.items() if not isinstance(self[k], FileField)
-        }
-
 class PublicationUploadForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     pub_year = StringField('Year', validators=[DataRequired()])

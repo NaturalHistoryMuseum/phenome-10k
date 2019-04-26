@@ -9,8 +9,10 @@ export default () => {
     routes: [
       { path: '/library', component: () => import('./components/Library'), name: 'library' },
       { path: '/library/create', component: () => import('./components/Upload') },
+      { path: '/library/manage-uploads', component: () => import('./components/ManageUploads'), name: 'manage-uploads' },
+      { path: '/library/manage-uploads/page/:page(\\d+)', component: () => import('./components/ManageUploads'), name: 'manage-uploads-page' },
       { path: '/:id', component: () => import('./components/ScanOrPublication'), name: 'scan-or-pub' },
-      { path: '/:id/edit', component: () => import('./components/Upload') }
+      { path: '/:id/edit-scan', component: () => import('./components/Upload'), name: 'edit-scan' }
     ]
   });
 }

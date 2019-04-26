@@ -1,8 +1,15 @@
+import magic
+import os
+import string
+import random
 from datetime import datetime
+from sqlalchemy import event
 from sqlalchemy.sql import func
-from app import db, login
+from app import db, login, app
 from passlib.context import CryptContext
-from flask_login import UserMixin
+from flask_login import UserMixin, current_user
+from flask.helpers import safe_join
+from werkzeug.utils import secure_filename
 
 @login.user_loader
 def load_user(id):
@@ -68,24 +75,26 @@ class Scan(db.Model):
     specimen_link = db.Column(db.String(250))
     description  = db.Column(db.Text())
 
-    source = db.relationship('File', foreign_keys = 'Scan.file_id')
-    ctm = db.relationship('File', foreign_keys = 'Scan.ctm_id')
+    source = db.relationship('File', foreign_keys = 'Scan.file_id', cascade="all")
+    ctm = db.relationship('File', foreign_keys = 'Scan.ctm_id', cascade="all")
     publications = db.relationship('Publication', secondary='scan_publication')
-    attachments = db.relationship('ScanAttachment')
+    attachments = db.relationship('ScanAttachment', cascade="all")
     tags = db.relationship('Tag', secondary='scan_tag', lazy='dynamic')
     taxonomy = db.relationship('Taxonomy', secondary='scan_taxonomy')
 
+    errors = []
+
     @property
     def geologic_age(self):
-        return self.tags.filter_by(category='geologic_age')
+        return self.tags.filter_by(category='geologic_age').all()
 
     @property
     def ontogenic_age(self):
-        return self.tags.filter_by(category='ontogenic_age')
+        return self.tags.filter_by(category='ontogenic_age').all()
 
     @property
     def elements(self):
-        return self.tags.filter_by(category='elements')
+        return self.tags.filter_by(category='elements').all()
 
     def serialize(self):
         return {
@@ -105,6 +114,7 @@ class Scan(db.Model):
             'specimen_location': self.specimen_location,
             'specimen_link': self.specimen_link,
             'description': self.description,
+            'created': self.date_created.isoformat(),
 
             'tags': [ tag.serialize() for tag in self.tags ],
             'publications': [ publication.serialize() for publication in self.publications ],
@@ -120,7 +130,6 @@ class Scan(db.Model):
 
 class File(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(250), nullable=False)
     filename = db.Column(db.String(250), nullable=False)
     location = db.Column(db.String(250), nullable=False)
     date_created = db.Column(db.DateTime, index=True, server_default=func.now())
@@ -130,11 +139,55 @@ class File(db.Model):
 
     owner = db.relationship('User')
 
+    @staticmethod
+    def fromUpload(fileStorage, save = True):
+        """Create a File model from a Werkzeug FileStorage object, and save the file to disk"""
+        file = File.fromBinary(fileStorage.filename, fileStorage.stream)
+        if save:
+            fileStorage.save(file.location)
+        return file
+
+    @staticmethod
+    def fromBinary(filename, stream):
+        """Create a File model from a string filename and file-like object"""
+        mimeType = magic.from_buffer(stream.read(1024), mime=True)
+        stream.seek(0, os.SEEK_END)
+        size = stream.tell()
+        stream.seek(0)
+
+        return File.fromName(
+            filename,
+            size = size,
+            mimeType = mimeType
+        )
+
+    @staticmethod
+    def fromName(filename, mimeType=None, size=None):
+        """Create a File model from a string filename with optional size and mimetype"""
+
+        location = safe_join('uploads', ''.join(random.choices(string.ascii_uppercase + string.digits, k=6)) + secure_filename(filename))
+
+        return File(
+            filename = filename,
+            location = location,
+            owner_id = current_user.id,
+            mime_type = mimeType,
+            size = size
+        )
+
     def serialize(self):
         return '/' + self.location
 
     def __repr__(self):
         return '<File {}>'.format(self.filename)
+
+@event.listens_for(File, 'after_delete')
+def receive_after_delete(mapper, connection, target):
+    """Ensure the files get deleted from disk when the record is deleted"""
+    try:
+        os.remove(target.location)
+    except:
+        pass
 
 class PublicationFile(db.Model):
     publication_id = db.Column(db.Integer, db.ForeignKey('publication.id'))
@@ -277,7 +330,7 @@ class ScanAttachment(db.Model):
     scan_id = db.Column(db.Integer, db.ForeignKey('scan.id'))
     file_id = db.Column(db.Integer, db.ForeignKey('file.id'))
 
-    file = db.relationship('File', foreign_keys = 'ScanAttachment.file_id')
+    file = db.relationship('File', foreign_keys = 'ScanAttachment.file_id', cascade="all")
 
     def serialize(self):
         return {
