@@ -10,9 +10,10 @@
 </style>
 
 <script>
-import CTM from 'jsc3d/build/jsc3d.ctm.js';
-import JSC3D from "jsc3d/build/jsc3d.js";
-CTM.register(JSC3D.LoaderSelector);
+import CTM from 'jsc3d/ctm-loader';
+import { Viewer, registerLoader } from "jsc3d/index.js";
+
+registerLoader(CTM);
 
 export default {
     name: 'ctm',
@@ -30,7 +31,7 @@ export default {
     $viewer: null,
     mounted(){
       this.$nextTick(() => {
-        const viewer = new JSC3D.Viewer(this.$refs.canvas);
+        const viewer = new Viewer(this.$refs.canvas);
         viewer.setParameter('SceneUrl', this.src);
         viewer.setParameter('RenderMode', 'smooth');
         viewer.setParameter('Renderer', 'webgl');

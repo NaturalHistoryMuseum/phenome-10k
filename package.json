@@ -10,7 +10,7 @@
     "exports-loader": "^0.7.0",
     "expose-loader": "^0.7.5",
     "imports-loader": "^0.8.0",
-    "jsc3d": "file:../jsc3d",
+    "jsc3d": "github:naturalhistorymuseum/jsc3d",
     "mini-css-extract-plugin": "^0.6.0",
     "node-sass": "^4.11.0",
     "null-loader": "^0.1.1",
