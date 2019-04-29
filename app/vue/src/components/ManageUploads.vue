@@ -38,20 +38,14 @@
         </tr>
       </tbody>
     </table>
-    <div class="ManageUploads__footer">
-      <div>Page {{ page }} of {{ $route.meta.data.total_pages || 1 }}</div>
-      <div v-if="$route.meta.data.total_pages > 1">
-        <template v-if="page > 2">
-          <Page page="1" /> …
-        </template>
-        <Page v-if="page > 1" :page="page - 1" />
-        <Page :page="page" />
-        <Page v-if="page < totalPages" :page="page + 1" />
-        <template v-if="page < totalPages - 1">
-          … <Page :page="totalPages" />
-        </template>
-      </div>
-    </div>
+    <Pagination :page="page"
+                :total="totalPages"
+                :to="page => ({
+                    name: 'manage-uploads-page',
+                    params: { page },
+                    query: this.$route.query
+                  })"
+                class="ManageUploads__footer" />
   </div>
 </template>
 
@@ -191,44 +185,16 @@ td.ManageUploads__upload-date {
 .ManageUploads__footer {
   margin-top: 50px;
   grid-area: footer;
-  display: flex;
-  justify-content: space-between;
-  font-family: 'HelveticaNeueW01-55Roma', Arial, Helvetica, sans-serif;
-  font-size: 11px;
-  color: #333;
-}
-
-.ManageUploads__page--active {
-  color: #096;
 }
 </style>
 
 
 <script>
-const Page = {
-  props: ['page'],
-  render(h){
-    return h('router-link', {
-      attrs: {
-        to: {
-          name: 'manage-uploads-page',
-          params: {
-            page: this.page,
-          },
-          query: this.$route.query
-        }
-      },
-      class: {
-        "ManageUploads__page": true,
-        "ManageUploads__page--active": this.$route.meta.data.page === this.page
-      }
-    }, [this.page]);
-  }
-}
+import Pagination from './Pagination';
 
 export default {
   components: {
-    Page
+    Pagination
   },
   computed: {
     page() {

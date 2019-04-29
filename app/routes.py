@@ -489,10 +489,25 @@ def create_publication():
     return render_template('create-publication.html', title='Create', form=form, menu='publications')
 
 @app.route('/publications/')
-def publications():
+@app.route('/publications/page/<int:page>/')
+def publications(page = 1):
+  per_page = 50
+
   title = request.args.get('title')
-  pubs = Publication.query.filter(Publication.title.ilike('%{0}%'.format(title)))
-  return jsonify([pub.serialize() for pub in pubs])
+  if title:
+    query = Publication.query.filter(Publication.title.ilike('%{0}%'.format(title)))
+  else:
+    query = Publication.query
+
+  pubs = query.paginate(page, per_page)
+
+  data = {
+    'publications': [ pub.serialize() for pub in pubs.items ],
+    'page': page,
+    'total_pages': math.ceil(pubs.total / per_page)
+  }
+
+  return render_vue(data, title='Publications', menu='publications')
 
 @app.route('/publications/manage-publications/')
 def manage_publications():

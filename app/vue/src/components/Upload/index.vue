@@ -272,7 +272,7 @@ export default {
     async pubSearch(event) {
         const query = event.target.value;
         const res = await fetch(`/publications?title=${query}`, { headers: { accept: 'application/json' } });
-        this.pubList = await res.json();
+        this.pubList = (await res.json()).publications;
     }
   },
   components: {
