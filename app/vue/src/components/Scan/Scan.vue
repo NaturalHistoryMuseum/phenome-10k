@@ -55,7 +55,7 @@
               </div>
               <div>
                 <dt>Year:</dt>
-                <dd>{{ publication.year }}</dd>
+                <dd>{{ publication.pub_year }}</dd>
               </div>
               <div>
                 <dt>Authors:</dt>
@@ -184,6 +184,7 @@
 
 .Scan__column-files {
   flex-basis: 25%;
+  margin-left: 10px;
 }
 
 .Scan__files-header {

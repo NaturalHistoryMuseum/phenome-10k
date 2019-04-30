@@ -355,3 +355,6 @@ class ScanAttachment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     scan_id = db.Column(db.Integer, db.ForeignKey('scan.id'))
     attachment_id = db.Column(db.Integer, db.ForeignKey('attachment.id'))
+
+    scan = db.relationship('Scan')
+    attachment = db.relationship('Attachment', cascade='all')

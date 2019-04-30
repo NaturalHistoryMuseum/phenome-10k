@@ -15,7 +15,7 @@ from werkzeug.exceptions import NotFound, BadRequest
 from stl.mesh import Mesh
 from app import app, db, models
 from app.forms import LoginForm, RegistrationForm, ScanUploadForm, PublicationUploadForm
-from app.models import User, Scan, File, Publication, Tag, Taxonomy, Attachment
+from app.models import User, Scan, File, Publication, Tag, Taxonomy, Attachment, ScanAttachment
 import mimetypes
 import subprocess
 import json
@@ -300,7 +300,7 @@ def scan(scan):
 @login_required
 def delete_still(id):
   """Url for deleting a still"""
-  attachment = Attachment.query.get(id)
+  attachment = ScanAttachment.query.filter_by(attachment_id=id).first()
   return_to = url_for('library')
 
   if attachment and (attachment.scan.author_id == current_user.id or current_user.isAdmin()):
@@ -496,15 +496,20 @@ def create_publication():
 @app.route('/publications/')
 @app.route('/publications/page/<int:page>/')
 def publications(page = 1):
-  per_page = 50
+  per_page = 100
 
   title = request.args.get('title')
+  mine = 'mine' in request.args.keys()
+
   if title:
     query = Publication.query.filter(Publication.title.ilike('%{0}%'.format(title)))
   else:
     query = Publication.query
 
-  pubs = query.paginate(page, per_page)
+  if mine and current_user.is_authenticated:
+    query = query.filter(Publication.author_id == current_user.id)
+
+  pubs = query.filter_by(published = True).paginate(page, per_page)
 
   data = {
     'publications': [ pub.serialize() for pub in pubs.items ],
