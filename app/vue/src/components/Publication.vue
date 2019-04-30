@@ -20,7 +20,7 @@
         <div>
           <dt>Files:</dt>
           <dd>
-            <template v-for="(scan, ix) in publication.scans">
+            <template v-for="(scan, ix) in publication.scans.filter(scan => scan.published)">
               <template v-if="ix > 0">,</template>
               <router-link :key="scan.id"
                           :to="{ name: 'scan-or-pub', params: { id: scan.url_slug || scan.id } }"
@@ -31,9 +31,7 @@
         </div>
       </dl>
 
-      <div class="Publication__abstract">
-        {{ publication.abstract }}
-      </div>
+      <div class="Publication__abstract" v-html="publication.abstract" />
 
       <p><a v-if="publication.link" :href="publication.link">{{ publication.link }}</a></p>
 

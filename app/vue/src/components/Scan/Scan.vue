@@ -38,12 +38,9 @@
           </div>
         </dl>
 
-        <p>
-          {{ scan.description }}
-        </p>
+        <div v-html="scan.description" />
 
-
-        <div v-for="publication in scan.publications" :key="publication.id">
+        <div v-for="publication in scan.publications.filter(pub=>pub.published)" :key="publication.id">
 
           <div class="Scan__publication-details">
             <h2 class="Scan__related">Related Publication</h2>
@@ -68,9 +65,7 @@
             </dl>
           </div>
 
-          <p class="Scan__pub-abstract">
-            {{ publication.abstract }}
-          </p>
+          <div class="Scan__pub-abstract" v-html="publication.abstract" />
 
           <p>
             Link:<br>
@@ -100,7 +95,7 @@
           </div>
         </Files>
 
-        <template v-for="publication in scan.publications">
+        <template v-for="publication in scan.publications.filter(pub => pub.published)">
           <Files v-for="file in publication.files" :key="file" :title="'PDF — ' + publication.title" :download="file.file" />
         </template>
       </div>
