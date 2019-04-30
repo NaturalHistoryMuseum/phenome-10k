@@ -77,8 +77,8 @@ class Scan(db.Model):
 
     source = db.relationship('File', foreign_keys = 'Scan.file_id', cascade="all")
     ctm = db.relationship('File', foreign_keys = 'Scan.ctm_id', cascade="all")
-    publications = db.relationship('Publication', secondary='scan_publication')
-    attachments = db.relationship('ScanAttachment', cascade="all")
+    publications = db.relationship('Publication', secondary='scan_publication', backref='scans')
+    attachments = db.relationship('Attachment', secondary='scan_attachment', cascade="all")
     tags = db.relationship('Tag', secondary='scan_tag', lazy='dynamic')
     taxonomy = db.relationship('Taxonomy', secondary='scan_taxonomy')
 
@@ -189,9 +189,29 @@ def receive_after_delete(mapper, connection, target):
     except:
         pass
 
+class Attachment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(250), nullable=False)
+    file_id = db.Column(db.Integer, db.ForeignKey('file.id'))
+
+    file = db.relationship(
+        'File',
+        cascade="all"
+    )
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'file': self.file.serialize(),
+            'size': self.file.size,
+            'filename': self.file.filename
+        }
+
 class PublicationFile(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
     publication_id = db.Column(db.Integer, db.ForeignKey('publication.id'))
-    file_id = db.Column(db.Integer, db.ForeignKey('file.id'), primary_key=True)
+    attachment_id = db.Column(db.Integer, db.ForeignKey('attachment.id'))
 
 class Publication(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -222,10 +242,17 @@ class Publication(db.Model):
           'journal': self.journal,
           'link': self.link,
           'abstract': self.abstract,
-          'files': [ file.serialize() for file in self.files ]
+          'files': [ file.serialize() for file in self.files ],
+          'scans': [
+              {
+                  'id': scan.id,
+                  'url_slug': scan.url_slug,
+                  'scientific_name': scan.scientific_name
+              } for scan in self.scans
+            ]
         }
 
-    files = db.relationship('File', secondary='publication_file')
+    files = db.relationship('Attachment', secondary='publication_file', cascade='all')
 
     @staticmethod
     def findBySlug(slug):
@@ -326,17 +353,5 @@ class ScanTaxonomy(db.Model):
 
 class ScanAttachment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(250), nullable=False)
     scan_id = db.Column(db.Integer, db.ForeignKey('scan.id'))
-    file_id = db.Column(db.Integer, db.ForeignKey('file.id'))
-
-    file = db.relationship('File', foreign_keys = 'ScanAttachment.file_id', cascade="all")
-    scan = db.relationship('Scan', foreign_keys = 'ScanAttachment.scan_id')
-
-    def serialize(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'file': self.file.serialize(),
-            'size': self.file.size
-        }
+    attachment_id = db.Column(db.Integer, db.ForeignKey('attachment.id'))

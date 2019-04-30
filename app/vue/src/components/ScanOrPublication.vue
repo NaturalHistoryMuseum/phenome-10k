@@ -12,7 +12,7 @@
 export default {
   components: {
     Scan: () => import('./Scan'),
-    Publication: { render: h => h('div', ['Publication']) }
+    Publication: () => import('./Publication')
   },
   computed: {
     type() {

@@ -15,7 +15,7 @@ from werkzeug.exceptions import NotFound, BadRequest
 from stl.mesh import Mesh
 from app import app, db, models
 from app.forms import LoginForm, RegistrationForm, ScanUploadForm, PublicationUploadForm
-from app.models import User, Scan, File, Publication, Tag, Taxonomy, ScanAttachment
+from app.models import User, Scan, File, Publication, Tag, Taxonomy, Attachment
 import mimetypes
 import subprocess
 import json
@@ -118,7 +118,7 @@ def requiresContributor(f):
 def index():
   return render_template('index.html', menu='home')
 
-@app.route('/uploads/<path:path>/')
+@app.route('/uploads/<path:path>')
 def send_uploads(path):
   width = request.args.get('w')
 
@@ -300,7 +300,7 @@ def scan(scan):
 @login_required
 def delete_still(id):
   """Url for deleting a still"""
-  attachment = ScanAttachment.query.get(id)
+  attachment = Attachment.query.get(id)
   return_to = url_for('library')
 
   if attachment and (attachment.scan.author_id == current_user.id or current_user.isAdmin()):
@@ -406,7 +406,7 @@ def edit_scan(scan = None):
         scan.taxonomy.append(newTag)
 
     for file in form.attachments.data:
-      if isinstance(file, ScanAttachment):
+      if isinstance(file, Attachment):
         continue
       import string
       import random
@@ -422,7 +422,7 @@ def edit_scan(scan = None):
         form.stills.errors.append('Stills must be png files')
       else:
         file.save(fileModel.location)
-        attachment = ScanAttachment(
+        attachment = Attachment(
           name = label,
           file = fileModel
         )
@@ -479,7 +479,12 @@ def create_publication():
       )
 
       for file in form.files.data:
-        publication.files.append(File.fromUpload(file))
+        publication.files.append(
+          Attachment(
+            name = file.filename,
+            file = File.fromUpload(file)
+          )
+        )
 
       db.session.add(publication)
       db.session.commit()
@@ -516,7 +521,7 @@ def manage_publications():
 @app.route('/<publication:publication>/')
 def publication(publication):
   # TODO: Hide if unpublished
-  return render_template('publication.html', title=publication.title, publication=publication, menu='publications')
+  return render_vue(publication.serialize(), title=publication.title, menu='publications')
 
 @app.route('/<publication:publication>/edit-pub', methods=['GET', 'POST'])
 @requiresContributor
@@ -536,7 +541,12 @@ def edit_publication(publication):
           continue
         f = File.fromUpload(file)
         db.session.add(f)
-        publication.files.append(f)
+        publication.files.append(
+          Attachment(
+            file = f,
+            name = file.filename
+          )
+        )
 
       db.session.commit()
 
