@@ -1,15 +1,15 @@
 <template>
-  <form class="Upload Subgrid" :action="formAction" method="post" @submit.prevent="submit" enctype="multipart/form-data" novalidate>
+  <div class="Upload Subgrid">
     <h1 class="Upload__title">{{ scan ? "Edit: " + scan.scientific_name : "Upload New" }}</h1>
-    <input type="hidden" name="csrf_token" :value="csrf">
-    <span v-if="error" class="error">[{{ error }}]</span>
-    <div class="Upload__upload">
-      <h2 class="Upload__section-title">1. Browse and preview STL file</h2>
+    <form class="Upload__upload" :action="formAction" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" :value="csrf">
+      <span v-if="error" class="error">[{{ error }}]</span>
+      <h2 class="Upload__section-title Upload__section-head">Browse and preview STL file</h2>
       <CtmViewer v-if="scan && scan.ctm" ref="canvas" :src="scan.ctm" height=400px width=500px />
       <Upload3D v-else @change="upload" :progress="progress" :errors="form.file.errors"></Upload3D>
-    </div>
-    <span class="Upload__stills">
-      <span class="Upload__section-title">2. Take Stills</span> - Move image into appropriate position and click the button below (Minimum of 1 snapshot image, maximum of 6 images).
+    </form>
+    <div class="Upload__stills">
+      <span class="Upload__section-title Upload__section-head">Take Stills</span> - Move image into appropriate position and click the button below (Minimum of 1 snapshot image, maximum of 6 images).
 
       <div class="Upload__still-capture-name">
         <label>Label: <input class="Upload__form-input" v-model="stillName"></label>
@@ -22,74 +22,107 @@
         <img :src="file" class="Upload__still-image" />
         <div class="Upload__still-name">{{ name }}</div>
       </div>
-    </span>
-    <div class="Upload__details">
-      <TextInput name="scientific_name" :data="form.scientific_name" @keyup="e => searchGbif(e.target.value)">
-        <h2 class="Upload__section-title">3. Scientific Name</h2>
-      </TextInput>
-      <ul>
-        <li v-for="entry in gbifData" :key="entry.key"><label><input type="radio" name="gbif_id" :value="entry.key" v-model="gbifSelected"><i>{{ entry.canonicalName }}</i> {{ entry.scientificName.replace(entry.canonicalName, '') }} ({{ entry.kingdom }})</label></li>
-      </ul>
-      <fieldset>
-        <legend><span class="Upload__section-title">4. Specimen</span> - Please enter relevant specimen information</legend>
-        <TextInput name="alt_name" :data="form.alt_name">Alt Name</TextInput>
-        <TextInput name="specimen_location" :data="form.specimen_location">Specimen Location</TextInput>
-        <TextInput name="specimen_id" :data="form.specimen_id">Specimen ID</TextInput>
-      </fieldset>
-      <FormField :errors="form.description.errors">
-        <h2 class="Upload__section-title">6. Description</h2>
-        <textarea name="description" :value="form.description.data" class="Upload__form-input" />
-      </FormField>
-      <fieldset>
-        <legend><span class="Upload__section-title">7. Publications</span> - Assign any relevant publications to the scan</legend>
-        <div class="SelectViewer">
-          <div class="ListSearch">
-            <div class="ListSearch__search Search">
-              <input type="text" name="pub_query" class="Search__input"  @keyup="pubSearch" />
-              <button name="pub_search" :value="form.pub_search.data" class="Search__submit">Search</button>
-            </div>
-            <div name="publications_search" class="ListSearch__results">
-              <ul>
-                <li v-for="pub in pubList" :key="pub.id"><input name="publications_search" type="checkbox" :value="pub.id">{{ pub.title }}</li>
+    </div>
+    <form class="Upload__details" :action="formAction" method="post" @submit.prevent="submit" novalidate>
+      <input type="hidden" name="csrf_token" :value="csrf">
+      <div class="Upload__column">
+        <TextInput name="scientific_name" :data="form.scientific_name" @keyup="e => searchGbif(e.target.value)">
+          <h2 class="Upload__section-title Upload__section-head">Scientific Name</h2>
+        </TextInput>
+        <ul>
+          <li v-for="entry in gbifData" :key="entry.key"><label><input type="radio" name="gbif_id" :value="entry.key" v-model="gbifSelected"><i>{{ entry.canonicalName }}</i> {{ entry.scientificName.replace(entry.canonicalName, '') }} ({{ entry.kingdom }})</label></li>
+        </ul>
+        <fieldset>
+          <legend><span class="Upload__section-title Upload__section-head">Specimen</span> - Please enter relevant specimen information</legend>
+          <TextInput name="alt_name" :data="form.alt_name">Alt. Name</TextInput>
+          <TextInput name="specimen_location" :data="form.specimen_location">Specimen Location</TextInput>
+          <TextInput name="specimen_id" :data="form.specimen_id">Specimen ID</TextInput>
+          <TextInput name="specimen_url" :data="form.specimen_url">Specimen URL</TextInput>
+        </fieldset>
+        <FormField :errors="form.description.errors">
+          <h2 class="Upload__section-title Upload__section-head">Description</h2>
+          <textarea name="description" :value="form.description.data" class="Upload__form-input" />
+        </FormField>
+        <fieldset>
+          <legend class="Upload__section-head"><span class="Upload__section-title Upload__section-head">Publications</span> - Assign any relevant publications to the scan</legend>
+          <div class="Upload__tabs">
+            <button type="button" @click="myPubs=true" :class="pubsTabClass(myPubs)">My Pubs</button>
+            <button type="button" @click="myPubs=false" :class="pubsTabClass(!myPubs)">All Pubs</button>
+          </div>
+          <div class="SelectViewer Upload__tabs-content">
+            <div class="ListSearch">
+              <div class="ListSearch__search Search">
+                <input type="text" name="pub_query" class="Search__input"  @keyup="pubSearch" :placeholder="myPubs ? 'Search My Publications' : 'Search Publications'" autocomplete="off"/>
+              </div>
+              <ul class="Upload__listbox">
+                <li v-for="pub in pubSearchResults" :key="pub.id">
+                  <input class="Upload__checkbox" type="checkbox" :value="pub.id" :id="'pub' + pub.id" v-model="selectedPubIds">
+                  <label class="Upload__result" :for="'pub' + pub.id">{{ pub.title }}</label>
+                </li>
               </ul>
             </div>
-          </div>
-          <div name="publications" class="ListSearch__results">
-            <ul>
-              <li v-for="pub in savedPublications" :key="pub.id"><input name="publications" type="checkbox" :value="pub.id">{{ pub.title }}</li>
+            <ul class="Upload__listbox">
+              <li v-for="{id, title} in selectedPubs" :key="id">
+                <input class="Upload__checkbox" name="publications" type="checkbox" :value="id" :id="'sel-pub' + id" v-model="selectedPubIds">
+                <label class="Upload__result" :for="'sel-pub' + id">{{ title }}</label>
+              </li>
             </ul>
           </div>
+        </fieldset>
+      </div>
+      <div class="Upload__column">
+        <div class="Upload__section-head">
+          <span class="Upload__section-title Upload__section-head">Categories</span> - Assign the relevant tags to this entry. At least one catagory in each of Geologic Age, Elements and Ontologic Age is required.
         </div>
-      </fieldset>
-      <p>8. Categories - Assign the relevant tags to this entry. At least one catagory in each of Taxonomy, Geologic Age, Elements and Ontologic Age is required.</p>
 
-      <fieldset>
-        <legend>Geologic Age</legend>
-        <Tree :items="form.geologic_age.choices" #node="option" childKey="children">
-          <li><label><input type="checkbox" name="geologic_age" :value="option.id" :checked="(form.geologic_age.data || [] ).some(tag => option.id===tag.id)">{{ option.name }}</label></li>
-        </Tree>
-        <div v-for="error in form.geologic_age.errors" :key="error">{{ error }}</div>
-      </fieldset>
+        <fieldset>
+          <legend class="Upload__form-label">Geologic Age</legend>
+          <div class="Upload__listbox">
+            <Tree :items="form.geologic_age.choices" #node="option" childKey="children" class="Upload__tree">
+              <li>
+                <input type="checkbox" class="Upload__checkbox" name="geologic_age" :value="option.id" :id="'geo-age' + option.id" :checked="(form.geologic_age.data || [] ).some(tag => option.id===tag.id)">
+                <label :for="'geo-age' + option.id">{{ option.name }}</label>
+                <component :is="option.children" />
+              </li>
+            </Tree>
+          </div>
+          <div v-for="error in form.geologic_age.errors" :key="error">{{ error }}</div>
+        </fieldset>
 
-      <fieldset>
-        <legend>Ontogenic Age</legend>
-        <ul>
-          <li v-for="option in form.ontogenic_age.choices" :key="option.id"><label><input type="checkbox" name="ontogenic_age" :value="option.id" :checked="(form.ontogenic_age.data || [] ).some(tag => option.id===tag.id)">{{ option.name }}</label></li>
-        </ul>
-        <div v-for="error in form.ontogenic_age.errors" :key="error">{{ error }}</div>
-      </fieldset>
+        <fieldset>
+          <legend class="Upload__form-label">Ontogenic Age</legend>
+          <ul class="Upload__listbox">
+            <li v-for="option in form.ontogenic_age.choices" :key="option.id">
+              <input type="checkbox" class="Upload__checkbox" name="ontogenic_age" :value="option.id" :id="'onto-age' + option.id" :checked="(form.ontogenic_age.data || [] ).some(tag => option.id===tag.id)">
+              <label :for="'onto-age' + option.id">{{ option.name }}</label>
+            </li>
+          </ul>
+          <div v-for="error in form.ontogenic_age.errors" :key="error">{{ error }}</div>
+        </fieldset>
 
-      <fieldset>
-        <legend>Elements</legend>
-        <ul>
-          <li v-for="option in form.elements.choices" :key="option.id"><label><input type="checkbox" name="elements" :value="option.id" :checked="(form.elements.data || [] ).some(tag => option.id===tag.id)">{{ option.name }}</label></li>
-        </ul>
-        <div v-for="error in form.elements.errors" :key="error">{{ error }}</div>
-      </fieldset>
-      <label><input type="checkbox" name="published" :checked="form.published.data"> Publish</label>
-      <p><button class="Upload__form-button">Submit</button></p>
-    </div>
-  </form>
+        <fieldset>
+          <legend class="Upload__form-label">Elements</legend>
+          <div class="Upload__listbox">
+            <Tree :items="form.elements.choices" #node="option" childKey="children" class="Upload__tree">
+              <li>
+                <input type="checkbox"  class="Upload__checkbox" name="elements" :value="option.id" :id="'elements' + option.id" :checked="(form.elements.data || [] ).some(tag => option.id===tag.id)">
+                <label :for="'elements' + option.id">{{ option.name }}</label>
+                <component :is="option.children" />
+              </li>
+            </Tree>
+          </div>
+          <div v-for="error in form.elements.errors" :key="error">{{ error }}</div>
+        </fieldset>
+      </div>
+      <div class="Upload__submit">
+        <div>
+          <input type="checkbox" class="Upload__checkbox" name="published" :checked="form.published.data" id="submit">
+          <label for="submit">Publish</label>
+        </div>
+        <button class="Upload__form-button Upload__form-button--big">Save</button>
+      </div>
+    </form>
+  </div>
 </template>
 
 <script>
@@ -141,7 +174,7 @@ const TextInput = {
     },
     render(h) {
         return h(FormField, { props: { errors: this.data.errors } }, [
-            this.$slots.default,
+            h('div', { class: "Upload__form-label" }, this.$slots.default),
             h('input', {
                 class: {
                   "Upload__form-input": true
@@ -162,21 +195,37 @@ export default {
     "error",
   ],
   data() {
+    const data = this.$route.meta.data;
+    const pubSearchResults = data.form.publications.choices.reduce((o, pub) => Object.assign(o, { [pub.id]: pub }), {});
+
     return {
-      progress: null,
-      pubList: [],
-      gbifData: [],
-      gbifSelected: null,
-      stillName: '',
-      data: this.$route.meta.data
+      progress: null,     // Upload progress of the model file
+      gbifData: [],       // List of GBIF search results
+      gbifSelected: null, // Selected GBIF result
+      stillName: '',      // Contents of the Still Name text input
+      data,               // Data returned from the database
+      myPubs: true,       // Search only for publications created by current user
+      pubSearchResults,   // List of results for publication search
+      publications: pubSearchResults, // Object containing all publications, keyed by ID
+      selectedPubIds: data.form.publications.data.map(pub => pub.id) || [] // Array of selected publication IDs
     };
   },
   watch:{
     '$route.meta'(meta){
       this.data = meta.data;
     },
+    /* When we switch the publications tab, empty the list of search results until the user types */
+    myPubs(){
+      this.pubSearchResults = [];
+    }
   },
   computed: {
+    /**
+     * List of selected pub
+     */
+    selectedPubs(){
+      return this.selectedPubIds.map(id => this.publications[id])
+    },
     scan: {
       get(){
         return this.data.scan;
@@ -201,12 +250,6 @@ export default {
     },
     formAction(){
       return this.scan ? this.$router.resolve({ name: 'edit-scan', params: this.scan }).href : '';
-    },
-    savedPublications() {
-      const scanPubs = this.scan ? this.scan.publications : [];
-      const formPubIds = this.form.publications.data || [];
-      const pubsList = [...scanPubs, ...this.pubList];
-      return formPubIds.map(id => pubsList.find(pub => pub.id === id) || { id, title: id });
     }
   },
   methods: {
@@ -270,9 +313,26 @@ export default {
         this.scan = scan;
     },
     async pubSearch(event) {
-        const query = event.target.value;
-        const res = await fetch(`/publications?title=${query}`, { headers: { accept: 'application/json' } });
-        this.pubList = (await res.json()).publications;
+        const query = encodeURIComponent(event.target.value);
+        const mine = this.myPubs ? '&mine' : '';
+        const res = await fetch(`/publications?title=${query}${mine}`, { headers: { accept: 'application/json' } });
+        this.pubSearchResults = (await res.json()).publications;
+        // Add to the big list of all publications in case we want to reference it later
+        for (const pub of this.pubSearchResults) {
+          if (!(pub.id in this.publications)) {
+            this.$set(this.publications, pub.id, pub);
+          }
+        }
+    },
+    /**
+     * Return the class names for the publication search tabs
+     * @param active {bool} True if the tab is currently active
+     */
+    pubsTabClass(active){
+      return {
+        'Upload__tab': true,
+        'Upload__tab--active': active
+      }
     }
   },
   components: {
@@ -293,6 +353,7 @@ export default {
                        "sidebar . upload "
                        "sidebar . details"
                        "sidebar . .      ";
+  counter-reset: section;
 }
 
 .Upload__title {
@@ -311,15 +372,43 @@ export default {
 
 .Upload__details {
   grid-area: details;
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  grid-column-gap: 30px;
+}
+
+.Upload__submit {
+  grid-column-end: span 2;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 66%;
+  margin: 40px 0;
+}
+
+.Upload__section-head {
+  margin: 30px 0 15px;
 }
 
 .Upload__section-title {
-    color: #096;
-    font-size: 12px;
-    font-weight: bold;
-    font-family: 'Supria Sans W01 Bold', Helvetica, Arial, sans-serif;
-    text-transform: uppercase;
-    margin: 30px 0 15px;
+  color: #096;
+  font-size: 12px;
+  font-weight: bold;
+  font-family: 'Supria Sans W01 Bold', Helvetica, Arial, sans-serif;
+  text-transform: uppercase;
+}
+
+.Upload__section-title::before {
+  counter-increment: section;
+  content: counter(section) ". " ;
+}
+
+.Upload__form-label {
+  display: block;
+  font-family: 'Supria Sans W01 Regular', Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  color: #666;
+  margin: 15px 0 5px;
 }
 
 .Upload__form-input {
@@ -344,6 +433,11 @@ export default {
   font-size: 12px;
   border: none;
   font-weight: bold;
+}
+
+.Upload__form-button--big {
+  padding: 10px 60px;
+  font-size: 14px;
 }
 
 .Upload fieldset {
@@ -413,16 +507,11 @@ export default {
     color: #666;
 }
 
-.Search__submit {
-    border: 0;
-}
-
-
 .ListSearch__search {
     border-bottom: none;
 }
 
-.ListSearch__results {
+.Upload__listbox {
     border: 1px solid #666;
     min-height: 100px;
     padding: 10px;
@@ -433,25 +522,78 @@ export default {
     font-size: 12px;
 }
 
-.ListSearch__results li {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: flex-end;
-    align-items: flex-start;
-    margin: 2.5px 0;
+.Upload__checkbox:not(:last-child) {
+  position: absolute;
+  z-index: -1;
+  opacity: 0;
 }
 
-.ListSearch__results input {
-    border: 1px solid #096;
+.Upload__checkbox + label {
+  cursor: pointer;
+  display: block;
+  background: url('/static/tick-box.png') no-repeat;
+  background-position: left 2px;
+  padding: 0 0 0 15px;
 }
 
+.Upload__checkbox:checked + label {
+  background-image: url('/static/tick-box-selected.png');
+}
+
+.Upload__checkbox:focus + label {
+  outline: 1px dotted;
+}
+
+.Upload__result {
+  padding-bottom: 5px;
+}
 
 .SelectViewer {
     display: flex;
+    margin: -7.5px;
 }
 
 .SelectViewer > * {
     flex-basis: 50%;
     margin: 7.5px;
+}
+
+.Upload__tab {
+  cursor: pointer;
+  font-weight: bold;
+  background: none;
+  margin-bottom: -1px;
+  margin-left: 10px;
+  font-size: 14px;
+  border: 1px solid #666;
+  padding: 7px 65px;
+  display: inline-block;
+  text-transform: uppercase;
+  font-family: 'Supria Sans W01 Bold', Arial, Helvetica, sans-serif;
+  color: #ccc;
+}
+
+.Upload__tab--active {
+  border-bottom: 1px solid #fff;
+  color: #096;
+}
+
+.Upload__tabs {
+  border-bottom: 1px solid #666;
+  text-align: center;
+}
+
+.Upload__tabs-content {
+  padding: 20px 15px;
+}
+
+.Upload__tree {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.Upload__tree .Upload__tree {
+  padding-left: 15px;
 }
 </style>

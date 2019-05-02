@@ -95,6 +95,7 @@ a:link:hover {
 .Base__content {
   grid-area: content;
   grid-column-start: 1;
+  margin-bottom: 40px;
 }
 
 .Subgrid {
@@ -128,13 +129,6 @@ a:link:hover {
 }
 
 .Content-Sidebar__subgrid {
-  /*
-  grid-column-end: 3;
-  display: grid;
-  grid-template-columns: 222px 13px auto;
-  justify-items: end;
-  align-items: center;
-  */
   display: contents;
 }
 

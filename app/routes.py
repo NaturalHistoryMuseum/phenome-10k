@@ -266,7 +266,6 @@ def manage_uploads(page=1):
   # Process delete request
   if request.method == 'POST':
     scan_id = request.form.get('delete')
-    app.logger.warn(scan_id)
     scan = Scan.query.get(scan_id)
     db.session.delete(scan)
     db.session.commit()
@@ -330,7 +329,7 @@ def scan_stills(scan):
 @requiresContributor
 def edit_scan(scan = None):
   # TODO: Check user can edit
-  form = ScanUploadForm(obj=scan, pub_query=request.args.get("pub_query"))
+  form = ScanUploadForm(obj=scan)
 
   if scan:
     if not form.geologic_age.data:
@@ -343,13 +342,8 @@ def edit_scan(scan = None):
       form.elements.data = scan.elements
 
   # Get the records for the currently selected publications
-  pubsearch = form.publications_search.data or []
-  scanpubs = [pub.id for pub in scan.publications] if scan else []
-  pubselected = (form.publications.data or scanpubs) + pubsearch
-  form.publications.data = pubselected
-  pubs = Publication.query.filter(Publication.id.in_(pubselected)).all()
-  form.publications.choices = [(pub.id, pub.title) for pub in pubs]
-  form.publications_search.choices = form.publications.choices
+  pubs = Publication.query.filter(Publication.author_id == current_user.id).all()
+  form.publications.choices = [(pub, pub.title) for pub in pubs]
 
   if request.method == 'POST':
     if scan == None:
@@ -374,8 +368,9 @@ def edit_scan(scan = None):
     scan.alt_name = form.alt_name.data
     scan.specimen_location = form.specimen_location.data
     scan.specimen_id = form.specimen_id.data
+    scan.specimen_url = form.specimen_url.data
     scan.description = form.description.data
-    scan.publications = Publication.query.filter(Publication.id.in_(form.publications.data)).all()
+    scan.publications = form.publications.data
 
     scan.tags = form.geologic_age.data + form.ontogenic_age.data + form.elements.data
 
@@ -449,10 +444,6 @@ def edit_scan(scan = None):
     if form_valid:
       db.session.commit()
       return redirect(request.args.get('redirect') or url_for('edit_scan', scan=scan))
-
-  if form.pub_query.data:
-    pubs = Publication.query.filter(Publication.title.contains(form.pub_query.data))
-    form.publications_search.choices = set([(pub.id, pub.title) for pub in pubs]) - set(form.publications.choices)
 
   data = {
       'form': form.serialize(),
