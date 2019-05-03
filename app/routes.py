@@ -252,8 +252,18 @@ def library():
   # but if we're sorting by tag we need to group it all.
   # Put it under the `groups` key so the view knows it needs to render differently
   if(sort in ('geologic_age', 'ontogenic_age')):
-    data ={
-      'groups': [ { 'group': tag.name, 'items': [s.serialize() for s in tag.scans if s.published ] } for tag in Tag.query.filter(Tag.scans.any(scanConditions)).filter_by(category=sort).all() ]
+    results = [ (tag, tag.scans.filter(scanConditions).all()) for tag in Tag.query.filter_by(category=sort).all() ]
+
+    data = {
+      'groups': [
+        {
+          'group': tag.name,
+          'items': [
+            s.serialize() for s in scans
+          ]
+        }
+        for (tag, scans) in results if len(scans) > 0
+      ]
     }
   else:
     query = Scan.scientific_name
@@ -386,6 +396,7 @@ def edit_scan(scan = None):
     gbif_id = form.gbif_id.data
 
     if gbif_id and gbif_id != scan.gbif_id:
+      scan.gbif_id = gbif_id
       import urllib.request, json
       with urllib.request.urlopen("http://api.gbif.org/v1/species/" + str(gbif_id) + "/parents") as url:
         tags = json.loads(url.read().decode())

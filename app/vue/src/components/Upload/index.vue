@@ -3,7 +3,7 @@
     <h1 class="Upload__title">{{ scan ? "Edit: " + scan.scientific_name : "Upload New" }}</h1>
     <form class="Upload__upload" :action="formAction" method="post" enctype="multipart/form-data">
       <input type="hidden" name="csrf_token" :value="csrf">
-      <span v-if="error" class="error">[{{ error }}]</span>
+      <Errors v-if="error" :errors="[error]" />
       <h2 class="Upload__section-title Upload__section-head">Browse and preview STL file</h2>
       <CtmViewer v-if="scan && scan.ctm" ref="canvas" :src="scan.ctm" height=400px width=500px />
       <Upload3D v-else @change="upload" :progress="progress" :errors="form.file.errors"></Upload3D>
@@ -15,7 +15,7 @@
         <label>Label: <input class="TextInput__input" v-model="stillName"></label>
         <Button type="button" @click="captureStill">Capture</Button>
       </div>
-      <div v-for="error in form.stills.errors" :key="error">{{ error }}</div>
+      <Errors :errors="form.stills.errors" />
 
       <div v-for="{ name, file, id } in stills" :key="file" class="Upload__still">
         <Delete type="button" @click="removeStill(id)">Remove Image</Delete>
@@ -26,11 +26,21 @@
     <form class="Upload__details" :action="formAction" method="post" @submit.prevent="submit" novalidate>
       <input type="hidden" name="csrf_token" :value="csrf">
       <div class="Upload__column">
-        <TextInput name="scientific_name" :data="form.scientific_name" @keyup="e => searchGbif(e.target.value)">
+        <TextInput name="scientific_name" :data="form.scientific_name" @keyup="e => searchGbif(e.target.value)" autocomplete="off">
           <h2 class="Upload__section-title Upload__section-head">Scientific Name</h2>
         </TextInput>
-        <ul>
-          <li v-for="entry in gbifData" :key="entry.key"><label><input type="radio" name="gbif_id" :value="entry.key" v-model="gbifSelected"><i>{{ entry.canonicalName }}</i> {{ entry.scientificName.replace(entry.canonicalName, '') }} ({{ entry.kingdom }})</label></li>
+        <div v-if="gbifData.length < 1" class="Upload__gbif-selected">No associated GBIF record</div>
+        <div v-else-if="gbifData.length < 2" class="Upload__gbif-selected">
+          <input type="hidden" name="gbif_id" :value="gbifData[0].id">
+          <i>{{ gbifData[0].name }}</i> {{ gbifData[0].details }}
+        </div>
+        <ul v-else class="Upload__gbif-list">
+          <li v-for="entry in gbifData" :key="entry.id">
+            <label>
+              <input type="radio" name="gbif_id" :value="entry.id" v-model="gbifSelected" @click="selectGbifSpecies(entry)">
+              <i>{{ entry.name }}</i> {{ entry.details }}
+            </label>
+          </li>
         </ul>
         <fieldset>
           <legend><span class="Upload__section-title Upload__section-head">Specimen</span> - Please enter relevant specimen information</legend>
@@ -85,7 +95,7 @@
               </li>
             </Tree>
           </div>
-          <div v-for="error in form.geologic_age.errors" :key="error">{{ error }}</div>
+          <Errors :errors="form.geologic_age.errors" />
         </fieldset>
 
         <fieldset>
@@ -96,7 +106,7 @@
               <label :for="'onto-age' + option.id">{{ option.name }}</label>
             </li>
           </ul>
-          <div v-for="error in form.ontogenic_age.errors" :key="error">{{ error }}</div>
+          <Errors :errors="form.ontogenic_age.errors" />
         </fieldset>
 
         <fieldset>
@@ -110,7 +120,7 @@
               </li>
             </Tree>
           </div>
-          <div v-for="error in form.elements.errors" :key="error">{{ error }}</div>
+          <Errors :errors="form.elements.errors" />
         </fieldset>
       </div>
       <div class="Upload__submit">
@@ -159,11 +169,17 @@ export default {
   data() {
     const data = this.$route.meta.data;
     const pubSearchResults = data.form.publications.choices.reduce((o, pub) => Object.assign(o, { [pub.id]: pub }), {});
+    const gbifData = (data.scan && data.scan.gbif_id) ? [{
+      id: data.scan.gbif_id,
+      name: data.scan.scientific_name,
+      details: ''
+    }] : [];
+    const gbifSelected = data.scan && data.scan.gbif_id;
 
     return {
       progress: null,     // Upload progress of the model file
-      gbifData: [],       // List of GBIF search results
-      gbifSelected: null, // Selected GBIF result
+      gbifData    ,       // List of GBIF search results
+      gbifSelected,       // Selected GBIF result
       stillName: '',      // Contents of the Still Name text input
       data,               // Data returned from the database
       myPubs: true,       // Search only for publications created by current user
@@ -174,6 +190,11 @@ export default {
       scan: data.scan,
       csrf: data.csrf_token
     };
+  },
+  mounted(){
+    if (this.scan) {
+      this.searchGbif(this.scan.scientific_name)
+    }
   },
   watch:{
     '$route.meta'(meta){
@@ -201,10 +222,24 @@ export default {
   },
   methods: {
     async searchGbif(term) {
+      if(!term) return;
+
       term = encodeURIComponent(term);
       const res = await fetch(`//api.gbif.org/v1/species/suggest?q=${term}&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&rank=SPECIES`);
       const results = await res.json();
-      this.gbifData = results;
+      this.gbifData = results.map(
+        entry => ({
+          id: entry.key,
+          name: entry.canonicalName,
+          details: `${entry.scientificName.replace(entry.canonicalName, '')} (${ entry.kingdom })`
+        })
+      );
+    },
+    /**
+     * Automatically fill out the name field when user selects a GBIF item
+     */
+    selectGbifSpecies(species) {
+      this.form.scientific_name.data = species.name;
     },
     async submit({ target }){
         const data = new FormData(target);
@@ -494,5 +529,33 @@ export default {
 
 .Upload__tree .Upload__tree {
   padding-left: 15px;
+}
+
+.Upload__gbif-selected {
+  font-size: 12px;
+  color: #666;
+  padding: 5px 0 15px;
+}
+
+.Upload__gbif-list {
+  list-style: none;
+  padding: 5px 0 15px;
+  margin: 0;
+  font-size: 12px;
+}
+
+.Upload__gbif-list input {
+  margin: 0 5px 0 0;
+  vertical-align: middle;
+}
+
+.Upload__gbif-list label {
+  padding: 5px;
+  display: block;
+}
+
+.Upload__gbif-list label:hover {
+  background: #ccc;
+  cursor: pointer;
 }
 </style>

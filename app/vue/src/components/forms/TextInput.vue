@@ -32,6 +32,11 @@ export default {
     return {
       initialValue: this.data.data
     }
+  },
+  watch: {
+    "data.data"(value){
+      this.initialValue = value;
+    }
   }
 }
 </script>

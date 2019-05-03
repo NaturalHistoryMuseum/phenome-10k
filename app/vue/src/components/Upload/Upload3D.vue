@@ -10,13 +10,18 @@
             <progress class="Upload3D__progress-bar" :value="progress" max="100"></progress>
             <div class="Upload3D__progress-text">{{ progress }}%</div>
         </div>
-        <div v-for="error in errors" :key="error">{{ error }}</div>
+        <Errors :errors="errors" />
       </div>
 </template>
 
 <script>
+import Errors from '../forms/Errors';
+
 export default  {
     name: 'Upload3D',
+    components: {
+      Errors
+    },
     props:['progress', 'errors'],
     data(){
         return {
