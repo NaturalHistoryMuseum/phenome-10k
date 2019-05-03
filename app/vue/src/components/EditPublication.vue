@@ -40,7 +40,7 @@
     </label>
     <Errors :errors="form.files.errors" />
     <div class="EditPublication__controls">
-      <Button big>Submit</Button>
+      <Button big>Publish</Button>
     </div>
   </form>
 </template>

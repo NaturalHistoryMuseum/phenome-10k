@@ -80,21 +80,30 @@ class PublicationConverter(SlugConverter):
 app.url_map.converters['scan'] = ScanConverter
 app.url_map.converters['publication'] = PublicationConverter
 
+def slug_available(slug):
+  """ Returns true if the slug url is availabe """
+  app.logger.warn(slug)
+  try:
+    return not app.url_map.bind('').match('/' + slug)
+  except NotFound:
+    return True
+
 def generate_slug(name):
+  """ Generate a URL slug for a given name """
   if not name:
     return None
-  # TODO: Use a different function that's more similar to what wordpress does
-  # (maybe just replace `_` with `-`?)
-  url_slug = secure_filename(name).lower()
 
-  try:
-    if app.url_map.bind('').match('/' + url_slug) != None:
-      # TODO: Instead of appending uuid, move this into the form validator and let the user pick a new url in case of clash
-      url_slug += '-' + uuid.uuid4()
-  except: # TODO: What's the specific RouteNotFound error here?
-    pass
+  # Slugify the title and check
+  slug = secure_filename(name).lower().replace('_', '-')
+  slug_n = slug
+  n = 1
 
-  return url_slug
+  # Append an increasing number to the slug until we find an available url
+  while not slug_available(slug_n):
+    n += 1
+    slug_n = slug + '-' + str(n)
+
+  return slug_n
 
 def requiresAdmin(f):
     @wraps(f)

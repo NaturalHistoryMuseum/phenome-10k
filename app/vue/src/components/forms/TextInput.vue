@@ -1,8 +1,8 @@
 <template>
   <label>
     <div :class="labelClass"><slot /></div>
-    <textarea v-if="$attrs.type === 'textarea'" class="TextInput__input" v-bind="$attrs" v-on="$listeners" :value="initialValue" />
-    <input v-else class="TextInput__input" v-bind="$attrs" v-on="$listeners" :value="initialValue" />
+    <textarea v-if="$attrs.type === 'textarea'" class="TextInput__input" v-bind="$attrs" v-on="$listeners" v-model="initialValue" />
+    <input v-else class="TextInput__input" v-bind="$attrs" v-on="$listeners" v-model="initialValue" />
     <Errors :errors="data.errors" />
   </label>
 </template>

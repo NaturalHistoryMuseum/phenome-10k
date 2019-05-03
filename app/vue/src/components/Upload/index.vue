@@ -118,7 +118,7 @@
           <input type="checkbox" class="Upload__checkbox" name="published" :checked="form.published.data" id="submit">
           <label for="submit">Publish</label>
         </div>
-        <Button big>Publish</Button>
+        <Button big>Save</Button>
       </div>
     </form>
   </div>
@@ -169,12 +169,16 @@ export default {
       myPubs: true,       // Search only for publications created by current user
       pubSearchResults,   // List of results for publication search
       publications: pubSearchResults, // Object containing all publications, keyed by ID
-      selectedPubIds: (data.form.publications.data || []).map(pub => pub.id) // Array of selected publication IDs
+      selectedPubIds: (data.form.publications.data || []).map(pub => pub.id), // Array of selected publication IDs
+      form: data.form,
+      scan: data.scan,
+      csrf: data.csrf_token
     };
   },
   watch:{
     '$route.meta'(meta){
-      this.data = meta.data;
+      this.form = meta.data.form
+      this.scan = meta.data.scan
     },
     /* When we switch the publications tab, empty the list of search results until the user types */
     myPubs(){
@@ -187,25 +191,6 @@ export default {
      */
     selectedPubs(){
       return this.selectedPubIds.map(id => this.publications[id])
-    },
-    scan: {
-      get(){
-        return this.data.scan;
-      },
-      set(value){
-        this.data.scan = value;
-      }
-    },
-    csrf(){
-      return this.data.csrf_token;
-    },
-    form: {
-      get(){
-        return this.data.form;
-      },
-      set(val) {
-        this.data.form = val;
-      }
     },
     stills() {
       return this.scan ? this.scan.stills : [];
