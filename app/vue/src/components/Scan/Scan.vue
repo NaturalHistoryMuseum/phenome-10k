@@ -5,7 +5,7 @@
     <div class="Content-Sidebar">
       <router-link :to="{ name: 'library' }" class="Scan__back">« Back</router-link>
     </div>
-    <h1 class="Scan__title">{{ title }}</h1>
+    <h1>{{ title }}</h1>
     <p v-if="!scan.published">Not published</p>
 
     <div class="Scan__grid">
@@ -147,15 +147,6 @@
   dt {
     font-weight: bold;
   }
-}
-
-/* Todo: Combine title stuff with each other */
-.Scan__title {
-    color: #096;
-    font-weight: 100;
-    font-size: 36px;
-    font-family: 'Neo Sans W01 Light', Helvetica, Arial, sans-serif;
-    margin: 40px 0 30px;
 }
 
 .Scan__link {

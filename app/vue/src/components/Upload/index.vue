@@ -12,13 +12,13 @@
       <span class="Upload__section-title Upload__section-head">Take Stills</span> - Move image into appropriate position and click the button below (Minimum of 1 snapshot image, maximum of 6 images).
 
       <div class="Upload__still-capture-name">
-        <label>Label: <input class="Upload__form-input" v-model="stillName"></label>
-        <button type="button" class="Upload__form-button" @click="captureStill">Capture</button>
+        <label>Label: <input class="TextInput__input" v-model="stillName"></label>
+        <Button type="button" @click="captureStill">Capture</Button>
       </div>
       <div v-for="error in form.stills.errors" :key="error">{{ error }}</div>
 
       <div v-for="{ name, file, id } in stills" :key="file" class="Upload__still">
-        <button type="button" @click="removeStill(id)" class="Upload__remove-still">Remove Image ❌</button>
+        <Delete type="button" @click="removeStill(id)">Remove Image</Delete>
         <img :src="file" class="Upload__still-image" />
         <div class="Upload__still-name">{{ name }}</div>
       </div>
@@ -34,15 +34,14 @@
         </ul>
         <fieldset>
           <legend><span class="Upload__section-title Upload__section-head">Specimen</span> - Please enter relevant specimen information</legend>
-          <TextInput name="alt_name" :data="form.alt_name">Alt. Name</TextInput>
-          <TextInput name="specimen_location" :data="form.specimen_location">Specimen Location</TextInput>
-          <TextInput name="specimen_id" :data="form.specimen_id">Specimen ID</TextInput>
-          <TextInput name="specimen_url" :data="form.specimen_url">Specimen URL</TextInput>
+          <TextInput class="Upload__form-label" name="alt_name" :data="form.alt_name">Alt. Name</TextInput>
+          <TextInput class="Upload__form-label" name="specimen_location" :data="form.specimen_location">Specimen Location</TextInput>
+          <TextInput class="Upload__form-label" name="specimen_id" :data="form.specimen_id">Specimen ID</TextInput>
+          <TextInput class="Upload__form-label" name="specimen_url" :data="form.specimen_url">Specimen URL</TextInput>
         </fieldset>
-        <FormField :errors="form.description.errors">
+        <TextInput type="textarea" name="description" :data="form.description">
           <h2 class="Upload__section-title Upload__section-head">Description</h2>
-          <textarea name="description" :value="form.description.data" class="Upload__form-input" />
-        </FormField>
+        </TextInput>
         <fieldset>
           <legend class="Upload__section-head"><span class="Upload__section-title Upload__section-head">Publications</span> - Assign any relevant publications to the scan</legend>
           <div class="Upload__tabs">
@@ -119,7 +118,7 @@
           <input type="checkbox" class="Upload__checkbox" name="published" :checked="form.published.data" id="submit">
           <label for="submit">Publish</label>
         </div>
-        <button class="Upload__form-button Upload__form-button--big">Save</button>
+        <Button big>Publish</Button>
       </div>
     </form>
   </div>
@@ -129,6 +128,7 @@
 import Tree from '../tree.js';
 import CtmViewer from '../CtmViewer';
 import Upload3D from './Upload3D';
+import { Button, TextInput, Errors, Delete } from '../forms';
 
 const xhrUpload = (form, progress) => {
     const formData = new FormData(form);
@@ -151,44 +151,6 @@ const xhrUpload = (form, progress) => {
     return ready;
 }
 
-const FormField = {
-  name: 'FormField',
-  props: [ 'errors' ],
-  render(h){
-      return h('label', [
-          this.$slots.default,
-          ...this.errors.map(
-              error => h('div', [ error ])
-          )
-      ])
-  }
-}
-
-const TextInput = {
-    inheritAttrs: false,
-    props: ['label', 'data'],
-    data(){
-        return {
-            initialValue: this.data.data
-        }
-    },
-    render(h) {
-        return h(FormField, { props: { errors: this.data.errors } }, [
-            h('div', { class: "Upload__form-label" }, this.$slots.default),
-            h('input', {
-                class: {
-                  "Upload__form-input": true
-                },
-                attrs: {
-                  ...this.$attrs,
-                  value: this.initialValue
-                },
-                on: this.$listeners
-            })
-        ])
-    }
-}
-
 export default {
   name: 'Upload',
   props: [
@@ -207,7 +169,7 @@ export default {
       myPubs: true,       // Search only for publications created by current user
       pubSearchResults,   // List of results for publication search
       publications: pubSearchResults, // Object containing all publications, keyed by ID
-      selectedPubIds: data.form.publications.data.map(pub => pub.id) || [] // Array of selected publication IDs
+      selectedPubIds: (data.form.publications.data || []).map(pub => pub.id) // Array of selected publication IDs
     };
   },
   watch:{
@@ -254,9 +216,10 @@ export default {
   },
   methods: {
     async searchGbif(term) {
-        const res = await fetch(`//api.gbif.org/v1/species/suggest?q=${term}&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&rank=SPECIES`);
-        const results = await res.json();
-        this.gbifData = results;
+      term = encodeURIComponent(term);
+      const res = await fetch(`//api.gbif.org/v1/species/suggest?q=${term}&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&rank=SPECIES`);
+      const results = await res.json();
+      this.gbifData = results;
     },
     async submit({ target }){
         const data = new FormData(target);
@@ -337,10 +300,12 @@ export default {
   },
   components: {
       TextInput,
-      FormField,
+      Errors,
       Upload3D,
       CtmViewer,
-      Tree
+      Tree,
+      Button,
+      Delete
   }
 }
 </script>
@@ -358,12 +323,7 @@ export default {
 
 .Upload__title {
   grid-area: title;
-  color: #096;
-  font-weight: normal;
-  font-size: 24px;
-  font-family: 'Neo Sans W01', Helvetica, Arial, sans-serif;
   text-transform: uppercase;
-  margin-bottom: 40px;
 }
 
 .Upload__upload {
@@ -411,35 +371,6 @@ export default {
   margin: 15px 0 5px;
 }
 
-.Upload__form-input {
-    border: 1px solid #666;
-    display: block;
-    padding: 5px;
-    font-family: 'Supria Sans W01 Regular', Helvetica, Arial, sans-serif;
-    font-size: 12px;
-    color: #666;
-    width: 100%;
-}
-
-.Upload__form-button {
-  appearance: none;
-  display: block;
-  text-align: center;
-  color: #fff;
-  text-transform: uppercase;
-  background: #096;
-  padding: 6px 7px;
-  font-family: 'Supria Sans W01 Bold', Arial, Helvetica, sans-serif;
-  font-size: 12px;
-  border: none;
-  font-weight: bold;
-}
-
-.Upload__form-button--big {
-  padding: 10px 60px;
-  font-size: 14px;
-}
-
 .Upload fieldset {
     border: none;
     padding: 0;
@@ -456,23 +387,6 @@ export default {
   display: flex;
   flex-direction: column;
   padding: 10px;
-}
-
-.Upload__remove-still {
-  appearance: none;
-  border: none;
-  background: none;
-  color: #666;
-  font-size: 10px;
-  font-family: 'Supria Sans W01 Regular', Arial, Helvetica, sans-serif;
-  align-self: flex-end;
-  cursor: pointer;
-  margin: 0 0 5px;
-  padding: 0;
-}
-
-.Upload__remove-still:hover {
-  text-decoration: underline;
 }
 
 .Upload__still-capture-name {

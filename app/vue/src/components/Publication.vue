@@ -67,11 +67,6 @@ export default {
 
 .Publication__title {
   grid-area: title;
-  color: #096;
-  font-family: 'Neo Sans W01', Arial, Helvetica, sans-serif;
-  font-size: 24px;
-  font-weight: normal;
-  margin-bottom: 25px;
 }
 
 .Publication__content {

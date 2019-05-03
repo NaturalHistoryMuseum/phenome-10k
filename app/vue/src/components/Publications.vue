@@ -49,11 +49,6 @@
 }
 
 .Publications__title {
-  color: #096;
-  font-weight: normal;
-  font-family: 'Neo Sans W01', Arial, Helvetica, sans-serif;
-  font-size: 24px;
-  margin: 40px 0 33px;
   grid-area: title;
 }
 

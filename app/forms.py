@@ -84,5 +84,12 @@ class PublicationUploadForm(FlaskForm):
     link = StringField('URL Link')
     # TODO: Validate pdf files only
     files = MultipleFileField('Add files', default = [])
-    # TODO: Change save button to upload/create/edit depending on context
-    submit = SubmitField('Save')
+
+    # Return the json-serializable object representation of this form
+    def serialize(self):
+        return {
+            k: {
+                'data': None if isinstance(self[k], FileField) else v,
+                'errors': self[k].errors
+            } for k, v in self.data.items()
+        }

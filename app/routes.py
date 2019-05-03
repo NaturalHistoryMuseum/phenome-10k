@@ -15,7 +15,7 @@ from werkzeug.exceptions import NotFound, BadRequest
 from stl.mesh import Mesh
 from app import app, db, models
 from app.forms import LoginForm, RegistrationForm, ScanUploadForm, PublicationUploadForm
-from app.models import User, Scan, File, Publication, Tag, Taxonomy, Attachment, ScanAttachment
+from app.models import User, Scan, File, Publication, Tag, Taxonomy, Attachment, ScanAttachment, PublicationFile
 import mimetypes
 import subprocess
 import json
@@ -454,35 +454,63 @@ def edit_scan(scan = None):
   return render_vue(data, title='Edit' if scan else 'Upload New', menu='library')
 
 @app.route('/publications/create/', methods=['GET', 'POST'])
-@requiresContributor
-def create_publication():
-    form = PublicationUploadForm()
+@app.route('/<publication:publication>/edit-pub', methods=['GET', 'POST'])
+def edit_publication(publication=None):
+    form = PublicationUploadForm(obj=publication)
+
     if form.validate_on_submit():
-      publication = Publication(
-        author_id = current_user.id,
-        title = form.title.data,
-        url_slug = generate_slug(form.title.data),
-        pub_year = form.pub_year.data,
-        authors = form.authors.data,
-        journal = form.journal.data,
-        link = form.link.data,
-        abstract = form.abstract.data
-      )
+      if not publication:
+        publication = Publication(
+          author_id = current_user.id,
+          url_slug = generate_slug(form.title.data)
+        )
+        db.session.add(publication)
+      publication.title = form.title.data
+      publication.pub_year = form.pub_year.data
+      publication.authors = form.authors.data
+      publication.journal = form.journal.data
+      publication.link = form.link.data
+      publication.abstract = form.abstract.data
+      publication.published = True
 
       for file in form.files.data:
+        if file == '':
+          continue
+        f = File.fromUpload(file)
+        db.session.add(f)
         publication.files.append(
           Attachment(
-            name = file.filename,
-            file = File.fromUpload(file)
+            file = f,
+            name = file.filename
           )
         )
 
-      db.session.add(publication)
       db.session.commit()
 
       return redirect(url_for('edit_publication', publication=publication))
 
-    return render_template('create-publication.html', title='Create', form=form, menu='publications')
+    data = {
+      'publication': publication.serialize() if publication else None,
+      'form': form.serialize(),
+      'csrf_token': g.csrf_token
+    }
+
+    return render_vue(data, title='Edit' if publication else 'Create', menu='publications')
+
+@app.route('/remove-pub-file/<int:id>', methods=['DELETE'])
+@login_required
+def delete_pub_file(id):
+  """Url for deleting a file"""
+  attachment = PublicationFile.query.filter_by(attachment_id=id).first()
+  return_to = url_for('publications')
+
+  if attachment and (attachment.publication.author_id == current_user.id or current_user.isAdmin()):
+    return_to = url_for('edit_publication', publication=attachment.publication)
+    db.session.delete(attachment)
+    db.session.commit()
+
+  # Use a 303 response to force browser to use GET for the next request
+  return redirect(return_to, code=303)
 
 @app.route('/publications/')
 @app.route('/publications/page/<int:page>/')
@@ -510,45 +538,47 @@ def publications(page = 1):
 
   return render_vue(data, title='Publications', menu='publications')
 
-@app.route('/publications/manage-publications/')
-def manage_publications():
-  pass
+@app.route('/publications/manage-publications/', methods=['GET', 'POST'])
+@app.route('/publications/manage-publications/page/<int:page>/', methods=['GET', 'POST'])
+def manage_publications(page=1):
+  """View a list of publications with publish, edit, delete actions"""
+
+  # Process delete request
+  if request.method == 'POST':
+    action = request.form.get('action')
+    publication_id = request.form.get('id')
+    if publication_id:
+      publication = Publication.query.get(publication_id)
+      if action == 'delete':
+        db.session.delete(publication)
+        db.session.commit()
+      elif action == 'publish':
+        publication.published = True
+        db.session.commit()
+      elif action == 'unpublish':
+        publication.published = False
+        db.session.commit()
+    return redirect(request.full_path)
+
+  per_page = 50
+  offset = (page - 1) * per_page
+  query = Publication.query
+  pub_year = request.args.get('pub_year')
+  if(pub_year):
+    query = query.filter_by(pub_year = pub_year)
+  publications = query.paginate(page, per_page)
+  data = {
+    'publications': [ s.serialize() for s in publications.items ],
+    'page': page,
+    'total_pages': math.ceil(publications.total / per_page),
+    'years': [ y[0] for y in db.session.query(Publication.pub_year).order_by(Publication.pub_year.desc()).distinct().all() ]
+  }
+  return render_vue(data, title="Manage Publications", menu="publications")
 
 @app.route('/<publication:publication>/')
 def publication(publication):
   # TODO: Hide if unpublished
   return render_vue(publication.serialize(), title=publication.title, menu='publications')
-
-@app.route('/<publication:publication>/edit-pub', methods=['GET', 'POST'])
-@requiresContributor
-def edit_publication(publication):
-    form = PublicationUploadForm(obj=publication)
-    if form.validate_on_submit():
-      publication.title = form.title.data
-      publication.pub_year = form.pub_year.data
-      publication.authors = form.authors.data
-      publication.journal = form.journal.data
-      publication.link = form.link.data
-      publication.abstract = form.abstract.data
-
-      for file in form.files.data:
-        # TODO: Don't overwrite
-        if file == None:
-          continue
-        f = File.fromUpload(file)
-        db.session.add(f)
-        publication.files.append(
-          Attachment(
-            file = f,
-            name = file.filename
-          )
-        )
-
-      db.session.commit()
-
-      return redirect(url_for('edit_publication', publication=publication))
-
-    return render_template('create-publication.html', title='Create', form=form, menu='publications')
 
 @app.route('/contribute/')
 def contribute():

@@ -213,6 +213,10 @@ class PublicationFile(db.Model):
     publication_id = db.Column(db.Integer, db.ForeignKey('publication.id'))
     attachment_id = db.Column(db.Integer, db.ForeignKey('attachment.id'))
 
+    publication = db.relationship('Publication')
+    attachment = db.relationship('Attachment', cascade='all')
+
+
 class Publication(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     author_id = db.Column(db.Integer)
