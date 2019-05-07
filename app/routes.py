@@ -24,6 +24,15 @@ import io
 from flask_mail import Message
 from app import mail
 
+def hideScanFiles(data):
+  if not current_user.is_authenticated:
+    login = url_for('login')
+    data['source'] = login
+    for pub in data['publications']:
+      for file in pub['files']:
+        file['file'] = login
+  return data
+
 def convert_file(file):
   if not file:
     return (None, None)
@@ -314,7 +323,9 @@ def manage_uploads(page=1):
 @app.route('/<scan:scan>/')
 def scan(scan):
   # TODO: Hide if unpublished
-  return render_vue(scan.serialize(), title=scan.scientific_name, menu='library')
+  data = hideScanFiles(scan.serialize())
+
+  return render_vue(data, title=scan.scientific_name, menu='library')
 
 @app.route('/stills/<int:id>/', methods=['DELETE'])
 @login_required
