@@ -65,6 +65,7 @@ h1 {
   font-size: 11px;
   font-family: 'Supria Sans W01 Regular', Arial, Helvetica, sans-serif;
   text-transform: uppercase;
+  color: black;
 }
 
 .Base__subnav li a:hover {

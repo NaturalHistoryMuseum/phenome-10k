@@ -31,6 +31,7 @@
 
 .Results__title {
   padding: 15px 10px;
+  color: black;
 }
 </style>
 

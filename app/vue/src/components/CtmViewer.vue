@@ -85,6 +85,10 @@ export default {
         const width = canvas.clientWidth;
         const height = canvas.clientHeight;
 
+        if(width === canvas.width) {
+          return;
+        }
+
         const ratio = parseInt(this.width, 10) / parseInt(this.height, 10);
 
         // Set the canvas's JS dimensions, as the css may override them,
