@@ -58,6 +58,17 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return '<User {}>'.format(self.name)
 
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'email': self.email,
+            'date_registered': self.date_registered.isoformat(),
+            'role': self.role,
+            'country_code': self.country_code,
+            'user_type': self.user_type
+        }
+
 class Scan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     gbif_id = db.Column(db.Integer)

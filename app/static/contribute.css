@@ -1,0 +1,13 @@
+.Contribute {
+  font-size:11px; line-height:17px;
+}
+
+.Contribute__form {
+  background: #ddd;
+  font-size: 12px;
+  padding: 10px;
+}
+
+.Contribute__form-row {
+  display: block;
+}

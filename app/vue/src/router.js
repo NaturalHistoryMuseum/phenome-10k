@@ -16,6 +16,7 @@ export default () => {
       { path: '/publications/page/:page(\\d+)', component: () => import('./components/Publications'), name: 'publications-paged' },
       { path: '/publications/manage-publications', component: () => import('./components/ManagePublications'), name: 'manage-publications' },
       { path: '/publications/manage-publications/page/:page(\\d+)', component: () => import('./components/ManagePublications'), name: 'manage-publications-page' },
+      { path: '/users', component: () => import('./components/Users'), name: 'users' },
       { path: '/:id', component: () => import('./components/ScanOrPublication'), name: 'scan-or-pub' },
       { path: '/:id/edit-scan', component: () => import('./components/Upload'), name: 'edit-scan' },
       { path: '/:id/edit-pub', component: () => import('./components/EditPublication'), name: 'edit-publication' },

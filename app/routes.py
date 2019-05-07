@@ -21,6 +21,8 @@ import subprocess
 import json
 from PIL import Image
 import io
+from flask_mail import Message
+from app import mail
 
 def convert_file(file):
   if not file:
@@ -600,15 +602,67 @@ def publication(publication):
   # TODO: Hide if unpublished
   return render_vue(publication.serialize(), title=publication.title, menu='publications')
 
-@app.route('/contribute/')
+@app.route('/contribute/', methods=['GET', 'POST'])
 def contribute():
-  pass
+  if current_user.is_authenticated and request.method == 'POST':
+    message = request.form.get('message')
 
-def render_vue(data, title, menu):
+    body = current_user.name + " would like to become a contributor to Phenome10k:\n\n"
+    html = current_user.name + " would like to become a contributor to Phenome10k:<br><br>"
+
+    if message:
+      body += '"' + message + '"\n\n'
+      html += '<blockquote>"' + message + '"</blockquote><br><br>'
+
+    profileLink = url_for('users', id=current_user.id, _external=True)
+
+    body += (
+      "To approve their request, use the following link:\n" + profileLink
+    )
+    html += "<a href='" + profileLink + "'>Approve this request</a>"
+
+    mail.send(Message(
+      recipients = [app.config['ADMIN_EMAIL']],
+      reply_to = (current_user.name, current_user.email),
+      subject = current_user.name + " has requested to become a Phenome10k contributor",
+      body = body,
+      html = html
+    ))
+  return render_template('contribute.html', title='Contributing', menu='home')
+
+@app.route('/users', methods=['GET', 'POST'])
+@requiresAdmin
+def users():
+  error = ''
+
+  if request.method == 'POST':
+    id = request.form.get('id')
+    user = User.query.get(id)
+
+    if user:
+      # Todo: Validation and errors
+      user.role = request.form.get('role')
+      db.session.commit()
+      return redirect(url_for('users'))
+    else:
+      error = 'No user was found for id ' + id
+
+  query = User.query
+  id = request.args.get('id')
+
+  if id:
+    query = query.filter_by(id=id)
+
+  users = [ user.serialize() for user in query.all() ]
+  data = { 'users': users, 'error': error }
+
+  return render_vue(data, title = 'Users')
+
+
+def render_vue(data, title, menu = None):
   if request.accept_mimetypes.accept_html:
     return render_template('base.html', content=vue(data), title=title, menu=menu)
   return jsonify(data)
-
 
 # This is for server-side rendering a view in vue
 # pass the url path and an object to be provided as the defaultData property to the vue model
