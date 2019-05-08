@@ -55,6 +55,10 @@ class User(UserMixin, db.Model):
             return True
         return False
 
+    def canEdit(self, item):
+        """ Returns true if the user can edit the given model """
+        return self.isAdmin() or item.isOwnedBy(self)
+
     def __repr__(self):
         return '<User {}>'.format(self.name)
 
@@ -135,6 +139,10 @@ class Scan(db.Model):
     @staticmethod
     def findBySlug(slug):
         return Scan.query.filter(db.or_(Scan.url_slug == slug, Scan.id == slug)).first()
+
+    def isOwnedBy(self, user):
+        """ Return true if the given user owns this model """
+        return self.author_id == user.id
 
     def __repr__(self):
         return '<Scan {}>'.format(self.scientific_name)
@@ -227,6 +235,10 @@ class PublicationFile(db.Model):
     publication = db.relationship('Publication')
     attachment = db.relationship('Attachment', cascade='all')
 
+    def isOwnedBy(self, user):
+      """ Return true if the given user owns this model """
+      return self.publication.isOwnedBy(user)
+
 
 class Publication(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -272,6 +284,10 @@ class Publication(db.Model):
     @staticmethod
     def findBySlug(slug):
         return Publication.query.filter(db.or_(Publication.url_slug == slug, Publication.id == slug)).first()
+
+    def isOwnedBy(self, user):
+        """ Return true if the given user owns this model """
+        return self.author_id == user.id
 
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -373,3 +389,7 @@ class ScanAttachment(db.Model):
 
     scan = db.relationship('Scan')
     attachment = db.relationship('Attachment', cascade='all')
+
+    def isOwnedBy(self, user):
+      """ Return true if the given user owns this model """
+      return self.scan.isOwnedBy(user)

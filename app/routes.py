@@ -11,7 +11,7 @@ from flask_login import current_user, login_user, login_required, logout_user
 from werkzeug.routing import ValidationError, BaseConverter
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
-from werkzeug.exceptions import NotFound, BadRequest
+from werkzeug.exceptions import NotFound, BadRequest, Forbidden
 from stl.mesh import Mesh
 from app import app, db, models
 from app.forms import LoginForm, RegistrationForm, ScanUploadForm, PublicationUploadForm
@@ -32,6 +32,11 @@ def hideScanFiles(data):
       for file in pub['files']:
         file['file'] = login
   return data
+
+def ensureEditable(item):
+  """ Throw Forbidden exception if the current user is not allowed to edit the given model """
+  if not current_user.canEdit(item):
+      raise Forbidden('You cannot edit this item as you are not the original author.')
 
 def convert_file(file):
   if not file:
@@ -290,6 +295,7 @@ def library():
 
 @app.route('/library/manage-uploads/', methods=['GET', 'POST'])
 @app.route('/library/manage-uploads/page/<int:page>/', methods=['GET', 'POST'])
+@requiresContributor
 def manage_uploads(page=1):
   """View a list of uploads with publish, edit, delete actions"""
 
@@ -297,6 +303,7 @@ def manage_uploads(page=1):
   if request.method == 'POST':
     scan_id = request.form.get('delete')
     scan = Scan.query.get(scan_id)
+    ensureEditable(scan)
     db.session.delete(scan)
     db.session.commit()
     return redirect(request.full_path)
@@ -313,7 +320,7 @@ def manage_uploads(page=1):
     query = query.filter(Scan.scientific_name.startswith(startswith))
   scans = query.paginate(page, per_page)
   data = {
-    'scans': [ s.serialize() for s in scans.items ],
+    'scans': [ s.serialize() for s in scans.items if current_user.canEdit(s) ],
     'page': page,
     'total_pages': math.ceil(scans.total / per_page),
     'csrf_token': g.csrf_token
@@ -334,7 +341,8 @@ def delete_still(id):
   attachment = ScanAttachment.query.filter_by(attachment_id=id).first()
   return_to = url_for('library')
 
-  if attachment and (attachment.scan.author_id == current_user.id or current_user.isAdmin()):
+  if attachment:
+    ensureEditable(attachment)
     return_to = url_for('edit_scan', scan=attachment.scan)
     db.session.delete(attachment)
     db.session.commit()
@@ -360,10 +368,11 @@ def scan_stills(scan):
 @app.route('/library/create/', methods=['GET', 'POST'])
 @requiresContributor
 def edit_scan(scan = None):
-  # TODO: Check user can edit
   form = ScanUploadForm(obj=scan)
 
   if scan:
+    ensureEditable(scan)
+
     if not form.geologic_age.data:
       form.geologic_age.data = scan.geologic_age
 
@@ -491,6 +500,9 @@ def edit_scan(scan = None):
 def edit_publication(publication=None):
     form = PublicationUploadForm(obj=publication)
 
+    if publication:
+      ensureEditable(publication)
+
     if form.validate_on_submit():
       if not publication:
         publication = Publication(
@@ -531,13 +543,14 @@ def edit_publication(publication=None):
     return render_vue(data, title='Edit' if publication else 'Create', menu='publications')
 
 @app.route('/remove-pub-file/<int:id>', methods=['DELETE'])
-@login_required
+@requiresContributor
 def delete_pub_file(id):
   """Url for deleting a file"""
   attachment = PublicationFile.query.filter_by(attachment_id=id).first()
   return_to = url_for('publications')
 
-  if attachment and (attachment.publication.author_id == current_user.id or current_user.isAdmin()):
+  if attachment:
+    ensureEditable(attachment)
     return_to = url_for('edit_publication', publication=attachment.publication)
     db.session.delete(attachment)
     db.session.commit()
@@ -573,6 +586,7 @@ def publications(page = 1):
 
 @app.route('/publications/manage-publications/', methods=['GET', 'POST'])
 @app.route('/publications/manage-publications/page/<int:page>/', methods=['GET', 'POST'])
+@requiresContributor
 def manage_publications(page=1):
   """View a list of publications with publish, edit, delete actions"""
 
@@ -582,6 +596,8 @@ def manage_publications(page=1):
     publication_id = request.form.get('id')
     if publication_id:
       publication = Publication.query.get(publication_id)
+      ensureEditable(publication)
+
       if action == 'delete':
         db.session.delete(publication)
         db.session.commit()
@@ -601,7 +617,7 @@ def manage_publications(page=1):
     query = query.filter_by(pub_year = pub_year)
   publications = query.paginate(page, per_page)
   data = {
-    'publications': [ s.serialize() for s in publications.items ],
+    'publications': [ pub.serialize() for pub in publications.items if current_user.canEdit(pub) ],
     'page': page,
     'total_pages': math.ceil(publications.total / per_page),
     'years': [ y[0] for y in db.session.query(Publication.pub_year).order_by(Publication.pub_year.desc()).distinct().all() ]
