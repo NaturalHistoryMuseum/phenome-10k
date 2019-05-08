@@ -111,6 +111,10 @@ class Scan(db.Model):
     def elements(self):
         return self.tags.filter_by(category='elements').all()
 
+    @property
+    def thumbnail(self):
+        return len(self.attachments) > 0 and self.attachments[0]
+
     def serialize(self):
         return {
             'id': self.id,
@@ -120,7 +124,7 @@ class Scan(db.Model):
             'publications': [pub.serialize() for pub in self.publications],
             'attachments': [a.serialize() for a in self.attachments],
             'url_slug': '/' + (self.url_slug if self.url_slug else str(self.id)),
-            'thumbnail': len(self.attachments) > 0 and self.attachments[0].file.serialize(),
+            'thumbnail': self.thumbnail and self.thumbnail.file.serialize(),
             'scientific_name': self.scientific_name,
             'gbif_id': self.gbif_id,
             'published': self.published,

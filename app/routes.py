@@ -5,7 +5,7 @@ import uuid
 import math
 from functools import wraps
 from zipfile import ZipFile, ZIP_DEFLATED
-from flask import request, render_template, redirect, url_for, flash, send_from_directory, jsonify, g, Response, send_file
+from flask import request, render_template, redirect, url_for, flash, send_from_directory, jsonify, g, Response, send_file, make_response
 from flask.helpers import safe_join
 from flask_login import current_user, login_user, login_required, logout_user
 from werkzeug.routing import ValidationError, BaseConverter
@@ -93,8 +93,14 @@ class ScanConverter(SlugConverter):
 class PublicationConverter(SlugConverter):
   model = Publication
 
+class FileConverter(BaseConverter):
+  def to_url(self, value):
+    import re
+    return BaseConverter.to_url(self, value if isinstance(value, str) else re.sub(r"^uploads/", "", value.location))
+
 app.url_map.converters['scan'] = ScanConverter
 app.url_map.converters['publication'] = PublicationConverter
+app.url_map.converters['file'] = FileConverter
 
 def slug_available(slug):
   """ Returns true if the slug url is availabe """
@@ -143,7 +149,7 @@ def requiresContributor(f):
 def index():
   return render_template('index.html', menu='home')
 
-@app.route('/uploads/<path:path>')
+@app.route('/uploads/<file:path>')
 def send_uploads(path):
   width = request.args.get('w')
 
@@ -291,6 +297,14 @@ def library():
   data['tags']['taxonomy'] = Taxonomy.tree()
 
   return render_vue(data, title="Library", menu='library')
+
+@app.route('/library.rss')
+def feed():
+  """ Generate the RSS feed """
+  scans = Scan.query.filter(Scan.published).order_by(Scan.date_created)
+  resp = make_response(render_template('rss.xml', scans = scans))
+  resp.headers['Content-type'] = 'application/rss+xml'
+  return resp
 
 @app.route('/library/manage-uploads/', methods=['GET', 'POST'])
 @app.route('/library/manage-uploads/page/<int:page>/', methods=['GET', 'POST'])
