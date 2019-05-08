@@ -247,7 +247,6 @@ def tag():
 
 @app.route('/library/', methods=['GET'])
 def library():
-  # scans = Scan.query.filter_by(published=True).order_by(db.func.random()).limit(50).all()
   sort = request.args.get("sort")
   ontogenic_age = request.args.getlist("ontogenic_age")
   geologic_age = request.args.getlist("geologic_age")
@@ -329,7 +328,8 @@ def manage_uploads(page=1):
 
 @app.route('/<scan:scan>/')
 def scan(scan):
-  # TODO: Hide if unpublished
+  if not scan.published and not (current_user.is_authenticated and current_user.canEdit(scan)):
+    raise NotFound()
   data = hideScanFiles(scan.serialize())
 
   return render_vue(data, title=scan.scientific_name, menu='library')
@@ -626,7 +626,8 @@ def manage_publications(page=1):
 
 @app.route('/<publication:publication>/')
 def publication(publication):
-  # TODO: Hide if unpublished
+  if not publication.published and not (current_user.is_authenticated and current_user.canEdit(publication)):
+    raise NotFound()
   return render_vue(publication.serialize(), title=publication.title, menu='publications')
 
 @app.route('/contribute/', methods=['GET', 'POST'])
