@@ -259,6 +259,20 @@ def library():
   elements = request.args.getlist("elements")
   taxonomy = request.args.getlist("taxonomy")
   mine = 'mine' in request.args.keys()
+  search = request.args.get('q')
+
+  if search:
+    searchQuery = '%{0}%'.format(search)
+
+    textSearch = db.or_(
+      Scan.scientific_name.ilike(searchQuery),
+      Scan.alt_name.ilike(searchQuery),
+      Scan.specimen_id.ilike(searchQuery),
+      Scan.specimen_location.ilike(searchQuery),
+      Scan.description.ilike(searchQuery)
+    )
+  else:
+    textSearch = True
 
   scanConditions = db.and_(
     Scan.published,
@@ -266,7 +280,8 @@ def library():
     Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in geologic_age ])),
     Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in elements ])),
     Scan.taxonomy.any(Taxonomy.id.in_(taxonomy)) if len(taxonomy) > 0 else True,
-    Scan.author_id == current_user.id if mine and current_user.is_authenticated else True
+    Scan.author_id == current_user.id if mine and current_user.is_authenticated else True,
+    textSearch
   )
 
   # This is annoying... if we're sorting by name it's just sort,
@@ -295,6 +310,7 @@ def library():
 
   data['tags'] = Tag.tree()
   data['tags']['taxonomy'] = Taxonomy.tree()
+  data['q'] = search
 
   return render_vue(data, title="Library", menu='library')
 
@@ -327,8 +343,25 @@ def manage_uploads(page=1):
 
   per_page = 50
   offset = (page - 1) * per_page
-  query = Scan.query
+
   startswith = request.args.get('char')
+  search = request.args.get('q')
+
+  query = Scan.query
+
+  if search:
+    searchQuery = '%{0}%'.format(search)
+
+    query = query.filter(
+      db.or_(
+        Scan.scientific_name.ilike(searchQuery),
+        Scan.alt_name.ilike(searchQuery),
+        Scan.specimen_id.ilike(searchQuery),
+        Scan.specimen_location.ilike(searchQuery),
+        Scan.description.ilike(searchQuery)
+      )
+    )
+
   if(startswith):
     query = query.filter(Scan.scientific_name.startswith(startswith))
   scans = query.paginate(page, per_page)
@@ -336,7 +369,8 @@ def manage_uploads(page=1):
     'scans': [ s.serialize() for s in scans.items if current_user.canEdit(s) ],
     'page': page,
     'total_pages': math.ceil(scans.total / per_page),
-    'csrf_token': g.csrf_token
+    'csrf_token': g.csrf_token,
+    'q': search
   }
   return render_vue(data, title="Manage Uploads", menu="library")
 

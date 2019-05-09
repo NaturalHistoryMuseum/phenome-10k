@@ -1,19 +1,22 @@
 <template>
   <div class="Library Subgrid">
-    <div class="Library__sort">
-      Sort by:
-      <ul class="Library__sort-list">
-        <li :class="getSortLinkClass('name')"><router-link :to="getSortLink('name')">Name</router-link></li>
-        <li :class="getSortLinkClass('geologic_age')"><router-link :to="getSortLink('geologic_age')">Geologic Age</router-link></li>
-        <li :class="getSortLinkClass('ontogenic_age')"><router-link :to="getSortLink('ontogenic_age')">Ontogenic Age</router-link></li>
-      </ul>
-    </div>
-    <div class="Library__sort">
-      Viewing:
-      <ul class="Library__sort-list">
-        <li :class="getMineLinkClass(false)"><router-link :to="getMineLink(false)">All</router-link></li>
-        <li :class="getMineLinkClass(true)"><router-link :to="getMineLink(true)">Mine</router-link></li>
-      </ul>
+    <div class="Library__filter-controls">
+      <Search class="Library__search" name="q" v-model="q" />
+      <div class="Library__sort">
+        Sort by:
+        <ul class="Library__sort-list">
+          <li :class="getSortLinkClass('name')"><router-link :to="getSortLink('name')">Name</router-link></li>
+          <li :class="getSortLinkClass('geologic_age')"><router-link :to="getSortLink('geologic_age')">Geologic Age</router-link></li>
+          <li :class="getSortLinkClass('ontogenic_age')"><router-link :to="getSortLink('ontogenic_age')">Ontogenic Age</router-link></li>
+        </ul>
+      </div>
+      <div class="Library__sort">
+        Viewing:
+        <ul class="Library__sort-list">
+          <li :class="getMineLinkClass(false)"><router-link :to="getMineLink(false)">All</router-link></li>
+          <li :class="getMineLinkClass(true)"><router-link :to="getMineLink(true)">Mine</router-link></li>
+        </ul>
+      </div>
     </div>
     <div class="Content-Sidebar" style="display: block">
       <div class="Library__sidebar-row">
@@ -60,6 +63,7 @@ import Results from './Results'
 import TagTree from './TagTree'
 import SideSection from './SideSection'
 import SlideOpen from './SlideOpen.vue';
+import Search from '../forms/Search';
 
 const Group = {
   name: 'Group',
@@ -80,7 +84,17 @@ export default {
     TagTree,
     Tree,
     SideSection,
-    SlideOpen
+    SlideOpen,
+    Search
+  },
+  data(){
+    return {
+      open: {},
+      menu: {
+        geologicAge: false
+      },
+      q: this.$route.meta.data.q
+    }
   },
   computed: {
     data() {
@@ -106,14 +120,6 @@ export default {
       query.geologic_age = query.ontogenic_age = query.elements = query.taxonomy = [];
       return {
         query
-      }
-    }
-  },
-  data(){
-    return {
-      open: {},
-      menu: {
-        geologicAge: false
       }
     }
   },
@@ -232,6 +238,7 @@ export default {
   font-family: 'HelveticaNeueW01-55Roma', Arial, Helvetica, sans-serif;
   color: #666;
   font-size: 11px;
+  grid-column-start: 2;
 }
 
 .Library__sort-list{
@@ -291,6 +298,13 @@ export default {
 
 }
 
-.Library__taxon-tree {
+.Library__filter-controls {
+  display: grid;
+  grid-template-columns: auto auto;
+}
+
+.Library__search {
+  justify-self: start;
+  align-self: start;
 }
 </style>

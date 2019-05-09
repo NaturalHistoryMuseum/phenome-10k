@@ -1,6 +1,7 @@
 <template>
   <div class="ManageUploads Subgrid">
     <h1 class="ManageUploads__title">Manage Uploads</h1>
+    <Search class="ManageUploads__search" v-model="q" name="q" />
     <div class="ManageUploads__sidebar">
       <router-link :class="getLetterClass()" :to="{ name:'manage-uploads' }">All</router-link>
       <router-link :class="getLetterClass(char)" v-for="char of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" :to="{ name:'manage-uploads', query: { char } }" :key="char">{{ char }}</router-link>
@@ -181,15 +182,28 @@ td.ManageUploads__upload-date {
   margin-top: 50px;
   grid-area: footer;
 }
+
+.ManageUploads__search {
+  grid-area: title;
+  align-self: end;
+  justify-self: end;
+}
 </style>
 
 
 <script>
 import Pagination from './Pagination';
+import Search from './forms/Search';
 
 export default {
   components: {
-    Pagination
+    Pagination,
+    Search
+  },
+  data(){
+    return {
+      q: this.$route.meta.data.q
+    }
   },
   computed: {
     page() {
