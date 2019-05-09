@@ -1,6 +1,7 @@
 <template>
   <div class="Publications Subgrid">
     <h1 class="Publications__title">Publications</h1>
+    <Search name="q" v-model="q" />
     <table class="Publications__grid">
       <thead class="Publications__grid-head">
         <tr>
@@ -138,17 +139,23 @@ td.Publications__year {
 }
 </style>
 
-
 <script>
 import Pagination from './Pagination';
+import Search from './forms/Search';
 
 export default {
   components: {
-    Pagination
+    Pagination,
+    Search
+  },
+  data(){
+    return {
+      q: this.$route.meta.data.q
+    }
   },
   computed: {
     page() {
-      return this.$route.meta.data.page
+      return this.$route.meta.data.page;
     },
     totalPages() {
       return this.$route.meta.data.total_pages;

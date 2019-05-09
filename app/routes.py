@@ -298,7 +298,7 @@ def library():
 
   return render_vue(data, title="Library", menu='library')
 
-@app.route('/library.rss')
+@app.route('/feed')
 def feed():
   """ Generate the RSS feed """
   scans = Scan.query.filter(Scan.published).order_by(Scan.date_created)
@@ -577,11 +577,17 @@ def delete_pub_file(id):
 def publications(page = 1):
   per_page = 100
 
-  title = request.args.get('title')
+  search = request.args.get('q')
   mine = 'mine' in request.args.keys()
 
-  if title:
-    query = Publication.query.filter(Publication.title.ilike('%{0}%'.format(title)))
+
+  if search:
+    query = Publication.query.filter(
+      db.or_(
+        Publication.title.ilike('%{0}%'.format(search)),
+        Publication.authors.ilike('%{0}%'.format(search))
+      )
+    )
   else:
     query = Publication.query
 
@@ -593,7 +599,8 @@ def publications(page = 1):
   data = {
     'publications': [ pub.serialize() for pub in pubs.items ],
     'page': page,
-    'total_pages': math.ceil(pubs.total / per_page)
+    'total_pages': math.ceil(pubs.total / per_page),
+    'q': search
   }
 
   return render_vue(data, title='Publications', menu='publications')

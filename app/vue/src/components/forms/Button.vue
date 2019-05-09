@@ -1,5 +1,5 @@
-<template functional>
-  <button v-bind="props" v-on="listeners" :class="{ Button: true, 'Button--big': 'big' in props }"><slot /></button>
+<template>
+  <button v-bind="$attrs" v-on="$listeners" :class="{ Button: true, 'Button--big': 'big' in $attrs }"><slot /></button>
 </template>
 
 <style>
