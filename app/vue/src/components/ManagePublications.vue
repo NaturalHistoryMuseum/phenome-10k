@@ -1,6 +1,7 @@
 <template>
   <div class="ManagePublications Subgrid">
     <h1 class="ManagePublications__title">Manage Publications</h1>
+    <Search class="ManagePublications__search" name="q" v-model="q" />
     <div class="ManagePublications__sidebar">
       <router-link :class="getYearClass()" :to="{ name:'manage-publications' }">All</router-link>
       <router-link :class="getYearClass(pub_year)" v-for="pub_year of $route.meta.data.years" :to="{ name:'manage-publications', query: { pub_year } }" :key="pub_year">{{ pub_year }}</router-link>
@@ -188,15 +189,28 @@ td.ManagePublications__year {
   margin-top: 50px;
   grid-area: footer;
 }
+
+.ManagePublications__search {
+  grid-area: title;
+  align-self: end;
+  justify-self: end;
+}
 </style>
 
 
 <script>
 import Pagination from './Pagination';
+import Search from './forms/Search';
 
 export default {
   components: {
-    Pagination
+    Pagination,
+    Search
+  },
+  data(){
+    return {
+      q: this.$route.meta.data.q
+    }
   },
   computed: {
     page() {

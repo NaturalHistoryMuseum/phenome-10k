@@ -22,9 +22,6 @@ export default {
 
 <style>
 .Search {
-  grid-area: title;
-  align-self: end;
-  justify-self: end;
   display: flex;
 }
 

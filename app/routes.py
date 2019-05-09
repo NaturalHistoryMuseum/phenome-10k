@@ -580,12 +580,13 @@ def publications(page = 1):
   search = request.args.get('q')
   mine = 'mine' in request.args.keys()
 
-
   if search:
+    searchQuery = '%{0}%'.format(search)
+
     query = Publication.query.filter(
       db.or_(
-        Publication.title.ilike('%{0}%'.format(search)),
-        Publication.authors.ilike('%{0}%'.format(search))
+        Publication.title.ilike(searchQuery),
+        Publication.authors.ilike(searchQuery)
       )
     )
   else:
@@ -632,8 +633,21 @@ def manage_publications(page=1):
 
   per_page = 50
   offset = (page - 1) * per_page
-  query = Publication.query
+
   pub_year = request.args.get('pub_year')
+  search = request.args.get('q')
+
+  query = Publication.query
+
+  if search:
+    searchQuery = '%{0}%'.format(search)
+
+    query = query.filter(
+      db.or_(
+        Publication.title.ilike(searchQuery),
+        Publication.authors.ilike(searchQuery)
+      )
+    )
   if(pub_year):
     query = query.filter_by(pub_year = pub_year)
   publications = query.paginate(page, per_page)
@@ -641,7 +655,8 @@ def manage_publications(page=1):
     'publications': [ pub.serialize() for pub in publications.items if current_user.canEdit(pub) ],
     'page': page,
     'total_pages': math.ceil(publications.total / per_page),
-    'years': [ y[0] for y in db.session.query(Publication.pub_year).order_by(Publication.pub_year.desc()).distinct().all() ]
+    'years': [ y[0] for y in db.session.query(Publication.pub_year).order_by(Publication.pub_year.desc()).distinct().all() ],
+    'q': search
   }
   return render_vue(data, title="Manage Publications", menu="publications")
 

@@ -1,7 +1,7 @@
 <template>
   <div class="Publications Subgrid">
     <h1 class="Publications__title">Publications</h1>
-    <Search name="q" v-model="q" />
+    <Search class="Publications__search" name="q" v-model="q" />
     <table class="Publications__grid">
       <thead class="Publications__grid-head">
         <tr>
@@ -136,6 +136,12 @@ td.Publications__year {
 .Publications__footer {
   margin-top: 50px;
   grid-area: footer;
+}
+
+.Publications__search {
+  grid-area: title;
+  align-self: end;
+  justify-self: end;
 }
 </style>
 
