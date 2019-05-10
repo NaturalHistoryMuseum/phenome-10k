@@ -348,12 +348,19 @@ class Taxonomy(db.Model):
     children = db.relationship('Taxonomy')
 
     def serializeTree(self, depth = float('inf')):
-        if len(self.children) == 1:
-            return self.children[0].serializeTree(depth)
-
+        """
+        Returns a serialized version of this model, with all of its children
+        serialized too. If this node only has one child, it will use
+        _that_ child's children as its own, effectively skipping nodes that
+        are the only child of their parent.
+        """
         data = self.serialize()
+
         if depth > 0:
-            data['children'] = [child.serializeTree(depth - 1) for child in self.children]
+            if len(self.children) == 1:
+                data['children'] = self.children[0].serializeTree(depth)['children']
+            else:
+                data['children'] = [child.serializeTree(depth - 1) for child in self.children]
         else:
             data['children'] = []
         return data

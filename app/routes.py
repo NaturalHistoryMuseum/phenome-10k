@@ -466,29 +466,22 @@ def edit_scan(scan = None):
     gbif_id = form.gbif_id.data
 
     if gbif_id and gbif_id != scan.gbif_id:
-      scan.gbif_id = gbif_id
-      import urllib.request, json
-      with urllib.request.urlopen("http://api.gbif.org/v1/species/" + str(gbif_id) + "/parents") as url:
-        tags = json.loads(url.read().decode())
-      with urllib.request.urlopen("http://api.gbif.org/v1/species/" + str(gbif_id)) as url:
-        tags.append(json.loads(url.read().decode()))
+      from gbif import pull_tags
 
-      tagIds = [ tag['key'] for tag in tags ]
+      scan.gbif_id = gbif_id
+      tags = pull_tags(gbif_id)
+
+      tagIds = [ tag.id for tag in tags ]
       existingTags = Taxonomy.query.filter(Taxonomy.id.in_(tagIds)).all()
       existingTagIds = [ tag.id for tag in existingTags ]
       scan.taxonomy = existingTags
 
       for tag in tags:
-        if tag['key'] in existingTagIds:
+        if tag.id in existingTagIds:
           continue
 
-        newTag = Taxonomy(
-          id = tag['key'],
-          name = tag['vernacularName'] if 'vernacularName' in tag else tag['canonicalName'],
-          parent_id = tag['parentKey'] if 'parentKey' in tag else None
-        )
-        db.session.add(newTag)
-        scan.taxonomy.append(newTag)
+        db.session.add(tag)
+        scan.taxonomy.append(tag)
 
     for file in form.attachments.data:
       if isinstance(file, Attachment):
