@@ -1,0 +1,33 @@
+---
+  # - name: Install compilation dependencies
+  #   yum:
+  #     name:
+  #       - gcc-c++
+  #       - gtk2-devel
+  #       - gtk+-devel
+  #       - freeglut-devel
+  - name: Download openctm source
+    get_url:
+      url: https://netcologne.dl.sourceforge.net/project/openctm/OpenCTM-1.0.3/OpenCTM-1.0.3-src.tar.bz2
+      dest: /tmp/openctm.tar.bz2
+  - name: Create openctm dir
+    file:
+      path: /tmp/openctm
+      state: directory
+  - name: Extract openctm
+    unarchive:
+      remote_src: true
+      src: /tmp/openctm.tar.bz2
+      dest: /tmp/openctm
+      extra_opts: ['--strip-components=1']
+  - name: Make ctmconv
+    make:
+      chdir: /tmp/openctm/tools
+      file: Makefile.linux
+      target: ctmconv
+  - name: Copy ctmconv to bin dir
+    command: cp /tmp/openctm/tools/ctmconv /usr/local/bin/
+    args:
+      creates: /usr/local/bin/ctmconv
+    become: y
+

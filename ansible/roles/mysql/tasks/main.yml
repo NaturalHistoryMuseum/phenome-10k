@@ -1,0 +1,48 @@
+---
+  - name: Install percona rpm
+    yum:
+      name: "https://repo.percona.com/yum/percona-release-latest.noarch.rpm"
+    become: yes
+  # - name: Enable the percona repo
+  #   command: percona-release setup ps80
+  #   become: yes
+  - name: Install percona database server
+    yum:
+      name:
+        - percona-server-server
+        - percona-server-client
+        - percona-toolkit
+        - bc
+    become: yes
+  - name: Install pymysql
+    pip:
+      name: PyMySQL
+    become: y
+  - name: Get temporary password
+    shell: grep "A temporary password is generated" /var/log/mysqld.log | awk '{print $NF}'
+    become: y
+    register: mysql_temp_pass
+    changed_when: false
+  - name: Enable the service
+    service:
+      name: mysqld
+      enabled: yes
+      state: started
+    become: yes
+  - name: set db root user password
+    command: mysql --user root --password={{ mysql_temp_pass.stdout }} --connect-expired-password --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ root_password }}';"
+    failed_when: false
+    register: chpw
+    changed_when: chpw.rc == 0
+  - name: Create p10k user
+    mysql_user:
+      login_user: root
+      login_password: '{{ root_password }}'
+      name: '{{ p10k_db_user }}'
+      password: '{{ p10k_db_password }}'
+      priv: '{{ p10k_db_name }}.*:ALL'
+  - name: Create database
+    mysql_db:
+      login_user: root
+      login_password: '{{ root_password }}'
+      name: '{{ p10k_db_name }}'

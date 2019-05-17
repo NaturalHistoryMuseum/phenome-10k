@@ -1,0 +1,17 @@
+---
+  - name: Download node installer
+    get_url:
+      url: https://rpm.nodesource.com/setup_10.x
+      dest: /tmp/setup_10.x.sh
+      mode: 755
+    become: y
+  - name: Install node rpm
+    shell: /tmp/setup_10.x.sh
+    args:
+      creates: /var/cache/yum/x86_64/7/nodesource
+    become: y
+  - name: Install node
+    yum:
+      name:
+        - nodejs
+    become: y

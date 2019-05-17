@@ -1,0 +1,79 @@
+---
+  - name: Check out source
+    git:
+      repo: "https://github.com/NaturalHistoryMuseum/phenome-10k.git"
+      dest: '{{ p10k_src_dir }}'
+      update: no
+    become: y
+    become_user: phenome10k
+  - name: Ensure phenome10k group owns the folder
+    file:
+      path: '{{ p10k_src_dir }}'
+      group: phenome10k
+      recurse: y
+    become: y
+  - name: Allow nginx to read from static files dir
+    sefcontext:
+      target: '{{ static_files_dir }}(/.*)?'
+      setype: httpd_sys_content_t
+    become: y
+  - name: Apply new SELinux file context to filesystem
+    command: 'restorecon -Rv {{ static_files_dir }}'
+    become: y
+    register: restorecon
+    changed_when: 'restorecon.stdout !=  ""'
+  - name: Install node dependencies
+    npm:
+      path: '{{ p10k_src_dir }}'
+    become: y
+    become_user: phenome10k
+  - name: Build front end
+    command: node {{ p10k_src_dir }}/build
+    args:
+      chdir: '{{ p10k_src_dir }}'
+      creates: '{{ static_files_dir }}/dist'
+    environment:
+      NODE_ENV: production
+    become: y
+    become_user: phenome10k
+  - name: Install pip dependencies
+    pip:
+      requirements: '{{ p10k_src_dir }}/requirements.txt'
+      virtualenv: '{{ virtualenv_location }}'
+      virtualenv_python: python3
+      virtualenv_command: virtualenv-3
+    become: y
+    become_user: phenome10k
+  - name: Copy env variables
+    template:
+      src: .env.j2
+      dest: '{{ p10k_home }}/.env'
+    become: y
+    become_user: phenome10k
+  - name: Create log file
+    file:
+      path: /var/log/phenome10k.log
+      state: touch
+      owner: phenome10k
+    become: y
+    register: touch_log
+    changed_when: touch_log.diff.before.state == 'absent'
+  - name: Create database tables
+    command: '{{ venv_bin }}/flask db upgrade'
+    args:
+      chdir: '{{ p10k_src_dir }}'
+    become: y
+    become_user: phenome10k
+    register: upgrade_db
+    changed_when: upgrade_db.stdout.find('Running upgrade') >= 0
+  - name: Create the gunicorn service
+    template:
+      src: gunicorn.service.j2
+      dest: /etc/systemd/system/gunicorn.service
+    become: y
+  - name: Enable gunicorn service
+    systemd:
+      name: gunicorn.service
+      state: started
+      enabled: y
+    become: y

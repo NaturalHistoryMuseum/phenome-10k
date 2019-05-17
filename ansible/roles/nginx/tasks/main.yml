@@ -1,0 +1,32 @@
+---
+  - name: Install nginx
+    yum:
+      name: nginx
+    become: y
+  - name: Copy nginx config files
+    template:
+      src: nginx.conf.j2
+      dest: /etc/nginx/nginx.conf
+    become: y
+  - name: Enable reverse proxy on selinux
+    seboolean:
+      name: httpd_can_network_connect
+      state: yes
+      persistent: yes
+  - name: Start nginx
+    systemd:
+      name: nginx
+      state: started
+      enabled: true
+    become: y
+  - name: Open port 80 on firewall
+    firewalld:
+      zone: public
+      service: '{{ item }}'
+      permanent: true
+      state: enabled
+      immediate: true
+    loop:
+      - http
+      - https
+    become: true

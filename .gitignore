@@ -5,3 +5,6 @@ node_modules
 *.pyc
 app/static/dist
 app/vue/dist
+*.env
+.vagrant
+ansible/playbook.retry

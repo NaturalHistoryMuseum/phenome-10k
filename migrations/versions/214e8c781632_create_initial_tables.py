@@ -1,8 +1,8 @@
-"""Initial tables
+"""Create initial tables
 
-Revision ID: ef6bd83f563f
-Revises:
-Create Date: 2019-03-25 10:59:20.639224
+Revision ID: 214e8c781632
+Revises: 
+Create Date: 2019-05-16 15:36:14.097479
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ef6bd83f563f'
+revision = '214e8c781632'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -33,16 +33,27 @@ def upgrade():
     sa.Column('abstract', sa.Text(), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_publication_url_slug'), 'publication', ['url_slug'], unique=False)
+    with op.batch_alter_table('publication', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_publication_url_slug'), ['url_slug'], unique=False)
+
     op.create_table('tag',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('category', sa.String(length=250), nullable=True),
-    sa.Column('name', sa.String(length=250), nullable=True),
+    sa.Column('category', sa.String(length=250), nullable=False),
+    sa.Column('name', sa.String(length=250), nullable=False),
+    sa.Column('taxonomy', sa.String(length=250), nullable=True),
     sa.Column('parent_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['parent_id'], ['tag.id'], ),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('taxonomy')
+    )
+    op.create_table('taxonomy',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(length=250), nullable=False),
+    sa.Column('parent_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['parent_id'], ['taxonomy.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    userTbl = op.create_table('user',
+    op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=64), nullable=True),
     sa.Column('email', sa.String(length=120), nullable=True),
@@ -53,32 +64,30 @@ def upgrade():
     sa.Column('user_type', sa.String(length=64), nullable=True),
     sa.PrimaryKeyConstraint('id')
     )
-    op.execute(userTbl.insert().values(
-      name='Administrator',
-      email='admin',
-      password='$argon2i$v=19$m=102400,t=2,p=8$aQ0BoNR6T6m1FgKg1Hpv7Q$FJu5Yl0rRIZkfVtHwBFTTw',
-      role='ADMIN'
-    ))
-    op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=True)
-    op.create_index(op.f('ix_user_name'), 'user', ['name'], unique=False)
+    with op.batch_alter_table('user', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_user_email'), ['email'], unique=True)
+        batch_op.create_index(batch_op.f('ix_user_name'), ['name'], unique=False)
+
     op.create_table('file',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('title', sa.String(length=250), nullable=True),
-    sa.Column('filename', sa.String(length=250), nullable=True),
-    sa.Column('location', sa.String(length=250), nullable=True),
+    sa.Column('filename', sa.String(length=250), nullable=False),
+    sa.Column('location', sa.String(length=250), nullable=False),
     sa.Column('date_created', sa.DateTime(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=True),
     sa.Column('owner_id', sa.Integer(), nullable=True),
-    sa.Column('mime_type', sa.String(length=250), nullable=True),
+    sa.Column('mime_type', sa.String(length=250), nullable=False),
+    sa.Column('size', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['owner_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_file_date_created'), 'file', ['date_created'], unique=False)
-    op.create_table('publication_file',
-    sa.Column('publication_id', sa.Integer(), nullable=True),
-    sa.Column('file_id', sa.Integer(), nullable=False),
+    with op.batch_alter_table('file', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_file_date_created'), ['date_created'], unique=False)
+
+    op.create_table('attachment',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('name', sa.String(length=250), nullable=False),
+    sa.Column('file_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['file_id'], ['file.id'], ),
-    sa.ForeignKeyConstraint(['publication_id'], ['publication.id'], ),
-    sa.PrimaryKeyConstraint('file_id')
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('scan',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -91,23 +100,34 @@ def upgrade():
     sa.Column('url_slug', sa.String(length=250), nullable=True),
     sa.Column('alt_name', sa.String(length=250), nullable=True),
     sa.Column('file_id', sa.Integer(), nullable=True),
+    sa.Column('ctm_id', sa.Integer(), nullable=True),
     sa.Column('specimen_id', sa.String(length=250), nullable=True),
     sa.Column('specimen_location', sa.String(length=250), nullable=True),
     sa.Column('specimen_link', sa.String(length=250), nullable=True),
     sa.Column('description', sa.Text(), nullable=True),
     sa.ForeignKeyConstraint(['author_id'], ['user.id'], ),
+    sa.ForeignKeyConstraint(['ctm_id'], ['file.id'], ),
     sa.ForeignKeyConstraint(['file_id'], ['file.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_index(op.f('ix_scan_date_created'), 'scan', ['date_created'], unique=False)
-    op.create_index(op.f('ix_scan_scientific_name'), 'scan', ['scientific_name'], unique=False)
-    op.create_index(op.f('ix_scan_url_slug'), 'scan', ['url_slug'], unique=True)
+    with op.batch_alter_table('scan', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_scan_date_created'), ['date_created'], unique=False)
+        batch_op.create_index(batch_op.f('ix_scan_scientific_name'), ['scientific_name'], unique=False)
+        batch_op.create_index(batch_op.f('ix_scan_url_slug'), ['url_slug'], unique=True)
+
+    op.create_table('publication_file',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('publication_id', sa.Integer(), nullable=True),
+    sa.Column('attachment_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['attachment_id'], ['attachment.id'], ),
+    sa.ForeignKeyConstraint(['publication_id'], ['publication.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('scan_attachment',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('name', sa.String(length=250), nullable=True),
     sa.Column('scan_id', sa.Integer(), nullable=True),
-    sa.Column('file_id', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['file_id'], ['file.id'], ),
+    sa.Column('attachment_id', sa.Integer(), nullable=True),
+    sa.ForeignKeyConstraint(['attachment_id'], ['attachment.id'], ),
     sa.ForeignKeyConstraint(['scan_id'], ['scan.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
@@ -128,25 +148,43 @@ def upgrade():
     sa.ForeignKeyConstraint(['tag_id'], ['tag.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('scan_taxonomy',
+    sa.Column('taxonomy_id', sa.Integer(), nullable=False),
+    sa.Column('scan_id', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['scan_id'], ['scan.id'], ),
+    sa.ForeignKeyConstraint(['taxonomy_id'], ['taxonomy.id'], ),
+    sa.PrimaryKeyConstraint('taxonomy_id', 'scan_id')
+    )
     # ### end Alembic commands ###
 
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_table('scan_taxonomy')
     op.drop_table('scan_tag')
     op.drop_table('scan_publication')
     op.drop_table('scan_attachment')
-    op.drop_index(op.f('ix_scan_url_slug'), table_name='scan')
-    op.drop_index(op.f('ix_scan_scientific_name'), table_name='scan')
-    op.drop_index(op.f('ix_scan_date_created'), table_name='scan')
-    op.drop_table('scan')
     op.drop_table('publication_file')
-    op.drop_index(op.f('ix_file_date_created'), table_name='file')
+    with op.batch_alter_table('scan', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_scan_url_slug'))
+        batch_op.drop_index(batch_op.f('ix_scan_scientific_name'))
+        batch_op.drop_index(batch_op.f('ix_scan_date_created'))
+
+    op.drop_table('scan')
+    op.drop_table('attachment')
+    with op.batch_alter_table('file', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_file_date_created'))
+
     op.drop_table('file')
-    op.drop_index(op.f('ix_user_name'), table_name='user')
-    op.drop_index(op.f('ix_user_email'), table_name='user')
+    with op.batch_alter_table('user', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_user_name'))
+        batch_op.drop_index(batch_op.f('ix_user_email'))
+
     op.drop_table('user')
+    op.drop_table('taxonomy')
     op.drop_table('tag')
-    op.drop_index(op.f('ix_publication_url_slug'), table_name='publication')
+    with op.batch_alter_table('publication', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_publication_url_slug'))
+
     op.drop_table('publication')
     # ### end Alembic commands ###

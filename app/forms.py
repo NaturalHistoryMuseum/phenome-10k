@@ -52,12 +52,18 @@ class ScanUploadForm(FlaskForm):
     description = TextAreaField('Description')
     publications = SelectMultipleField('Publications', choices = [], coerce = lambda id: id if isinstance(id, Publication) else Publication.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
     attachments = MultipleFileField('Add files', default = [])
-    geologic_age = SelectMultipleField('Geologic Age', choices = [ (tag, tag) for tag in Tag.query.filter_by(category='geologic_age').all() ], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput(), validators=[DataRequired()])
-    ontogenic_age = SelectMultipleField('Ontogenic Age', choices = [ (tag, tag) for tag in Tag.query.filter_by(category='ontogenic_age').all() ], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput(), validators=[DataRequired()])
-    elements = SelectMultipleField('Elements', choices = [ (tag, tag) for tag in Tag.query.filter_by(category='elements').all() ], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput(), validators=[DataRequired()])
+    geologic_age = SelectMultipleField('Geologic Age', choices = [], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput(), validators=[DataRequired()])
+    ontogenic_age = SelectMultipleField('Ontogenic Age', choices = [], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput(), validators=[DataRequired()])
+    elements = SelectMultipleField('Elements', choices = [], coerce = lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput(), validators=[DataRequired()])
     gbif_id = StringField()
     published = BooleanField('Publish')
     submit = SubmitField('Save')
+
+    def __init__(self, *args,**kwargs):
+        super(ScanUploadForm, self).__init__(*args,**kwargs)
+        self.geologic_age.choices = [ (tag, tag) for tag in Tag.query.filter_by(category='geologic_age').all() ]
+        self.ontogenic_age.choices = [ (tag, tag) for tag in Tag.query.filter_by(category='ontogenic_age').all() ]
+        self.elements.choices = [ (tag, tag) for tag in Tag.query.filter_by(category='elements').all() ]
 
     def serialize(self):
         data = {
