@@ -75,9 +75,9 @@ class ScanUploadForm(FlaskForm):
         }
 
         tagTree = Tag.tree()
-        data['geologic_age']['choices'] = tagTree['geologic_age']
-        data['ontogenic_age']['choices'] = tagTree['ontogenic_age']
-        data['elements']['choices'] = tagTree['elements']
+        for key in ('geologic_age','ontogenic_age','elements'):
+            if key in tagTree:
+                data[key]['choices'] = tagTree[key]
 
         return data
 

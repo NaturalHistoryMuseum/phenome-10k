@@ -7,6 +7,7 @@ from flask_mail import Mail
 import logging
 from logging.handlers import RotatingFileHandler
 import os
+import click
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -35,3 +36,25 @@ from app import models, routes, errors
 @app.shell_context_processor
 def make_shell_context():
     return {'db': db, 'User': models.User, 'Scan': models.Scan}
+
+@app.cli.command()
+@click.argument('password')
+def set_admin_pw(password):
+    user = models.User(
+        id = 1,
+        name = 'Administrator',
+        email = 'admin',
+        role = 'ADMIN'
+    )
+
+    user = db.session.merge(user)
+
+    if(user.checkPassword(password)):
+        db.session.commit()
+        print('Password not changed')
+        return
+
+    user.setPassword(password)
+    db.session.commit()
+
+    print('Password changed')

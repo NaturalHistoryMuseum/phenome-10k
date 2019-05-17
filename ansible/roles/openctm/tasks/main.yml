@@ -1,11 +1,11 @@
 ---
-  # - name: Install compilation dependencies
-  #   yum:
-  #     name:
-  #       - gcc-c++
-  #       - gtk2-devel
-  #       - gtk+-devel
-  #       - freeglut-devel
+  - name: Install compilation dependencies
+    yum:
+      name:
+        - gcc-c++
+        - gtk2-devel
+        - gtk+-devel
+    become: y
   - name: Download openctm source
     get_url:
       url: https://netcologne.dl.sourceforge.net/project/openctm/OpenCTM-1.0.3/OpenCTM-1.0.3-src.tar.bz2
@@ -20,6 +20,11 @@
       src: /tmp/openctm.tar.bz2
       dest: /tmp/openctm
       extra_opts: ['--strip-components=1']
+  - name: Make openctm
+    make:
+      chdir: /tmp/openctm
+      file: Makefile.linux
+      target: openctm
   - name: Make ctmconv
     make:
       chdir: /tmp/openctm/tools

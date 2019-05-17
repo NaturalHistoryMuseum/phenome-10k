@@ -20,3 +20,4 @@ class Config(object):
     DEFAULT_MAIL_SENDER = os.environ.get('DEFAULT_MAIL_SENDER') or 'no-reply@phenome10k.org'
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL') or 'test@example.com'
     LOG_FILE = os.environ.get('LOG_FILE') or 'logs/phenome10k.log'
+    SERVER_NAME = os.environ.get('SERVER_NAME')

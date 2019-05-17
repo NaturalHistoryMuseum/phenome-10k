@@ -23,6 +23,7 @@
       p10k_db_user: phenome10k
       p10k_db_password: Platypodes3!
       p10k_db_name: phenome10k
+      p10k_admin_password: pass
 
     # Monitoring
     # Cron gbif

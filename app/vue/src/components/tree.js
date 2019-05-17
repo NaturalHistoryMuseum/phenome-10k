@@ -6,7 +6,7 @@ const Tree = {
     const children = [];
     const { items, childKey } = context.props;
 
-    for (const item of items){
+    for (const item of (items || [])){
       const childItems = item[childKey];
       const nextLevel = childItems && h(Tree, { ...context.data, props: { items: childItems, childKey } });
       const extended = Object.create(item, {

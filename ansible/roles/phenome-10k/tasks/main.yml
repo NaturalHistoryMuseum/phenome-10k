@@ -77,3 +77,13 @@
       state: started
       enabled: y
     become: y
+  - name: Set admin password
+    command: '{{ venv_bin }}/flask set-admin-pw {{ p10k_admin_password }}'
+    args:
+      chdir: '{{ p10k_src_dir }}'
+    register: set_pw
+    #changed_when:  set_pw.stdout.find('Password changed') >= 0
+    become: y
+    become_user: phenome10k
+  - debug:
+      var: set_pw

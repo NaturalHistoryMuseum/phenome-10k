@@ -7,3 +7,6 @@ ExecStart={{ gunicorn_binary }} -b localhost:8000 -w 4 app:app
 Restart=on-abort
 WorkingDirectory={{ p10k_src_dir }}
 User={{ p10k_linux_user }}
+
+[Install]
+WantedBy=multi-user.target
