@@ -88,7 +88,7 @@
 
         <Files title="3D / Web GL" :download="scan.source">
           <div class="Scan__file">
-            <input type="image" :src="scan.thumbnail + '?w=80'" @click="viewStill=null" />
+            <input v-if="scan.thumbnail" type="image" :src="scan.thumbnail + '?w=80'" @click="viewStill=null" />
             <div class="Scan__file-info">
               (STL)
             </div>
@@ -212,7 +212,9 @@ export default {
       return this.$route.meta.data;
     },
     title() {
-      return this.scan.scientific_name[0].toUpperCase() + this.scan.scientific_name.substr(1)
+      return this.scan.scientific_name ?
+        this.scan.scientific_name[0].toUpperCase() + this.scan.scientific_name.substr(1) :
+        'Unnamed Upload'
     }
   }
 }

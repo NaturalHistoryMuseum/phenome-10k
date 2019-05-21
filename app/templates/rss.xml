@@ -18,11 +18,11 @@
       <content>
         {{ scan.description }}
         {% if scan.thumbnail %}
-        <img src="{{ url_for('send_uploads', path=scan.thumbnail.file, _external=True) }}" />
+        <img src="{{ scan.thumbnail.file.serialize(external = True) }}" />
         {% endif %}
       </content>
       {% if scan.thumbnail %}
-      <enclosure url="{{ url_for('send_uploads', path=scan.thumbnail.file, _external=True) }}" length="{{ scan.thumbnail.file.size }}" type="image/png" />
+      <enclosure url="{{ scan.thumbnail.file.serialize(external=True) }}" length="{{ scan.thumbnail.file.size }}" type="image/png" />
       {% endif %}
     </item>
     {% endfor %}

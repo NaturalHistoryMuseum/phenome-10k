@@ -8,7 +8,7 @@ from sqlalchemy.sql import func
 from app import db, login, app
 from passlib.context import CryptContext
 from flask_login import UserMixin, current_user
-from flask.helpers import safe_join
+from flask.helpers import safe_join, url_for
 from werkzeug.utils import secure_filename
 
 @login.user_loader
@@ -152,9 +152,13 @@ class Scan(db.Model):
         return '<Scan {}>'.format(self.scientific_name)
 
 class File(db.Model):
+    UPLOADS_DIR = 'uploads'
+    MODELS_DIR = 'models'
+
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(250), nullable=False)
     location = db.Column(db.String(250), nullable=False)
+    storage_area= db.Column(db.Enum(UPLOADS_DIR, MODELS_DIR), server_default=UPLOADS_DIR)
     date_created = db.Column(db.DateTime, index=True, server_default=func.now())
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     mime_type = db.Column(db.String(250), nullable=False)
@@ -163,15 +167,15 @@ class File(db.Model):
     owner = db.relationship('User')
 
     @staticmethod
-    def fromUpload(fileStorage, save = True):
+    def fromUpload(fileStorage, storage_area = UPLOADS_DIR, save = True):
         """Create a File model from a Werkzeug FileStorage object, and save the file to disk"""
-        file = File.fromBinary(fileStorage.filename, fileStorage.stream)
+        file = File.fromBinary(fileStorage.filename, fileStorage.stream, storage_area)
         if save:
-            fileStorage.save(file.location)
+            fileStorage.save(file.getAbsolutePath())
         return file
 
     @staticmethod
-    def fromBinary(filename, stream):
+    def fromBinary(filename, stream, storage_area = UPLOADS_DIR):
         """Create a File model from a string filename and file-like object"""
         mimeType = magic.from_buffer(stream.read(1024), mime=True)
         stream.seek(0, os.SEEK_END)
@@ -181,25 +185,41 @@ class File(db.Model):
         return File.fromName(
             filename,
             size = size,
-            mimeType = mimeType
+            mimeType = mimeType,
+            storage_area = storage_area
         )
 
     @staticmethod
-    def fromName(filename, mimeType=None, size=None):
+    def fromName(filename, storage_area = UPLOADS_DIR, mimeType=None, size=None):
         """Create a File model from a string filename with optional size and mimetype"""
 
-        location = safe_join('uploads', ''.join(random.choices(string.ascii_uppercase + string.digits, k=6)) + secure_filename(filename))
+        location = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6)) + secure_filename(filename)
 
         return File(
             filename = filename,
             location = location,
             owner_id = current_user.id,
             mime_type = mimeType,
-            size = size
+            size = size,
+            storage_area = storage_area
         )
 
-    def serialize(self):
-        return '/' + self.location
+    def getAbsolutePath(self):
+        """Returns the absolute path on the filesystem for this file"""
+        storage_dir =  app.config['UPLOAD_DIRECTORY'] if self.storage_area == File.UPLOADS_DIR else \
+                       app.config['MODEL_DIRECTORY'] if self.storage_area == File.MODELS_DIR else \
+                       None
+
+        if storage_dir == None:
+            raise Exception('No filesystem path is configured for storage area named ' + self.storage_area)
+
+        return os.path.join(storage_dir, self.location)
+
+    def serialize(self, external = False):
+        """Returns the url for downloading this file over http"""
+        return url_for('send_uploads', path=self, _external=external) if self.storage_area == File.UPLOADS_DIR else \
+               url_for('send_models', path=self, _external=external) if self.storage_area == File.MODELS_DIR else \
+               os.path.join('/', self.location)
 
     def __repr__(self):
         return '<File {}>'.format(self.filename)
@@ -208,7 +228,7 @@ class File(db.Model):
 def receive_after_delete(mapper, connection, target):
     """Ensure the files get deleted from disk when the record is deleted"""
     try:
-        os.remove(target.location)
+        os.remove(target.getAbsolutePath())
     except:
         pass
 

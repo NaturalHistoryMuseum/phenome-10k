@@ -55,22 +55,22 @@ def convert_file(file):
     ctmFile = File.fromName(filename + '.ctm')
     ctmFile.mime_type = 'application/octet-stream'
 
-    ctmConvert = subprocess.run(["ctmconv", uploadFile.name, ctmFile.location], stderr=subprocess.PIPE)
+    ctmConvert = subprocess.run(["ctmconv", uploadFile.name, ctmFile.getAbsolutePath()], stderr=subprocess.PIPE)
     if ctmConvert.returncode > 0:
       # TODO: Deal with this error properly
       app.logger.warn(ctmConvert.stderr)
 
-    ctmFile.size = os.stat(ctmFile.location).st_size
+    ctmFile.size = os.stat(ctmFile.getAbsolutePath()).st_size
 
     # Zip source file & save to large file storage
     # TODO: Configure large file storage
-    zip = File.fromName(file.filename + '.zip')
+    zip = File.fromName(file.filename + '.zip', File.MODELS_DIR)
     zip.mime_type = 'application/zip'
 
-    with ZipFile(zip.location, 'w', ZIP_DEFLATED) as zipFile:
-      zipFile.write(uploadFile.name)
+    with ZipFile(zip.getAbsolutePath(), 'w', ZIP_DEFLATED) as zipFile:
+      zipFile.write(uploadFile.name, file.filename)
 
-    zip.size = os.stat(zip.location).st_size
+    zip.size = os.stat(zip.getAbsolutePath()).st_size
 
     return (zip, ctmFile)
 
@@ -93,10 +93,10 @@ class ScanConverter(SlugConverter):
 class PublicationConverter(SlugConverter):
   model = Publication
 
+# This is just a one-way converter, to turn a File object into a router path. Doesn't work the other way.
 class FileConverter(BaseConverter):
   def to_url(self, value):
-    import re
-    return BaseConverter.to_url(self, value if isinstance(value, str) else re.sub(r"^uploads/", "", value.location))
+    return BaseConverter.to_url(self, value if isinstance(value, str) else value.location)
 
 app.url_map.converters['scan'] = ScanConverter
 app.url_map.converters['publication'] = PublicationConverter
@@ -149,12 +149,18 @@ def requiresContributor(f):
 def index():
   return render_template('index.html', menu='home')
 
+@app.route('/models/<file:path>')
+def send_models(path):
+  """Url for downloading the source model file"""
+  return send_from_directory(app.config['MODEL_DIRECTORY'], path)
+
 @app.route('/uploads/<file:path>')
 def send_uploads(path):
+  """Route for downloading an uploaded file. Images may be resized using the `w` parameter to specify width"""
   width = request.args.get('w')
 
   if width == None:
-    return send_from_directory('../uploads', path)
+    return send_from_directory(app.config['UPLOAD_DIRECTORY'], path)
 
   thumbnail_file = path + '-' + width + '.png'
 
@@ -179,7 +185,7 @@ def send_uploads(path):
       raise BadRequest()
 
     if(width >= im.width):
-      return send_from_directory('../uploads', path)
+      return send_from_directory(app.config['UPLOAD_DIRECTORY'], path)
 
     height = im.height * width / im.width
     im.thumbnail((width, height))
@@ -405,7 +411,7 @@ def scan_stills(scan):
   zip_buffer = io.BytesIO()
   with ZipFile(zip_buffer, "w") as zip_file:
     for still in scan.attachments:
-      zip_file.write(still.file.location, still.file.filename)
+      zip_file.write(still.file.getAbsolutePath(), still.file.filename)
 
   zip_buffer.seek(0)
   filename = scan.url_slug + '_stills.zip'
@@ -499,7 +505,7 @@ def edit_scan(scan = None):
       if (fileModel.mime_type != 'image/png'):
         form.stills.errors.append('Stills must be png files')
       else:
-        file.save(fileModel.location)
+        file.save(fileModel.getAbsolutePath())
         attachment = Attachment(
           name = label,
           file = fileModel

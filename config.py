@@ -21,3 +21,5 @@ class Config(object):
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL') or 'test@example.com'
     LOG_FILE = os.environ.get('LOG_FILE') or 'logs/phenome10k.log'
     SERVER_NAME = os.environ.get('SERVER_NAME')
+    UPLOAD_DIRECTORY = os.environ.get('UPLOAD_DIRECTORY') or os.path.abspath('uploads')
+    MODEL_DIRECTORY = os.environ.get('MODEL_DIRECTORY') or os.path.abspath('uploads/models')
