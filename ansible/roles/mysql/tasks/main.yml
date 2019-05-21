@@ -35,19 +35,19 @@
     changed_when: false
     failed_when: mysql_temp_pass.stdout == ""
   - name: set db root user password
-    command: mysql --user root --password={{ mysql_temp_pass.stdout }} --connect-expired-password --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ root_password }}';"
+    command: mysql --user root --password={{ mysql_temp_pass.stdout }} --connect-expired-password --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';"
     failed_when: false
     register: chpw
     changed_when: chpw.rc == 0
   - name: Create database
     mysql_db:
       login_user: root
-      login_password: '{{ root_password }}'
+      login_password: '{{ mysql_root_password }}'
       name: '{{ p10k_db_name }}'
   - name: Create p10k user
     mysql_user:
       login_user: root
-      login_password: '{{ root_password }}'
+      login_password: '{{ mysql_root_password }}'
       name: '{{ p10k_db_user }}'
       password: '{{ p10k_db_password }}'
       priv: '{{ p10k_db_name }}.*:ALL'

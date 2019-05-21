@@ -52,6 +52,16 @@ http {
         }
     }
 
+    server {
+        listen       80;
+        listen       [::]:80;
+        server_name  monit.phenome10k.org;
+
+        location / {
+          proxy_pass http://localhost:8080/;
+        }
+    }
+
 # Settings for a TLS enabled server.
 #
 #    server {

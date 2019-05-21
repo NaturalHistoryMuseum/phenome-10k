@@ -1,0 +1,38 @@
+set daemon {{ monit_poll_freq }}
+  with start delay {{ monit_start_delay }}
+
+set logfile {{ monit_log_file }}
+
+set idfile {{ monit_id_file }}
+
+set pidfile {{ monit_pid_file }}
+
+set statefile {{ monit_state_file }}
+
+
+set mail-format {
+  from: scratchpads@{{ ansible_fqdn }}
+   subject: [monit] $SERVICE:$HOST $EVENT at $DATE
+   message:     Monit $ACTION $SERVICE at $DATE on $HOST: $DESCRIPTION.
+    Yours sincerely,
+    monit
+}
+
+set mailserver 127.0.0.1
+
+set alert scratchpads@nhm.ac.uk
+
+# m/monit integration
+
+set eventqueue
+  basedir {{ monit_eventqueue.dir }}
+  slots {{ monit_eventqueue.slots }}
+
+set httpd port {{ monit_port }} and
+  use address localhost
+  allow localhost
+  allow {{ ansible_fqdn }}
+
+set mmonit http://monit:{{ mmonit_client_password }}@localhost:8080/collector
+
+include {{ monit_confd_dir }}/*.conf

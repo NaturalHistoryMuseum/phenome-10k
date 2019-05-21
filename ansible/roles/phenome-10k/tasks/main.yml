@@ -50,14 +50,12 @@
       dest: '{{ p10k_home }}/.env'
     become: y
     become_user: phenome10k
-  - name: Create log file
+  - name: Create log directory
     file:
-      path: /var/log/phenome10k.log
-      state: touch
+      path: '{{ p10k_logs }}'
+      state: directory
       owner: phenome10k
     become: y
-    register: touch_log
-    changed_when: touch_log.diff.before.state == 'absent'
   - name: Create database tables
     command: '{{ venv_bin }}/flask db upgrade'
     args:
@@ -82,8 +80,6 @@
     args:
       chdir: '{{ p10k_src_dir }}'
     register: set_pw
-    #changed_when:  set_pw.stdout.find('Password changed') >= 0
+    changed_when:  set_pw.stdout.find('Password changed') >= 0
     become: y
     become_user: phenome10k
-  - debug:
-      var: set_pw

@@ -1,0 +1,9 @@
+[Unit]
+Description="M/Monit system monitoring"
+
+[Service]
+ExecStartPre={{ mmonit_dir }}/bin/mmonit -c {{ mmonit_dir }}/conf/server.xml -r {{ mmonit_dir }} -t
+ExecStart={{ mmonit_dir }}/bin/mmonit -c {{ mmonit_dir }}/conf/server.xml -r {{ mmonit_dir }} -p /var/run -i start
+
+[Install]
+WantedBy=multi-user.target

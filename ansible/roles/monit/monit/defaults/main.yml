@@ -1,0 +1,119 @@
+monit_dir: /etc/monit
+monit_confd_dir: "{{ monit_dir }}/conf.d"
+monit_port: 2812
+
+monit_poll_freq: 60
+monit_start_delay: 5
+
+monit_log_file: /var/log/monit.log
+monit_id_file: /var/lib/monit.id
+monit_pid_file: /var/run/monit.pid
+monit_state_file: /var/run.monit.state
+
+monit_eventqueue:
+  dir: /var/tmp
+  slots: 100
+
+mysql_monit:
+  user_name: monit
+  password: 'Monit_mysql_password.8'
+
+# Active - try and restart services
+monit_monitoring_mode: active
+
+monit_services_conf:
+  gunicorn:
+    check_type: process
+    check_id: gunicorn
+    id_type: matching
+    start: '/bin/systemctl restart gunicorn'
+    stop: '/bin/systemctl stop gunicorn'
+    group: web
+    tests:
+      - condition: 'cpu > 60% for 20 cycles'
+        action: 'alert'
+      - condition: 'cpu > 80% for 5 cycles'
+        action: 'alert'
+      - condition: 'children > 250'
+        action: 'alert'
+
+  nginx:
+    check_type: process
+    check_id: /var/run/nginx.pid
+    id_type: pidfile
+    start: '/bin/systemctl restart nginx'
+    stop: '/bin/systemctl stop nginx'
+    group: web
+    tests:
+      - condition: 'cpu > 60% for 20 cycles'
+        action: 'alert'
+      - condition: 'cpu > 80% for 5 cycles'
+        action: 'alert'
+      - condition: 'children > 250'
+        action: 'alert'
+
+# MySQL/Percona
+  mysql:
+    check_type: 'process'
+    check_id: '/var/run/mysqld/mysqld.pid'
+    id_type: 'pidfile'
+    start: '/bin/systemctl restart mysqld'
+    stop: '/bin/systemctl stop mysqld'
+    group: 'data'
+    tests:
+      - condition: 'cpu > 80% for 5 cycles'
+        action: 'alert'
+      - condition: 'totalmem > 16.0 GB for 5 cycles'
+        action: 'alert'
+      - condition: 'children > 250'
+        action: 'alert'
+      - condition: "failed host localhost port 3306 protocol mysql username \"{{ mysql_monit.user_name }}\" password \"{{ mysql_monit.password }}\" for 3 cycles"
+        action: 'alert'
+
+
+##### SYSTEMS #####
+  systems:
+    check_type: 'system'
+    name: '{{ ansible_fqdn }}'
+    tests:
+      - condition: 'loadavg (5min) > 6 for 15 cycles'
+        action: 'alert'
+      - condition: 'memory usage > 95% for 15 cycles'
+        action: 'alert'
+      - condition: 'swap usage > 25%'
+        action: 'alert'
+      - condition: 'cpu usage (user) > 70% for 15 cycles'
+        action: 'alert'
+      - condition: 'cpu usage (system) > 50% for 15 cycles'
+        action: 'alert'
+      - condition: 'cpu usage (wait) > 40% for 15 cycles'
+        action: 'alert'
+
+##### File systems #####
+  # data-partition:
+  #   skip: '{{ skip_monit_data_partition | default("") }}'
+  #   check_type: 'filesystem'
+  #   check_id: '/data'
+  #   id_type: 'path'
+  #   tests:
+  #     - condition: 'space > 800 GB for 10 cycles'
+  #       action: 'alert'
+
+# Servers with 50GB root directories.
+  50gb-root-partition:
+    check_type: 'filesystem'
+    check_id: '/'
+    id_type: 'path'
+    tests:
+      - condition: 'space > 30 GB for 10 cycles'
+        action: 'alert'
+
+# Boot partition
+  # boot-partition:
+  #   check_type: 'filesystem'
+  #   check_id: '/boot'
+  #   id_type: 'path'
+  #   #rls: [node['scratchpads']['ntp']['role']]
+  #   tests:
+  #     - condition: 'space > 500 MB for 10 cycles'
+  #       action: 'alert'
