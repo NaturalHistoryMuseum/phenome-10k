@@ -63,7 +63,6 @@ def convert_file(file):
     ctmFile.size = os.stat(ctmFile.getAbsolutePath()).st_size
 
     # Zip source file & save to large file storage
-    # TODO: Configure large file storage
     zip = File.fromName(file.filename + '.zip', File.MODELS_DIR)
     zip.mime_type = 'application/zip'
 

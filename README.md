@@ -27,3 +27,5 @@ If you want to run in developer/debug mode:
 node build/watch &
 FLASK_DEBUG=1 flask run
 ```
+
+To run tests, use the `pytest` command.
