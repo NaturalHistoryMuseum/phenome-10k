@@ -417,7 +417,7 @@ def scan_stills(scan):
 
   return send_file(zip_buffer, as_attachment=True, attachment_filename=filename)
 
-@app.route('/<scan:scan>/edit-scan', methods=['GET', 'POST'])
+@app.route('/<scan:scan>/edit', methods=['GET', 'POST'])
 @app.route('/library/create/', methods=['GET', 'POST'])
 @requiresContributor
 def edit_scan(scan = None):
@@ -542,7 +542,7 @@ def edit_scan(scan = None):
   return render_vue(data, title='Edit' if scan else 'Upload New', menu='library')
 
 @app.route('/publications/create/', methods=['GET', 'POST'])
-@app.route('/<publication:publication>/edit-pub', methods=['GET', 'POST'])
+@app.route('/publication/<publication:publication>/edit', methods=['GET', 'POST'])
 def edit_publication(publication=None):
     form = PublicationUploadForm(obj=publication)
 
@@ -692,7 +692,7 @@ def manage_publications(page=1):
   }
   return render_vue(data, title="Manage Publications", menu="publications")
 
-@app.route('/<publication:publication>/')
+@app.route('/publication/<publication:publication>/')
 def publication(publication):
   if not publication.published and not (current_user.is_authenticated and current_user.canEdit(publication)):
     raise NotFound()

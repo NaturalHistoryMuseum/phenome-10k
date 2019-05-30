@@ -48,7 +48,7 @@
             <dl class="Scan__datalist">
               <div>
                 <dt>Title:</dt>
-                <dd><router-link class="Scan__link" :to="{ name: 'scan-or-pub', params: { id: publication.url_slug } }">{{ publication.title }}</router-link></dd>
+                <dd><router-link class="Scan__link" :to="{ name: 'publication', params: { id: publication.url_slug } }">{{ publication.title }}</router-link></dd>
               </div>
               <div>
                 <dt>Year:</dt>

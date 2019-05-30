@@ -17,7 +17,7 @@
         <tr v-for="publication in $route.meta.data.publications" :key="publication.id">
           <td class="ManagePublications__year">{{ publication.pub_year }}</td>
           <td>
-            <router-link class="ManagePublications__publication-link" :to="{ name: 'scan-or-pub', params: { id: publication.url_slug || publication.id } }">{{ publication.title }}</router-link>
+            <router-link class="ManagePublications__publication-link" :to="{ name: 'publication', params: { id: publication.url_slug || publication.id } }">{{ publication.title }}</router-link>
             <div class="ManagePublications__authors">{{ publication.authors }}</div>
           </td>
           <td class="ManagePublications__actions-col">

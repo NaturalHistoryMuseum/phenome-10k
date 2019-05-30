@@ -17,7 +17,7 @@
         <tr v-for="scan in $route.meta.data.scans" :key="scan.id">
           <td class="ManageUploads__upload-date">{{ getDateCreated(scan) }}</td>
           <td>
-            <router-link class="ManageUploads__scan-link" :to="{ name: 'scan-or-pub', params: { id: scan.url_slug || scan.id } }">{{ scan.scientific_name }}</router-link>
+            <router-link class="ManageUploads__scan-link" :to="{ name: 'scan', params: { id: scan.url_slug || scan.id } }">{{ scan.scientific_name }}</router-link>
             <dl class="ManageUploads__details">
               <template v-for="({ name, values }, ix) in getScanData(scan)"><!--
             --><template v-if="ix > 0">, </template>

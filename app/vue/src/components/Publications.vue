@@ -15,7 +15,7 @@
             {{ !publications[ix-1] || publications[ix-1].pub_year !== pub.pub_year ? pub.pub_year : '' }}
           </td>
           <td>
-            <router-link class="Publications__link" :to="{ name: 'scan-or-pub', params: { id: pub.url_slug || pub.id } }">{{ pub.title }}</router-link>
+            <router-link class="Publications__link" :to="{ name: 'publication', params: { id: pub.url_slug || pub.id } }">{{ pub.title }}</router-link>
             <div class="Publications__details">
               <div class="Publications__authors">
                 {{ pub.authors }}
