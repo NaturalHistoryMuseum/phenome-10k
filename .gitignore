@@ -8,3 +8,5 @@ app/vue/dist
 *.env
 .vagrant
 ansible/playbook.retry
+.coverage
+htmlcov/

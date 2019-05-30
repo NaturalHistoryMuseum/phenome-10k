@@ -28,4 +28,8 @@ node build/watch &
 FLASK_DEBUG=1 flask run
 ```
 
-To run tests, use the `pytest` command.
+To run tests, use the `pytest` command. For coverage use the --cov arg with the `app` directory:
+
+```bash
+pytest --cov=app
+```
