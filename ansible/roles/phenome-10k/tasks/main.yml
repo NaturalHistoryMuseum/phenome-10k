@@ -83,3 +83,11 @@
     changed_when:  set_pw.stdout.find('Password changed') >= 0
     become: y
     become_user: phenome10k
+  - name: Add the gbif cron job
+    cron:
+      name: GBIF update
+      minute: 0
+      hour: 0
+      day: 0
+      month: *
+      job: "{{ venv_bin }}/python {{ p10k_src_dir }}/gbif.py"
