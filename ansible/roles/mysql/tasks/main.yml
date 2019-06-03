@@ -16,7 +16,7 @@
         - percona-toolkit
         - bc
     become: yes
-  - name: Install pymysql
+  - name: Install pymysql, cryptography
     pip:
       name:
         - PyMySQL

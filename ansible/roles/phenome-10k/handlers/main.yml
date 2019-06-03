@@ -1,0 +1,6 @@
+---
+  - name: restart gunicorn
+    service:
+      name: gunicorn
+      state: restarted
+    become: y

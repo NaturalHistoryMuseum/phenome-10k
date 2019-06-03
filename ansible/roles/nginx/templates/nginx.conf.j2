@@ -35,33 +35,6 @@ http {
     # for more information.
     include /etc/nginx/conf.d/*.conf;
 
-    server {
-        listen       80 default_server;
-        listen       [::]:80 default_server;
-        server_name  _;
-
-        # Load configuration files for the default server block.
-        include /etc/nginx/default.d/*.conf;
-
-        location /static/ {
-            root {{ app_root_dir }};
-        }
-
-        location / {
-          proxy_pass http://localhost:8000/;
-        }
-    }
-
-    server {
-        listen       80;
-        listen       [::]:80;
-        server_name  monit.phenome10k.org;
-
-        location / {
-          proxy_pass http://localhost:8080/;
-        }
-    }
-
 # Settings for a TLS enabled server.
 #
 #    server {

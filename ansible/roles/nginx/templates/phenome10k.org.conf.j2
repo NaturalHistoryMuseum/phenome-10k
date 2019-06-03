@@ -1,0 +1,27 @@
+upstream phenome10k {
+    server app1:8000;
+    server app2:8000;
+}
+
+server {
+    listen       80 default_server;
+    listen       [::]:80 default_server;
+    server_name  _;
+
+    location / {
+      proxy_pass http://phenome10k;
+
+      # Redefine the header fields that NGINX sends to the upstream server
+      proxy_set_header Host {{ hostname }};
+    }
+}
+
+server {
+    listen       80;
+    listen       [::]:80;
+    server_name  monit.phenome10k.org;
+
+    location / {
+      proxy_pass http://localhost:8080/;
+    }
+}

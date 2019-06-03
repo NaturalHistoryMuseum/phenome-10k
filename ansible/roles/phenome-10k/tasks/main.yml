@@ -69,6 +69,8 @@
       src: gunicorn.service.j2
       dest: /etc/systemd/system/gunicorn.service
     become: y
+    notify:
+      - restart gunicorn
   - name: Enable gunicorn service
     systemd:
       name: gunicorn.service
@@ -83,11 +85,20 @@
     changed_when:  set_pw.stdout.find('Password changed') >= 0
     become: y
     become_user: phenome10k
+  - name: Open port 8000 on firewall
+    firewalld:
+      zone: public
+      port: '8000/tcp'
+      permanent: true
+      state: enabled
+      immediate: true
+    become: true
+
   - name: Add the gbif cron job
     cron:
       name: GBIF update
-      minute: 0
-      hour: 0
-      day: 0
-      month: *
+      minute: "0"
+      hour: "0"
+      day: "1"
+      month: "*"
       job: "{{ venv_bin }}/python {{ p10k_src_dir }}/gbif.py"
