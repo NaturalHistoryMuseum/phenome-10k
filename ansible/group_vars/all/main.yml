@@ -9,9 +9,6 @@ gunicorn_binary: '{{ venv_bin }}/gunicorn'
 mysql_root_password: plaEee2eer34@
 p10k_linux_user: phenome10k
 p10k_linux_group: phenome10k
-p10k_db_user: phenome10k
-p10k_db_password: Platypodes3!
-p10k_db_name: phenome10k
 p10k_admin_password: pass
 mmonit_admin_password: ilovemonit
 mmonit_client_password: ilovemonit

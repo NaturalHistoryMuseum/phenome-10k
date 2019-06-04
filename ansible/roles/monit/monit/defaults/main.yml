@@ -52,25 +52,6 @@ monit_services_conf:
       - condition: 'children > 250'
         action: 'alert'
 
-# MySQL/Percona
-  mysql:
-    check_type: 'process'
-    check_id: '/var/run/mysqld/mysqld.pid'
-    id_type: 'pidfile'
-    start: '/bin/systemctl restart mysqld'
-    stop: '/bin/systemctl stop mysqld'
-    group: 'data'
-    tests:
-      - condition: 'cpu > 80% for 5 cycles'
-        action: 'alert'
-      - condition: 'totalmem > 16.0 GB for 5 cycles'
-        action: 'alert'
-      - condition: 'children > 250'
-        action: 'alert'
-      - condition: "failed host localhost port 3306 protocol mysql username \"{{ mysql_monit.user_name }}\" password \"{{ mysql_monit.password }}\" for 3 cycles"
-        action: 'alert'
-
-
 ##### SYSTEMS #####
   systems:
     check_type: 'system'

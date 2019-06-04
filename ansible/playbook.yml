@@ -6,7 +6,6 @@
       - firewalld
       - openctm
       - nodejs
-      - mysql
       - phenome-10k
       - monit/monit
       - monit/mmonit
