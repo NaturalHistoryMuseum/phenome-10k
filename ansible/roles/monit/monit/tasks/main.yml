@@ -48,8 +48,17 @@
     vars:
       config: "{{ monit_services_conf[item] }}"
       name: "{{ item }}"
-    with_items: '{{ monit_services_conf }}'
+    with_items: '{{ monit_services }}'
     when: "config.skip is not defined or config.skip == ''"
     notify:
       - restart monit
     become: yes
+
+  - name: Allow mmonit to connect from lb
+    firewalld:
+      zone: public
+      port: "{{ monit_port }}/tcp"
+      permanent: true
+      state: enabled
+      immediate: y
+    become: y

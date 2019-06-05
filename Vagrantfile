@@ -31,7 +31,7 @@ Vagrant.configure("2") do |config|
     config.vm.box = "centos/7"
     config.vm.network "forwarded_port", guest: 80, host: 8000
     config.vm.hostname = "lb1"
-    config.vm.network "private_network", type: "dhcp"
+    config.vm.network "private_network", ip: "192.168.10.21"
     config.vm.provision :hosts, :sync_hosts => true
   end
 
@@ -46,7 +46,7 @@ Vagrant.configure("2") do |config|
       config.vm.box = "centos/7"
       config.vm.hostname = vmName
       config.vm.network "private_network", ip: app_ip
-       config.vm.provision :hosts, :sync_hosts => true
+      config.vm.provision :hosts, :sync_hosts => true
 
       # Share an additional folder to the guest VM. The first argument is
       # the path on the host to the actual folder. The second argument is

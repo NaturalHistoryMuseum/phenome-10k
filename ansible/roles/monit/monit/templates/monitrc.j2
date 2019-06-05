@@ -33,6 +33,6 @@ set httpd port {{ monit_port }} and
   allow localhost
   allow {{ ansible_fqdn }}
 
-set mmonit http://monit:{{ mmonit_client_password }}@localhost:8080/collector
+set mmonit {{ monit_mmonit_url }}
 
 include {{ monit_confd_dir }}/*.conf

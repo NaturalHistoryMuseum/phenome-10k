@@ -8,7 +8,11 @@
       - nodejs
       - phenome-10k
       - monit/monit
-      - monit/mmonit
+    vars:
+      monit_services:
+        - gunicorn
+        - systems
+        - 50gb-root-partition
 
     # Cron gbif
     # Email
@@ -20,6 +24,13 @@
     roles:
       - firewalld
       - nginx
+      - monit/monit
+      - monit/mmonit
+    vars:
+      monit_services:
+        - nginx
+        - systems
+        - 50gb-root-partition
 
 
 # Todo:

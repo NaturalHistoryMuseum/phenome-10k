@@ -81,4 +81,13 @@
       enabled: yes
     become: yes
 
+  - name: Allow monit to connect from app servers
+    firewalld:
+      zone: public
+      port: "8080/tcp"
+      permanent: true
+      state: enabled
+      immediate: y
+    become: y
+
   - meta: flush_handlers

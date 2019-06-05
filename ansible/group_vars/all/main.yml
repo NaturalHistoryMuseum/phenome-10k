@@ -13,3 +13,5 @@ p10k_admin_password: pass
 mmonit_admin_password: ilovemonit
 mmonit_client_password: ilovemonit
 hostname: localhost:8000
+monit_hostname: monit.localhost
+monit_mmonit_url: http://monit:{{ mmonit_client_password }}@lb1:8080/collector
