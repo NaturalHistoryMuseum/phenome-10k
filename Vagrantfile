@@ -27,12 +27,15 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  config.vm.define :lb1 do |config|
-    config.vm.box = "centos/7"
-    config.vm.network "forwarded_port", guest: 80, host: 8000
-    config.vm.hostname = "lb1"
-    config.vm.network "private_network", ip: "192.168.10.21"
-    config.vm.provision :hosts, :sync_hosts => true
+  [1, 2].each do |n|
+    vmName = "lb#{n}"
+    config.vm.define vmName do |config|
+      config.vm.box = "centos/7"
+      #config.vm.network "forwarded_port", guest: 80, host: 8000
+      #config.vm.hostname = vmName
+      config.vm.network "private_network", ip: "192.168.10.1#{n}"
+      config.vm.provision :hosts, :sync_hosts => true
+    end
   end
 
   app_ips = [
@@ -65,8 +68,17 @@ Vagrant.configure("2") do |config|
     ansible.playbook = "ansible/playbook.yml"
     ansible.groups = {
       "app" => ["app1", "app2"],
+      "lb" => ["lb1", "lb2"],
       "app:vars" => {
         "p10k_db_url" => "mysql+pymysql://root:#{mysql_password}@10.0.2.2:3306/phenome10k"
+      }
+    }
+    ansible.host_vars = {
+      "lb1" => {
+        "vrrp_state" => "MASTER"
+      },
+      "lb2" => {
+        "vrrp_state" => "BACKUP"
       }
     }
   end

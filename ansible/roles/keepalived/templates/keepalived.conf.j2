@@ -1,0 +1,19 @@
+vrrp_instance VI_1 {
+  state {{ vrrp_state }}
+  interface {{ vrrp_interface }}
+  virtual_router_id 51
+  priority {{ 100 if vrrp_state == "MASTER" else 99 }}
+
+  authentication {
+    auth_type PASS
+    auth_pass {{ vrrp_password }}
+  }
+
+  virtual_ipaddress {
+    {{ virtual_ip }}
+  }
+
+# Todo: Enable/disable mmonit etc
+#  notify_master "/etc/keepalived/notify.sh master"
+#  notify_backup "/etc/keepalived/notify.sh backup"
+}

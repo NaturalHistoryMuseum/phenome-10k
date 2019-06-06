@@ -20,19 +20,16 @@
 # https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xvii-deployment-on-linux
 # https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xv-a-better-application-structure
 
-  - hosts: lb1
+  - hosts: lb
     roles:
+      - python
       - firewalld
       - nginx
       - monit/monit
       - monit/mmonit
+      - keepalived
     vars:
       monit_services:
         - nginx
         - systems
         - 50gb-root-partition
-
-
-# Todo:
-  # Remove mysql to docker service
-  #
