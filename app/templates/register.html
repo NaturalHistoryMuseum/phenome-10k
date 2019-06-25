@@ -42,6 +42,21 @@
           <span class="error">[{{ error }}]</span>
           {% endfor %}
       </p>
-        <p>{{ form.submit() }}</p>
+      <p>
+        The personal details you provide here will be processed by the Natural History Museum
+        (as Data Controller) for the purposes of providing you with access to upload or download
+        scans of biological and palaeontological specimens. The Natural History Museum believes that
+        the use of this information to provide this service is necessary for the legitimate interests
+        of the organisation on the grounds that it promotes the sharing of knowledge and resources
+        within the academic and educational community. This information will not be used for anything
+        other than this purpose or shared with any other third party for their own marketing purposes.
+        The data will be held as long as you wish to have a user account for the site. If you have
+        any queries about the use of your data, would like to object to this ongoing processing or
+        make a request in line with your rights as a data subject, please get in touch with the Natural
+        History Museum’s Data Protection Officer by emailing
+        <a href="mailto:dataprotection@nhm.ac.uk">dataprotection@nhm.ac.uk</a>. For more information
+        about the Natural History Museum’s Privacy Notice and your Rights please visit our website
+        <a href="http://www.nhm.ac.uk/about-us/privacy-notice.html">www.nhm.ac.uk/about-us/privacy-notice.html</a>.</p>
+      <p>{{ form.submit() }}</p>
     </form>
 {% endblock %}
