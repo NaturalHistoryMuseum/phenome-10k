@@ -25,6 +25,11 @@
       chdir: /tmp/openctm
       file: Makefile.linux
       target: openctm
+  - name: Copy libopenctm.so to lib dir
+    command: "cp /tmp/openctm/lib/libopenctm.so {{ p10k_src_dir }}"
+    args:
+      creates: "{{ p10k_src_dir }}/libopenctm.so"
+    become: y
   - name: Make ctmconv
     make:
       chdir: /tmp/openctm/tools
@@ -35,4 +40,3 @@
     args:
       creates: /usr/local/bin/ctmconv
     become: y
-

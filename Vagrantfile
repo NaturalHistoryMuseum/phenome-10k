@@ -27,6 +27,16 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  nfs_ip = "192.168.10.5"
+
+  config.vm.define "files" do |config|
+    config.vm.box = "centos/7"
+    #config.vm.network "forwarded_port", guest: 80, host: 8000
+    #config.vm.hostname = vmName
+    config.vm.network "private_network", ip: nfs_ip
+    config.vm.provision :hosts, :sync_hosts => true
+  end
+
   [1, 2].each do |n|
     vmName = "lb#{n}"
     config.vm.define vmName do |config|
@@ -70,7 +80,8 @@ Vagrant.configure("2") do |config|
       "app" => ["app1", "app2"],
       "lb" => ["lb1", "lb2"],
       "app:vars" => {
-        "p10k_db_url" => "mysql+pymysql://root:#{mysql_password}@10.0.2.2:3306/phenome10k"
+        "p10k_db_url" => "mysql+pymysql://root:#{mysql_password}@10.0.2.2:3306/phenome10k",
+        "nfs_server" => nfs_ip
       }
     }
     ansible.host_vars = {

@@ -62,6 +62,16 @@
       state: directory
       owner: phenome10k
     become: y
+  - name: Create upload directories
+    file:
+      path: '{{ item }}'
+      state: directory
+      owner: phenome10k
+      group: phenome10k
+    loop:
+      - "{{ uploads_dir }}"
+      - "{{ models_dir }}"
+    become: y
   - name: Create database tables
     command: '{{ venv_bin }}/flask db upgrade'
     args:

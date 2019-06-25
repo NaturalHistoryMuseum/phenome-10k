@@ -16,3 +16,6 @@ hostname: phenome10k.localhost
 monit_hostname: monit.phenome10k.localhost
 virtual_ip: '192.168.10.21'
 monit_mmonit_url: http://monit:{{ mmonit_client_password }}@{{ virtual_ip }}:8080/collector
+nfs_path: '/var/files'
+uploads_dir: '{{ nfs_path }}/uploads'
+models_dir: '{{ nfs_path }}/models'

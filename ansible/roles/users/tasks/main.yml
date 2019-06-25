@@ -8,6 +8,8 @@
     user:
       name: '{{ p10k_linux_user }}'
       home: '{{ p10k_home }}'
+      groups: '{{ p10k_linux_group }}'
+      append: y
     become: y
   - name: Set permissions on phenome10k home directory
     file:

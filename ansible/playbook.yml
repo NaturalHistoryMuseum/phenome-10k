@@ -1,10 +1,14 @@
 ---
+  - hosts: files
+    roles:
+      - nfs/server
   - hosts: app
     roles:
       - python
       - users
       - firewalld
       - openctm
+      - nfs/client
       - nodejs
       - phenome-10k
       - monit/monit
@@ -17,8 +21,6 @@
     # Cron gbif
     # Email
     # Backups
-# https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xvii-deployment-on-linux
-# https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-xv-a-better-application-structure
 
   - hosts: lb
     roles:

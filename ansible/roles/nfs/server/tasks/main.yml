@@ -1,0 +1,48 @@
+---
+  - name: Install nfs utils
+    yum:
+      name: 'nfs-utils'
+    become: yes
+
+  - name: Ensure nfs service is running (CentOS)
+    service:
+      name: '{{item}}'
+      state: started
+      enabled: true
+    with_items:
+      - rpcbind
+      - nfslock
+      - nfs
+    become: yes
+
+  - name: Create the directory mount
+    file:
+      path: "{{ nfs_path }}"
+      state: directory
+      group: 1234
+      mode: '0775'
+    become: yes
+
+  - name: Copy exports file.
+    template:
+      src: exports.j2
+      dest: /etc/exports
+      owner: root
+      group: root
+      mode: 0644
+    become: yes
+    notify:
+      - restart nfs
+
+  # - name: Add firewall rules
+  #   firewalld:
+  #     zone: dmz
+  #     service: "{{ item }}"
+  #     permanent: true
+  #     state: enabled
+  #     immediate: y
+  #   become: y
+  #   loop:
+  #     - nfs
+  #     - mountd
+  #     - rpc-bind
