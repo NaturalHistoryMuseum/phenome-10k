@@ -53,7 +53,7 @@
   - name: Copy env variables
     template:
       src: .env.j2
-      dest: '{{ p10k_home }}/.env'
+      dest: '{{ p10k_src_dir }}/.env'
     become: y
     become_user: phenome10k
   - name: Create log directory

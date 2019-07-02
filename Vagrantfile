@@ -11,25 +11,25 @@ mysql_password = "A1a2a_"
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
-  config.vm.define :data do |dockerConf|
-    dockerConf.vm.provider "docker" do |d|
-      d.image = "mysql"
-      d.env = {
-        MYSQL_ROOT_PASSWORD: mysql_password
-      }
-      d.ports = ['3306:3306']
-    end
-    dockerConf.vm.network :forwarded_port, guest: 3306, host: 3306
+  # config.vm.define :data do |dockerConf|
+  #   dockerConf.vm.provider "docker" do |d|
+  #     d.image = "mysql"
+  #     d.env = {
+  #       MYSQL_ROOT_PASSWORD: mysql_password
+  #     }
+  #     d.ports = ['3306:3306']
+  #   end
+  #   dockerConf.vm.network :forwarded_port, guest: 3306, host: 3306
 
-    dockerConf.trigger.after :up do |trigger|
-      trigger.name = 'Allow connection from any host'
-      trigger.run = { inline: "./vagrant/data.sh -h127.0.0.1 -uroot -p#{mysql_password}" }
-    end
-  end
+  #   dockerConf.trigger.after :up do |trigger|
+  #     trigger.name = 'Allow connection from any host'
+  #     trigger.run = { inline: "./vagrant/data.sh -h127.0.0.1 -uroot -p#{mysql_password}" }
+  #   end
+  # end
 
   nfs_ip = "192.168.10.5"
 
-  config.vm.define "files" do |config|
+  config.vm.define "data" do |config|
     config.vm.box = "centos/7"
     #config.vm.network "forwarded_port", guest: 80, host: 8000
     #config.vm.hostname = vmName
@@ -37,18 +37,7 @@ Vagrant.configure("2") do |config|
     config.vm.provision :hosts, :sync_hosts => true
   end
 
-  [1, 2].each do |n|
-    vmName = "lb#{n}"
-    config.vm.define vmName do |config|
-      config.vm.box = "centos/7"
-      #config.vm.network "forwarded_port", guest: 80, host: 8000
-      #config.vm.hostname = vmName
-      config.vm.network "private_network", ip: "192.168.10.1#{n}"
-      config.vm.provision :hosts, :sync_hosts => true
-    end
-  end
-
-  app_ips = [
+    app_ips = [
     "192.168.10.31",
     "192.168.10.32"
   ]
@@ -71,6 +60,17 @@ Vagrant.configure("2") do |config|
                               mount_options: ["gid=1234"],
                               type: "rsync",
                               rsync__args:["-avz", "--rsync-path='sudo rsync'"]
+    end
+  end
+
+  [1, 2].each do |n|
+    vmName = "lb#{n}"
+    config.vm.define vmName do |config|
+      config.vm.box = "centos/7"
+      #config.vm.network "forwarded_port", guest: 80, host: 8000
+      #config.vm.hostname = vmName
+      config.vm.network "private_network", ip: "192.168.10.1#{n}"
+      config.vm.provision :hosts, :sync_hosts => true
     end
   end
 

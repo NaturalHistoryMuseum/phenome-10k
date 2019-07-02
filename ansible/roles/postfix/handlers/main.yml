@@ -1,0 +1,17 @@
+---
+- name: reload postfix
+  service:
+    name: postfix
+    state: reloaded
+    use: sysv
+  become: y
+
+- name: restart postfix
+  service:
+    name: postfix
+    state: restarted
+  become: yes
+
+- name: rebuild sender_canonical
+  shell: postmap /etc/postfix/sender_canonical
+  become: y

@@ -1,6 +1,7 @@
 p10k_home: /var/phenome-10k
 p10k_logs: /var/log/phenome10k
 p10k_src_dir: '{{ p10k_home }}/www'
+p10k_admin_email: a.goswami@ucl.ac.uk
 app_root_dir: '{{ p10k_src_dir }}/app'
 static_files_dir: '{{ app_root_dir }}/static'
 virtualenv_location: '{{ p10k_home }}/production'
@@ -19,3 +20,13 @@ monit_mmonit_url: http://monit:{{ mmonit_client_password }}@{{ virtual_ip }}:808
 nfs_path: '/var/files'
 uploads_dir: '{{ nfs_path }}/uploads'
 models_dir: '{{ nfs_path }}/models'
+
+# Gain access to this inbox here:
+# https://mailtrap.io/share/319594/de15cfd046adbf11c44faf8581c59e16
+postfix_relay_host: smtp.mailtrap.io
+postfix_relay_port: 2525
+postfix_sasl_auth_enable: 'yes'
+postfix_sasl_mechanism_filter: plain
+postfix_sasl_security_options: noanonymous
+postfix_sasl_username: 9d1b3c28b6f4ba
+postfix_sasl_password: 670f5533b97a79
