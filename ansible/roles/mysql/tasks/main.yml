@@ -44,10 +44,12 @@
       login_user: root
       login_password: '{{ mysql_root_password }}'
       name: '{{ p10k_db_name }}'
-  - name: Create p10k user
+  - name: Create p10k users
     mysql_user:
       login_user: root
       login_password: '{{ mysql_root_password }}'
       name: '{{ p10k_db_user }}'
       password: '{{ p10k_db_password }}'
+      host: '{{ item }}'
       priv: '{{ p10k_db_name }}.*:ALL'
+    loop: '{{ app_servers }}'

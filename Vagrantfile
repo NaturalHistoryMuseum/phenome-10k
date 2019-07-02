@@ -11,22 +11,6 @@ mysql_password = "A1a2a_"
 # backwards compatibility). Please don't change it unless you know what
 # you're doing.
 Vagrant.configure("2") do |config|
-  # config.vm.define :data do |dockerConf|
-  #   dockerConf.vm.provider "docker" do |d|
-  #     d.image = "mysql"
-  #     d.env = {
-  #       MYSQL_ROOT_PASSWORD: mysql_password
-  #     }
-  #     d.ports = ['3306:3306']
-  #   end
-  #   dockerConf.vm.network :forwarded_port, guest: 3306, host: 3306
-
-  #   dockerConf.trigger.after :up do |trigger|
-  #     trigger.name = 'Allow connection from any host'
-  #     trigger.run = { inline: "./vagrant/data.sh -h127.0.0.1 -uroot -p#{mysql_password}" }
-  #   end
-  # end
-
   nfs_ip = "192.168.10.5"
 
   config.vm.define "data" do |config|
@@ -34,7 +18,6 @@ Vagrant.configure("2") do |config|
     #config.vm.network "forwarded_port", guest: 80, host: 8000
     #config.vm.hostname = vmName
     config.vm.network "private_network", ip: nfs_ip
-    config.vm.provision :hosts, :sync_hosts => true
   end
 
     app_ips = [
@@ -48,7 +31,6 @@ Vagrant.configure("2") do |config|
       config.vm.box = "centos/7"
       config.vm.hostname = vmName
       config.vm.network "private_network", ip: app_ip
-      config.vm.provision :hosts, :sync_hosts => true
 
       # Share an additional folder to the guest VM. The first argument is
       # the path on the host to the actual folder. The second argument is
@@ -70,18 +52,18 @@ Vagrant.configure("2") do |config|
       #config.vm.network "forwarded_port", guest: 80, host: 8000
       #config.vm.hostname = vmName
       config.vm.network "private_network", ip: "192.168.10.1#{n}"
-      config.vm.provision :hosts, :sync_hosts => true
     end
   end
 
+  config.vm.provision :hosts, :sync_hosts => true
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "ansible/playbook.yml"
     ansible.groups = {
       "app" => ["app1", "app2"],
       "lb" => ["lb1", "lb2"],
       "app:vars" => {
-        "p10k_db_url" => "mysql+pymysql://root:#{mysql_password}@10.0.2.2:3306/phenome10k",
-        "nfs_server" => nfs_ip
+        "nfs_server" => nfs_ip,
+        "app_servers" => ["app1", "app2"]
       }
     }
     ansible.host_vars = {
