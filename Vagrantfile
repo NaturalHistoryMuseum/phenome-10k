@@ -61,7 +61,7 @@ Vagrant.configure("2") do |config|
     ansible.groups = {
       "app" => ["app1", "app2"],
       "lb" => ["lb1", "lb2"],
-      "app:vars" => {
+      "all:vars" => {
         "nfs_server" => nfs_ip,
         "app_servers" => ["app1", "app2"]
       }

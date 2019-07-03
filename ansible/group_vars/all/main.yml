@@ -9,10 +9,10 @@ venv_bin: '{{ virtualenv_location }}/bin'
 gunicorn_binary: '{{ venv_bin }}/gunicorn'
 mysql_root_password: plaEee2eer34@
 p10k_db_user: phenome10k
-p10k_db_pass: Aei0)rr2rr2r2r2r
+p10k_db_password: Aei0)rr2rr2r2r2r
 p10k_db_name: phenome10k
 p10k_db_host: data
-mysql_url: "mysql+pymysql://{{ p10k_db_user }}:{{ p10k_db_pass }}@{{ p10k_db_host }}:3306/{{ p10k_db_name }}"
+p10k_db_url: "mysql+pymysql://{{ p10k_db_user }}:{{ p10k_db_password }}@{{ p10k_db_host }}:3306/{{ p10k_db_name }}"
 p10k_linux_user: phenome10k
 p10k_linux_group: phenome10k
 p10k_admin_password: pass

@@ -1,6 +1,7 @@
 ---
   - hosts: data
     roles:
+      - python
       - nfs/server
       - mysql
   - hosts: app
