@@ -53,3 +53,11 @@
       host: '{{ item }}'
       priv: '{{ p10k_db_name }}.*:ALL'
     loop: '{{ app_servers }}'
+  - name: Enable trusted connections
+    firewalld:
+      zone: dmz
+      service: mysql
+      permanent: true
+      state: enabled
+      immediate: y
+    become: y

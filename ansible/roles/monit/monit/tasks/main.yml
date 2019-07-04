@@ -56,7 +56,7 @@
 
   - name: Allow mmonit to connect from lb
     firewalld:
-      zone: public
+      zone: dmz
       port: "{{ monit_port }}/tcp"
       permanent: true
       state: enabled

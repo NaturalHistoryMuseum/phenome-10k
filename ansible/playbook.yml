@@ -2,6 +2,7 @@
   - hosts: data
     roles:
       - python
+      - firewalld
       - nfs/server
       - mysql
   - hosts: app

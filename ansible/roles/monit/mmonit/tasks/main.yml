@@ -83,7 +83,7 @@
 
   - name: Allow monit to connect from app servers
     firewalld:
-      zone: public
+      zone: dmz
       port: "8080/tcp"
       permanent: true
       state: enabled

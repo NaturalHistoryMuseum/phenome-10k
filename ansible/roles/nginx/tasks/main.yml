@@ -39,3 +39,12 @@
       - http
       - https
     become: true
+  - name: Copy ssl certificates
+    copy:
+      src: p10k.crt
+      dest: /etc/ssl/certs/p10k.crt
+    become: y
+  - copy:
+      src: p10k.key
+      dest: /etc/ssl/private/p10k.key
+    become: y

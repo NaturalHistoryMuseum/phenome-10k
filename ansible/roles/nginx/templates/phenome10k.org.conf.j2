@@ -6,7 +6,14 @@ upstream phenome10k {
 server {
     listen       80 default_server;
     listen       [::]:80 default_server;
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
     server_name  _;
+
+    ssl_certificate "/etc/ssl/certs/p10k.crt";
+    ssl_certificate_key "/etc/ssl/private/p10k.key";
+
+    ssl_protocols TLSv1.2 TLSv1.1 TLSv1;
 
     location / {
       proxy_pass http://phenome10k;

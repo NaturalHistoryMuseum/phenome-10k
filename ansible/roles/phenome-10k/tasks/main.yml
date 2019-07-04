@@ -103,7 +103,7 @@
     become_user: phenome10k
   - name: Open port 8000 on firewall
     firewalld:
-      zone: public
+      zone: dmz
       port: '8000/tcp'
       permanent: true
       state: enabled
