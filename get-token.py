@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
@@ -5,8 +7,9 @@ import json
 import sys
 import getpass
 
-user = input('LDAP username: ')
-pswd = getpass.getpass('Password:')
+sys.stderr.write('Vault LDAP username: ')
+user = input()
+pswd = getpass.getpass('Vault LDAP password: ')
 
 vault_url = 'https://man-vault-2.nhm.ac.uk:8200/v1/auth/ldap/login/' + user # Set destination URL here
 post_fields = {'password': pswd}     # Set POST fields here
@@ -17,21 +20,22 @@ try:
   auth = json.loads(resp)['auth']
   token = auth['client_token']
   duration = auth['lease_duration']
-  unit = 's'
+  unit = 'seconds'
   if duration >= 60:
   	duration = duration / 60
-  	unit = 'm'
+  	unit = 'minutes'
 
   	if duration >= 60:
   		duration = duration / 60
-  		unit = 'h'
+  		unit = 'hours'
 
   		if duration >= 24:
   			duration = duration / 24
-  			unit = 'd'
-  print(f'Token valid for {duration}{unit}', file=sys.stderr)
-  prin(token)
+  			unit = 'days'
+  print(f'Got token OK. It\'s valid for {duration:g} {unit}.', file=sys.stderr)
+  print(token)
 except HTTPError as e:
+  print(f'Failed to get a token, sorry. Vault says:', file=sys.stderr)
   resp = e.read().decode()
   errors = json.loads(resp)['errors']
   sys.exit('\n'.join(errors))

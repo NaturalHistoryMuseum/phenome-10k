@@ -25,13 +25,14 @@ monit_mmonit_url: http://monit:{{ mmonit_client_password }}@{{ virtual_ip }}:808
 nfs_path: '/var/files'
 uploads_dir: '{{ nfs_path }}/uploads'
 models_dir: '{{ nfs_path }}/models'
+mmonit_license_owner: Vincent Smith
+mmonit_license: "{{ lookup('hashi_vault', 'secret=phenome10k/mmonit:license url=https://man-vault-2.nhm.ac.uk:8200')}}"
 
-# Gain access to this inbox here:
-# https://mailtrap.io/share/319594/de15cfd046adbf11c44faf8581c59e16
+# To gain access to this inbox, look up the phenome10k/mailtrap:invite_url secret
 postfix_relay_host: smtp.mailtrap.io
 postfix_relay_port: 2525
 postfix_sasl_auth_enable: 'yes'
 postfix_sasl_mechanism_filter: plain
 postfix_sasl_security_options: noanonymous
-postfix_sasl_username: 9d1b3c28b6f4ba
-postfix_sasl_password: 670f5533b97a79
+postfix_sasl_username: "{{ lookup('hashi_vault', 'secret=phenome10k/mailtrap:username url=https://man-vault-2.nhm.ac.uk:8200')}}"
+postfix_sasl_password: "{{ lookup('hashi_vault', 'secret=phenome10k/mailtrap:password url=https://man-vault-2.nhm.ac.uk:8200')}}"
