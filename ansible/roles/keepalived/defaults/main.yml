@@ -1,2 +1,1 @@
 vrrp_interface: eth1
-vrrp_password: pass123

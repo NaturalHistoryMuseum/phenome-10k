@@ -17,7 +17,7 @@ p10k_linux_user: phenome10k
 p10k_linux_group: phenome10k
 p10k_admin_password: pass
 mmonit_admin_password: ilovemonit
-mmonit_client_password: ilovemonit
+mmonit_client_password: "{{ mmonit_admin_password }}"
 hostname: phenome10k.localhost
 monit_hostname: monit.phenome10k.localhost
 virtual_ip: '192.168.10.21'
@@ -27,6 +27,8 @@ uploads_dir: '{{ nfs_path }}/uploads'
 models_dir: '{{ nfs_path }}/models'
 mmonit_license_owner: Vincent Smith
 mmonit_license: "{{ lookup('hashi_vault', 'secret=phenome10k/mmonit:license url=https://man-vault-2.nhm.ac.uk:8200')}}"
+vrrp_password: pass123
+flask_secret_key: "G}<Ci&XWqSqA/mF7ZCWI7JJ.:QuuZF"
 
 # To gain access to this inbox, look up the phenome10k/mailtrap:invite_url secret
 postfix_relay_host: smtp.mailtrap.io
