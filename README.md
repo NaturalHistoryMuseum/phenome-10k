@@ -1,8 +1,4 @@
-To activate the virtual environment:
-
 # Phenome 10K
-
-
 
 ## Development
 
@@ -14,11 +10,28 @@ First, make sure you have the following binaries available:
  - NPM 5.6
  - openctm-tools
 
+To create a new virtual environment:
+
+```bash
+python3 -m venv venv
+```
+
+To activate the virtual environment:
+
+```bash
+source venv/bin/activate
+```
+
+To install and run:
 
 ```bash
 # Install dependencies
 pip install -r requirements.txt
 npm i
+# Run database migrations
+flask db upgrade
+# Create the admin account
+flask set-admin-pw pass
 # Build the front end
 node build
 # Start

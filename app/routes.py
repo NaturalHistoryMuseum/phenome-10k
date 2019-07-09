@@ -8,7 +8,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 from flask import request, render_template, redirect, url_for, flash, send_from_directory, jsonify, g, Response, send_file, make_response
 from flask.helpers import safe_join
 from flask_login import current_user, login_user, login_required, logout_user
-from werkzeug.routing import ValidationError, BaseConverter
+from werkzeug.routing import ValidationError, BaseConverter, PathConverter
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import NotFound, BadRequest, Forbidden
@@ -93,9 +93,9 @@ class PublicationConverter(SlugConverter):
   model = Publication
 
 # This is just a one-way converter, to turn a File object into a router path. Doesn't work the other way.
-class FileConverter(BaseConverter):
+class FileConverter(PathConverter):
   def to_url(self, value):
-    return BaseConverter.to_url(self, value if isinstance(value, str) else value.location)
+    return PathConverter.to_url(self, value if isinstance(value, str) else value.location)
 
 app.url_map.converters['scan'] = ScanConverter
 app.url_map.converters['publication'] = PublicationConverter
@@ -185,6 +185,11 @@ def send_uploads(path):
 
     if(width >= im.width):
       return send_from_directory(app.config['UPLOAD_DIRECTORY'], path)
+
+    try:
+      os.makedirs(os.path.dirname(thumbnail_file))
+    except FileExistsError:
+      pass
 
     height = im.height * width / im.width
     im.thumbnail((width, height))

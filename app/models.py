@@ -191,8 +191,25 @@ class File(db.Model):
     @staticmethod
     def fromName(filename, storage_area = UPLOADS_DIR, mimeType=None, size=None):
         """Create a File model from a string filename with optional size and mimetype"""
+        import time
 
-        location = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6)) + secure_filename(filename)
+        filedir = time.strftime("%Y/%m/%d")
+
+        try:
+            os.makedirs(
+                File.getAbsolutePathFor(storage_area,filedir)
+            )
+        except FileExistsError:
+            pass
+
+        location = '/'.join((filedir, secure_filename(filename)))
+
+        n = 1
+
+        while os.path.isfile(File.getAbsolutePathFor(storage_area,location)):
+            location = '/'.join((filedir, str(n) + secure_filename(filename)))
+            n += 1
+
 
         return File(
             filename = filename,
@@ -203,16 +220,21 @@ class File(db.Model):
             storage_area = storage_area
         )
 
-    def getAbsolutePath(self):
-        """Returns the absolute path on the filesystem for this file"""
-        storage_dir =  app.config['UPLOAD_DIRECTORY'] if self.storage_area == File.UPLOADS_DIR else \
-                       app.config['MODEL_DIRECTORY'] if self.storage_area == File.MODELS_DIR else \
+    @staticmethod
+    def getAbsolutePathFor(storage_area, location):
+        """Returns the absolute path on the filesystem for a file"""
+        storage_dir =  app.config['UPLOAD_DIRECTORY'] if storage_area == File.UPLOADS_DIR else \
+                       app.config['MODEL_DIRECTORY'] if storage_area == File.MODELS_DIR else \
                        None
 
         if storage_dir == None:
-            raise Exception('No filesystem path is configured for storage area named ' + self.storage_area)
+            raise Exception('No filesystem path is configured for storage area named ' + storage_area)
 
-        return os.path.join(storage_dir, self.location)
+        return os.path.join(storage_dir, location)
+
+    def getAbsolutePath(self):
+        """Returns the absolute path on the filesystem for this file"""
+        return File.getAbsolutePathFor(self.storage_area, self.location)
 
     def serialize(self, external = False):
         """Returns the url for downloading this file over http"""
