@@ -34,15 +34,15 @@
     notify:
       - restart nfs
 
-  # - name: Add firewall rules
-  #   firewalld:
-  #     zone: dmz
-  #     service: "{{ item }}"
-  #     permanent: true
-  #     state: enabled
-  #     immediate: y
-  #   become: y
-  #   loop:
-  #     - nfs
-  #     - mountd
-  #     - rpc-bind
+  - name: Add firewall rules
+    firewalld:
+      zone: dmz
+      service: "{{ item }}"
+      permanent: true
+      state: enabled
+      immediate: y
+    become: y
+    loop:
+      - nfs
+      - mountd
+      - rpc-bind

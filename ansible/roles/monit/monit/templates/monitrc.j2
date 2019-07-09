@@ -11,7 +11,7 @@ set statefile {{ monit_state_file }}
 
 
 set mail-format {
-  from: scratchpads@{{ ansible_fqdn }}
+  from: phenome10k@{{ ansible_fqdn }}
    subject: [monit] $SERVICE:$HOST $EVENT at $DATE
    message:     Monit $ACTION $SERVICE at $DATE on $HOST: $DESCRIPTION.
     Yours sincerely,
@@ -20,7 +20,7 @@ set mail-format {
 
 set mailserver 127.0.0.1
 
-set alert scratchpads@nhm.ac.uk
+set alert p.kiddle@nhm.ac.uk
 
 # m/monit integration
 

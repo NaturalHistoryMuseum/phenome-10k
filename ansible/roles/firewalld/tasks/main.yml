@@ -11,3 +11,22 @@
       state: started
       enabled: yes
     become: y
+
+  - name: Enable the dmz zone for internal connections
+    firewalld:
+      zone: dmz
+      state: present
+      permanent: true
+    become: y
+
+  - name: Add trusted network IPs to DMZ group
+    firewalld:
+      zone: dmz
+      state: enabled
+      source: '{{ item }}'
+      permanent: true
+      immediate: true
+    loop:
+      - '157.140.0.0/16'
+      - '127.0.0.0/16'
+    become: y

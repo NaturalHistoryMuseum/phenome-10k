@@ -5,6 +5,7 @@
         - gcc-c++
         - gtk2-devel
         - gtk+-devel
+        - bzip2
     become: y
   - name: Download openctm source
     get_url:
@@ -26,7 +27,7 @@
       file: Makefile.linux
       target: openctm
   - name: Copy libopenctm.so to lib dir
-    command: "cp /tmp/openctm/lib/libopenctm.so {{ p10k_src_dir }}"
+    command: "cp /tmp/openctm/lib/libopenctm.so {{ p10k_src_dir }}/"
     args:
       creates: "{{ p10k_src_dir }}/libopenctm.so"
     become: y

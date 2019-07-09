@@ -2,6 +2,7 @@
   - hosts: data
     roles:
       - python
+      - firewalld
       - nfs/server
       - mysql
   - hosts: app
@@ -9,10 +10,10 @@
       - python
       - users
       - firewalld
-      - openctm
       - nfs/client
       - nodejs
       - phenome-10k
+      - openctm
       - monit/monit
     vars:
       monit_services:

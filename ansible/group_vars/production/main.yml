@@ -4,9 +4,9 @@ p10k_db_name: phenome10k
 p10k_db_host: ct-phen-1
 nfs_server: ct-phen-1
 app_servers:
-  - app-p10k-1
-  - app-p10k-2
-p10k_db_url: "mysql+pymysql://{{ p10k_db_user }}:{{ p10k_db_password }}@{{ p10k_db_host }}:3306/{{ p10k_db_name }}"
+  - app-p10k-1.nhm.ac.uk
+  - app-p10k-2.nhm.ac.uk
+p10k_db_url: "mysql+pymysql://{{ p10k_db_user }}:{{ p10k_db_password | urlencode | replace('/','%2F') }}@{{ p10k_db_host }}:3306/{{ p10k_db_name }}"
 p10k_linux_user: phenome10k
 p10k_linux_group: phenome10k
 p10k_admin_password: "{{ lookup('hashi_vault', 'secret=phenome10k/p10k:admin_password url=https://man-vault-2.nhm.ac.uk:8200')}}"

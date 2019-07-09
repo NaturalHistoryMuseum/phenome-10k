@@ -12,7 +12,7 @@ p10k_db_user: phenome10k
 p10k_db_password: Aei0)rr2rr2r2r2r
 p10k_db_name: phenome10k
 p10k_db_host: data
-p10k_db_url: "mysql+pymysql://{{ p10k_db_user }}:{{ p10k_db_password }}@{{ p10k_db_host }}:3306/{{ p10k_db_name }}"
+p10k_db_url: "mysql+pymysql://{{ p10k_db_user }}:{{ p10k_db_password|urlencode() }}@{{ p10k_db_host }}:3306/{{ p10k_db_name }}"
 p10k_linux_user: phenome10k
 p10k_linux_group: phenome10k
 p10k_admin_password: pass
@@ -21,7 +21,7 @@ mmonit_client_password: "{{ mmonit_admin_password }}"
 hostname: phenome10k.localhost
 monit_hostname: monit.phenome10k.localhost
 virtual_ip: '192.168.10.21'
-monit_mmonit_url: http://monit:{{ mmonit_client_password }}@{{ virtual_ip }}:8080/collector
+monit_mmonit_url: http://monit:{{ mmonit_client_password|urlencode() }}@{{ virtual_ip }}:8080/collector
 nfs_path: '/var/files'
 uploads_dir: '{{ nfs_path }}/uploads'
 models_dir: '{{ nfs_path }}/models'

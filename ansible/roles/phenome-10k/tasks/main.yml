@@ -80,6 +80,7 @@
     become_user: phenome10k
     register: upgrade_db
     changed_when: upgrade_db.stdout.find('Running upgrade') >= 0
+    run_once: true
   - name: Create the gunicorn service
     template:
       src: gunicorn.service.j2
@@ -101,9 +102,10 @@
     changed_when:  set_pw.stdout.find('Password changed') >= 0
     become: y
     become_user: phenome10k
+    run_once: true
   - name: Open port 8000 on firewall
     firewalld:
-      zone: public
+      zone: dmz
       port: '8000/tcp'
       permanent: true
       state: enabled
