@@ -240,27 +240,6 @@ def register():
       return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form, error=error, menu='home')
 
-# This is just for development, please delete before going to production
-@app.route('/tag/', methods=['GET','POST'])
-@requiresAdmin
-def tag():
-  import calendar
-  import time
-  t = "''"
-  tax = "''"
-  if request.method=='POST':
-    t = request.form.get('type')
-    tax = request.form.get('taxonomy')
-    parent = '/'.join(tax.split('/')[0:-1])
-    if (parent != ''):
-      parent_id = Tag.query.filter_by(taxonomy = parent).first().id
-    else:
-      parent_id = None
-    tag = Tag(id = int(calendar.timegm(time.gmtime())), name = request.form.get('name'), taxonomy = tax, category = t, parent_id = parent_id)
-    db.session.add(tag)
-    db.session.commit()
-  return '<form method=post><input name=type value='+ t +' placeholder=category><input autofocus name=name placeholder=name><input placeholder=taxonomy name=taxonomy value='+tax+'><input type=submit></form>'
-
 @app.route('/library/', methods=['GET'])
 def library():
   sort = request.args.get("sort")
