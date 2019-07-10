@@ -16,6 +16,7 @@ p10k_db_url: "mysql+pymysql://{{ p10k_db_user }}:{{ p10k_db_password|urlencode()
 p10k_linux_user: phenome10k
 p10k_linux_group: phenome10k
 p10k_admin_password: pass
+gunicorn_port: 8000
 mmonit_admin_password: ilovemonit
 mmonit_client_password: "{{ mmonit_admin_password }}"
 hostname: phenome10k.localhost

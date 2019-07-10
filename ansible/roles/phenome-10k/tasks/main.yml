@@ -103,10 +103,10 @@
     become: y
     become_user: phenome10k
     run_once: true
-  - name: Open port 8000 on firewall
+  - name: Open gunicorn port on firewall
     firewalld:
       zone: dmz
-      port: '8000/tcp'
+      port: '{{ gunicorn_port }}/tcp'
       permanent: true
       state: enabled
       immediate: true
