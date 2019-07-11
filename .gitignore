@@ -10,3 +10,4 @@ app/vue/dist
 ansible/playbook.retry
 .coverage
 htmlcov/
+*.so

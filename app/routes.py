@@ -209,7 +209,7 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user is not None and user.checkAndMigratePassword(form.password.data):
-          db.session.commit()
+          #db.session.commit()
           login_user(user, remember=form.remember_me.data)
           next_page = form.next.data
           if not next_page or url_parse(next_page).netloc != '':
@@ -748,8 +748,8 @@ def render_vue(data, title, menu = None):
 # pass the url path and an object to be provided as the defaultData property to the vue model
 def vue(defaultData = None):
   path = request.full_path
-  pipes = subprocess.Popen(['node', 'app/vue/server.js', path, json.dumps(defaultData)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-  std_out, std_err = pipes.communicate()
+  pipes = subprocess.Popen(['node', 'app/vue/server.js', path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+  std_out, std_err = pipes.communicate(input = json.dumps(defaultData).encode('utf-8'))
 
   if pipes.returncode != 0:
       # an error happened!
