@@ -168,7 +168,8 @@ export default {
   ],
   data() {
     const data = this.$route.meta.data;
-    const pubSearchResults = data.form.publications.choices.reduce((o, pub) => Object.assign(o, { [pub.id]: pub }), {});
+    const pubSearchResults = data.form.publications.choices;
+    const publications = pubSearchResults.concat(data.scan.publications).reduce((o, pub) => Object.assign(o, { [pub.id]: pub }), {});
     const gbifData = (data.scan && data.scan.gbif_id) ? [{
       id: data.scan.gbif_id,
       name: data.scan.scientific_name,
@@ -184,7 +185,7 @@ export default {
       data,               // Data returned from the database
       myPubs: true,       // Search only for publications created by current user
       pubSearchResults,   // List of results for publication search
-      publications: pubSearchResults, // Object containing all publications, keyed by ID
+      publications,       // Object containing all publications, keyed by ID
       selectedPubIds: (data.form.publications.data || []).map(pub => pub.id), // Array of selected publication IDs
       form: data.form,
       scan: data.scan,
