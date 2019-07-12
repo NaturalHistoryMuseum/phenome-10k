@@ -277,7 +277,7 @@ def library(page = 1):
     if len(searchTags) > 0:
       scanConditions.append(
         Scan.tags.any(
-          Tag.taxonomy.startswith(term) if len(searchTags) == 1 else db.or_(*[ Tag.taxonomy.startswith(term) for term in searchTags ])
+          Tag.taxonomy.startswith(searchTags[0]) if len(searchTags) == 1 else db.or_(*[ Tag.taxonomy.startswith(term) for term in searchTags ])
         )
       )
 
