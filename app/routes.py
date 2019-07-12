@@ -177,7 +177,7 @@ def send_uploads(path):
       raise BadRequest('Thumbnail width must be greater than zero')
 
     try:
-      im = Image.open(safe_join('uploads', path))
+      im = Image.open(safe_join(app.config['UPLOAD_DIRECTORY'], path))
     except FileNotFoundError:
       raise NotFound()
     except OSError:
@@ -242,6 +242,7 @@ def register():
 
 @app.route('/library/', methods=['GET'])
 def library():
+  app.logger.info('Start library')
   sort = request.args.get("sort")
   ontogenic_age = request.args.getlist("ontogenic_age")
   geologic_age = request.args.getlist("geologic_age")
@@ -249,6 +250,12 @@ def library():
   taxonomy = request.args.getlist("taxonomy")
   mine = 'mine' in request.args.keys()
   search = request.args.get('q')
+
+  app.logger.info('Start compiling conditions')
+
+  scanConditions = [
+    Scan.published
+  ]
 
   if search:
     searchQuery = '%{0}%'.format(search)
@@ -260,18 +267,26 @@ def library():
       Scan.specimen_location.ilike(searchQuery),
       Scan.description.ilike(searchQuery)
     )
-  else:
-    textSearch = True
 
-  scanConditions = db.and_(
-    Scan.published,
-    Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in ontogenic_age ])),
-    Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in geologic_age ])),
-    Scan.tags.any(db.or_(*[ Tag.taxonomy.startswith(term) for term in elements ])),
-    Scan.taxonomy.any(Taxonomy.id.in_(taxonomy)) if len(taxonomy) > 0 else True,
-    Scan.author_id == current_user.id if mine and current_user.is_authenticated else True,
-    textSearch
-  )
+    scanConditions.append(textSearch)
+
+  for searchTags in [ontogenic_age, geologic_age, elements]:
+    if len(searchTags) > 0:
+      scanConditions.append(
+        Scan.tags.any(
+          Tag.taxonomy.startswith(term) if len(searchTags) == 1 else db.or_(*[ Tag.taxonomy.startswith(term) for term in searchTags ])
+        )
+      )
+
+  if len(taxonomy) > 0:
+    scanConditions.append(Scan.taxonomy.any(Taxonomy.id.in_(taxonomy)))
+
+  if mine and current_user.is_authenticated:
+    scanConditions.append(Scan.author_id == current_user.id)
+
+  scanConditions = db.and_(*scanConditions)
+
+  app.logger.info('Sort & generate')
 
   # This is annoying... if we're sorting by name it's just sort,
   # but if we're sorting by tag we need to group it all.
@@ -297,11 +312,19 @@ def library():
       'scans': [ s.serialize() for s in Scan.query.filter(scanConditions).order_by(query).all() ]
     }
 
+  app.logger.info('Get tag trees')
+
   data['tags'] = Tag.tree()
   data['tags']['taxonomy'] = Taxonomy.tree()
   data['q'] = search
 
-  return render_vue(data, title="Library", menu='library')
+  app.logger.info('Render')
+
+  out = render_vue(data, title="Library", menu='library')
+
+  app.logger.info('Done')
+
+  return out
 
 @app.route('/feed')
 def feed():
