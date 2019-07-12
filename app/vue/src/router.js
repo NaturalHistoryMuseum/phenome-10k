@@ -8,6 +8,7 @@ export default () => {
     mode: 'history',
     routes: [
       { path: '/library', component: () => import('./components/Library'), name: 'library' },
+      { path: '/library/:page(\\d+)', component: () => import('./components/Library'), name: 'library-paged' },
       { path: '/library/create', component: () => import('./components/Upload') },
       { path: '/library/manage-uploads', component: () => import('./components/ManageUploads'), name: 'manage-uploads' },
       { path: '/library/manage-uploads/page/:page(\\d+)', component: () => import('./components/ManageUploads'), name: 'manage-uploads-page' },

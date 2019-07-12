@@ -241,8 +241,11 @@ def register():
     return render_template('register.html', title='Register', form=form, error=error, menu='home')
 
 @app.route('/library/', methods=['GET'])
-def library():
+@app.route('/library/<int:page>/')
+def library(page = 1):
   app.logger.info('Start library')
+
+  per_page = 100
   sort = request.args.get("sort")
   ontogenic_age = request.args.getlist("ontogenic_age")
   geologic_age = request.args.getlist("geologic_age")
@@ -310,12 +313,14 @@ def library():
   else:
     query = Scan.scientific_name
 
-    results = Scan.query.filter(scanConditions).order_by(query).all()
+    results = Scan.query.filter(scanConditions).order_by(query).paginate(page, per_page)
 
     app.logger.info('serialize')
 
     data = {
-      'scans': [ s.serialize(full = False) for s in results ]
+      'scans': [ s.serialize(full = False) for s in results.items ],
+      'page': page,
+      'total': math.ceil(results.total / per_page)
     }
 
   app.logger.info('Get tag trees')

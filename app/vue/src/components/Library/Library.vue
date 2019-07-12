@@ -2,14 +2,14 @@
   <div class="Library Subgrid">
     <div class="Library__filter-controls">
       <Search class="Library__search" name="q" v-model="q" />
-      <div class="Library__sort">
+      <!--div class="Library__sort">
         Sort by:
         <ul class="Library__sort-list">
           <li :class="getSortLinkClass('name')"><router-link :to="getSortLink('name')">Name</router-link></li>
           <li :class="getSortLinkClass('geologic_age')"><router-link :to="getSortLink('geologic_age')">Geologic Age</router-link></li>
           <li :class="getSortLinkClass('ontogenic_age')"><router-link :to="getSortLink('ontogenic_age')">Ontogenic Age</router-link></li>
         </ul>
-      </div>
+      </div-->
       <div class="Library__sort">
         Viewing:
         <ul class="Library__sort-list">
@@ -54,6 +54,14 @@
       <Group v-for="group in populatedGroups" :key="group.name" :name="group.group" :items="group.items" />
     </div>
     <Results v-else :results="results" />
+    <Pagination :page="data.page"
+            :total="data.total_pages"
+            :to="page => ({
+                name: 'library-paged',
+                params: { page },
+                query: this.$route.query
+              })"
+            class="Publications__footer" />
   </div>
 </template>
 
@@ -64,6 +72,7 @@ import TagTree from './TagTree'
 import SideSection from './SideSection'
 import SlideOpen from './SlideOpen.vue';
 import Search from '../forms/Search';
+import Pagination from '../Pagination';
 
 const Group = {
   name: 'Group',
@@ -85,7 +94,8 @@ export default {
     Tree,
     SideSection,
     SlideOpen,
-    Search
+    Search,
+    Pagination
   },
   data(){
     return {
