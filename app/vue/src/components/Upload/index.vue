@@ -169,7 +169,8 @@ export default {
   data() {
     const data = this.$route.meta.data;
     const pubSearchResults = data.form.publications.choices;
-    const publications = pubSearchResults.concat(data.scan.publications).reduce((o, pub) => Object.assign(o, { [pub.id]: pub }), {});
+    const allPubs = data.scan ? pubSearchResults.concat(data.scan.publications) : pubSearchResults;
+    const publications = allPubs.reduce((o, pub) => Object.assign(o, { [pub.id]: pub }), {});
     const gbifData = (data.scan && data.scan.gbif_id) ? [{
       id: data.scan.gbif_id,
       name: data.scan.scientific_name,
