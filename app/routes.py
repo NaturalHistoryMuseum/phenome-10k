@@ -320,7 +320,7 @@ def library(page = 1):
     data = {
       'scans': [ s.serialize(full = False) for s in results.items ],
       'page': page,
-      'total': math.ceil(results.total / per_page)
+      'total_pages': math.ceil(results.total / per_page)
     }
 
   app.logger.info('Get tag trees')
