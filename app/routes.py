@@ -294,12 +294,14 @@ def library():
   if(sort in ('geologic_age', 'ontogenic_age')):
     results = [ (tag, tag.scans.filter(scanConditions).all()) for tag in Tag.query.filter_by(category=sort).all() ]
 
+    app.logger.info('serialize')
+
     data = {
       'groups': [
         {
           'group': tag.name,
           'items': [
-            s.serialize() for s in scans
+            s.serialize(full = False) for s in scans
           ]
         }
         for (tag, scans) in results if len(scans) > 0
@@ -308,8 +310,12 @@ def library():
   else:
     query = Scan.scientific_name
 
+    results = Scan.query.filter(scanConditions).order_by(query).all()
+
+    app.logger.info('serialize')
+
     data = {
-      'scans': [ s.serialize() for s in Scan.query.filter(scanConditions).order_by(query).all() ]
+      'scans': [ s.serialize(full = False) for s in results ]
     }
 
   app.logger.info('Get tag trees')

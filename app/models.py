@@ -115,29 +115,35 @@ class Scan(db.Model):
     def thumbnail(self):
         return len(self.attachments) > 0 and self.attachments[0]
 
-    def serialize(self):
-        return {
+    def serialize(self, full = True):
+        obj = {
             'id': self.id,
-            'ctm': self.ctm and self.ctm.serialize(),
-            'source': self.source and self.source.serialize(),
-            'publications': [pub.serialize() for pub in self.publications],
-            'attachments': [a.serialize() for a in self.attachments],
             'url_slug': '/' + (self.url_slug if self.url_slug else str(self.id)),
             'thumbnail': self.thumbnail and self.thumbnail.file.serialize(),
-            'scientific_name': self.scientific_name,
-            'gbif_id': self.gbif_id,
-            'published': self.published,
-            'alt_name': self.alt_name,
-            'specimen_id': self.specimen_id,
-            'specimen_location': self.specimen_location,
-            'specimen_link': self.specimen_link,
-            'description': self.description,
-            'created': self.date_created.isoformat(),
-
-            'tags': [ tag.serialize() for tag in self.tags ],
-            'publications': [ publication.serialize() for publication in self.publications ],
-            'stills': [ still.serialize() for still in self.attachments ]
+            'scientific_name': self.scientific_name
         }
+
+        if full:
+            obj.update({
+                'ctm': self.ctm and self.ctm.serialize(),
+                'source': self.source and self.source.serialize(),
+                'publications': [pub.serialize() for pub in self.publications],
+                'attachments': [a.serialize() for a in self.attachments],
+                'gbif_id': self.gbif_id,
+                'published': self.published,
+                'alt_name': self.alt_name,
+                'specimen_id': self.specimen_id,
+                'specimen_location': self.specimen_location,
+                'specimen_link': self.specimen_link,
+                'description': self.description,
+                'created': self.date_created.isoformat(),
+
+                'tags': [ tag.serialize() for tag in self.tags ],
+                'publications': [ publication.serialize() for publication in self.publications ],
+                'stills': [ still.serialize() for still in self.attachments ]
+            })
+
+        return obj
 
     @staticmethod
     def findBySlug(slug):
