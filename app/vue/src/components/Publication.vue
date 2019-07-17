@@ -3,7 +3,7 @@
     <h1 class="Publication__title">{{ publication.title }}</h1>
 
     <div class="Publication__content">
-      <i>{{ publication.published ? 'Published' :'Not published' }}</i>
+      <i>{{ publication.published ? '' :'Not published' }}</i>
       <dl class="Publication__details">
         <div>
           <dt>Year:</dt>
@@ -20,7 +20,7 @@
         <div>
           <dt>Files:</dt>
           <dd>
-            <template v-for="(scan, ix) in publication.scans.filter(scan => scan.published)">
+            <template v-for="(scan, ix) in publication.scans">
               <template v-if="ix > 0">,</template>
               <router-link :key="scan.id"
                           :to="{ name: 'publication', params: { id: scan.url_slug || scan.id } }"
@@ -35,7 +35,7 @@
 
       <p><a v-if="publication.link" :href="publication.link">{{ publication.link }}</a></p>
 
-      <b>Download:</b>
+      <b v-if="publication.files.length > 0">Download:</b>
       <ul class="Publication__downloads">
         <li v-for="file in publication.files" :key="file.id">
           <a :href="file.file" :download="file.filename"><img src="/static/download.png" alt="" /> {{ file.name }}</a>
