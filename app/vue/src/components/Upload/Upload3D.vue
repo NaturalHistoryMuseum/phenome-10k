@@ -1,7 +1,7 @@
 <template>
     <div class="Upload3D" @dragover="dragOver" @dragleave="dragEnd" @drop="drop">
         <label :class="labelClass" v-show="!uploading">
-            <div class="Upload3D__drop-text">Drop STL here</div>
+            <div class="Upload3D__drop-text">Drop scan here</div>
             <div class="Upload3D__or">or</div>
             <div class="Upload3D__select">Select File</div>
             <input type="file" name="file" @change="fileChange" class="Upload3D__file" />

@@ -47,7 +47,7 @@
           <TextInput class="Upload__form-label" name="alt_name" :data="form.alt_name">Alt. Name</TextInput>
           <TextInput class="Upload__form-label" name="specimen_location" :data="form.specimen_location">Specimen Location</TextInput>
           <TextInput class="Upload__form-label" name="specimen_id" :data="form.specimen_id">Specimen ID</TextInput>
-          <TextInput class="Upload__form-label" name="specimen_url" :data="form.specimen_url">Specimen URL</TextInput>
+          <TextInput class="Upload__form-label" name="specimen_url" :data="form.specimen_url">Additional Media</TextInput>
         </fieldset>
         <TextInput type="textarea" name="description" :data="form.description">
           <h2 class="Upload__section-title Upload__section-head">Description</h2>
@@ -99,7 +99,7 @@
         </fieldset>
 
         <fieldset>
-          <legend class="Upload__form-label">Ontogenic Age</legend>
+          <legend class="Upload__form-label">Ontogenetic Age</legend>
           <ul class="Upload__listbox">
             <li v-for="option in form.ontogenic_age.choices" :key="option.id">
               <input type="checkbox" class="Upload__checkbox" name="ontogenic_age" :value="option.id" :id="'onto-age' + option.id" :checked="(form.ontogenic_age.data || [] ).some(tag => option.id===tag.id)">

@@ -7,7 +7,7 @@
         <ul class="Library__sort-list">
           <li :class="getSortLinkClass('name')"><router-link :to="getSortLink('name')">Name</router-link></li>
           <li :class="getSortLinkClass('geologic_age')"><router-link :to="getSortLink('geologic_age')">Geologic Age</router-link></li>
-          <li :class="getSortLinkClass('ontogenic_age')"><router-link :to="getSortLink('ontogenic_age')">Ontogenic Age</router-link></li>
+          <li :class="getSortLinkClass('ontogenic_age')"><router-link :to="getSortLink('ontogenic_age')">Ontogenetic Age</router-link></li>
         </ul>
       </div-->
       <div class="Library__sort">
@@ -28,7 +28,7 @@
         <TagTree :tags="tags.geologic_age" />
       </SideSection>
 
-      <SideSection title="Ontogenic Age" :count="selectedTagCount('ontogenic_age')">
+      <SideSection title="Ontogenetic Age" :count="selectedTagCount('ontogenic_age')">
         <TagTree :tags="tags.ontogenic_age"/>
       </SideSection>
 

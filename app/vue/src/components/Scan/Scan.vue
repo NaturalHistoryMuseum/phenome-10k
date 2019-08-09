@@ -33,7 +33,7 @@
             <dd>{{ scan.specimen_id }}</dd>
           </div>
           <div>
-            <dt>Specimen URL:</dt>
+            <dt>Additional Media:</dt>
             <dd>{{ scan.specimen_link }}</dd>
           </div>
         </dl>
