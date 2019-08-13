@@ -1,6 +1,8 @@
 <template>
   <ul class="Errors">
-    <li v-for="error in errors" :key="error">{{ error }}</li>
+    <li v-for="error in errors" :key="error">
+      {{ error.message || error }}
+    </li>
   </ul>
 </template>
 

@@ -1,12 +1,12 @@
 <template>
     <div class="Upload3D" @dragover="dragOver" @dragleave="dragEnd" @drop="drop">
-        <label :class="labelClass" v-show="!uploading">
+        <label :class="labelClass" v-show="progress == null">
             <div class="Upload3D__drop-text">Drop scan here</div>
             <div class="Upload3D__or">or</div>
             <div class="Upload3D__select">Select File</div>
             <input type="file" name="file" @change="fileChange" class="Upload3D__file" />
         </label>
-        <div v-if="uploading" class="Upload3D__progress">
+        <div v-if="progress != null" class="Upload3D__progress">
             <progress class="Upload3D__progress-bar" :value="progress" max="100"></progress>
             <div class="Upload3D__progress-text">{{ progress }}%</div>
         </div>
@@ -25,8 +25,7 @@ export default  {
     props:['progress', 'errors'],
     data(){
         return {
-            dragging: false,
-            uploading: false
+            dragging: false
         }
     },
     computed: {
@@ -58,11 +57,9 @@ export default  {
         },
         uploadFile(form){
             if(!form) {
-                this.uploading = false;
                 this.dragging = false;
                 return;
             }
-            this.uploading = true;
             this.$emit('change', form)
         }
     }

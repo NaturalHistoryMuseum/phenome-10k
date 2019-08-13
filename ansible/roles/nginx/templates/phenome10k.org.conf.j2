@@ -12,6 +12,9 @@ server {
 
       # Redefine the header fields that NGINX sends to the upstream server
       proxy_set_header Host $http_host;
+
+      # Allow large file uploads
+      client_max_body_size 100M;
     }
 }
 

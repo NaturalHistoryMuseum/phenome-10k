@@ -4,6 +4,7 @@
     <form class="Upload__upload" :action="formAction" method="post" enctype="multipart/form-data">
       <input type="hidden" name="csrf_token" :value="csrf">
       <Errors v-if="error" :errors="[error]" />
+      <Errors v-if="errors" :errors="errors" />
       <h2 class="Upload__section-title Upload__section-head">Browse and preview STL file</h2>
       <CtmViewer v-if="scan && scan.ctm" ref="canvas" :src="scan.ctm" height=400px width=500px />
       <Upload3D v-else @change="upload" :progress="progress" :errors="form.file.errors"></Upload3D>
@@ -140,13 +141,35 @@ import CtmViewer from '../CtmViewer';
 import Upload3D from './Upload3D';
 import { Button, TextInput, Errors, Delete } from '../forms';
 
+async function jsonOrText(source) {
+  try {
+    return source.json ? await source.json() : JSON.parse(source);
+  } catch(e) {
+    if(e instanceof SyntaxError) {
+      console.warn(e);
+      return source.text ? await source.text() : source;
+    }
+
+    throw e;
+  }
+}
+
 const xhrUpload = (form, progress) => {
     const formData = new FormData(form);
     const xhr = new XMLHttpRequest()
     xhr.open('POST', form.action)
     xhr.setRequestHeader('Accept', 'application/json')
     const ready = new Promise((res, rej) => {
-        xhr.onload = () => res(xhr);
+        xhr.onload = async () => {
+
+          if (xhr.status >= 400) {
+            const responseData = await jsonOrText(xhr.responseText);
+            rej(responseData);
+            return;
+          }
+
+          res(xhr)
+        };
         xhr.onerror = rej
     });
 
@@ -190,7 +213,8 @@ export default {
       selectedPubIds: (data.form.publications.data || []).map(pub => pub.id), // Array of selected publication IDs
       form: data.form,
       scan: data.scan,
-      csrf: data.csrf_token
+      csrf: data.csrf_token,
+      errors: []
     };
   },
   mounted(){
@@ -250,6 +274,12 @@ export default {
             headers: { accept: 'application/json' },
             body: data
         });
+
+        if(res.status >= 400) {
+          const reponseData = await jsonOrText(res);
+          this.errors = Array.isArray(responseData) ? responseData : [responseData];
+        }
+
         const url = res.url.replace(new URL(res.url).origin, '');
         this.$router.replace(url);
         const json = await res.json();
@@ -293,9 +323,14 @@ export default {
       this.stillName = '';
     },
     async upload(form){
+      try {
         const { responseText } = await xhrUpload(form, p => this.progress = p);
         const { scan } = JSON.parse(responseText);
         this.scan = scan;
+      } catch(e) {
+        this.progress = null;
+        this.form.file.errors = [e];
+      }
     },
     async pubSearch(event) {
         const query = encodeURIComponent(event.target.value);
