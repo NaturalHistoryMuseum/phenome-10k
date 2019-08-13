@@ -645,6 +645,8 @@ def publications(page = 1):
   if mine and current_user.is_authenticated:
     query = query.filter(Publication.author_id == current_user.id)
 
+  query = query.order_by(Publication.pub_year.desc())
+
   pubs = query.filter_by(published = True).paginate(page, per_page)
 
   data = {
@@ -700,7 +702,7 @@ def manage_publications(page=1):
     )
   if(pub_year):
     query = query.filter_by(pub_year = pub_year)
-  publications = query.paginate(page, per_page)
+  publications = query.order_by(Publication.pub_year.desc()).paginate(page, per_page)
   data = {
     'publications': [ pub.serialize() for pub in publications.items if current_user.canEdit(pub) ],
     'page': page,
