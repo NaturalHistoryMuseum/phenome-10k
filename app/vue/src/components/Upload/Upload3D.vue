@@ -8,7 +8,9 @@
         </label>
         <div v-if="progress != null" class="Upload3D__progress">
             <progress class="Upload3D__progress-bar" :value="progress" max="100"></progress>
-            <div class="Upload3D__progress-text">{{ progress }}%</div>
+            <div class="Upload3D__progress-text">
+                {{ progress == 100 ? 'Processing...' : progress + '%' }}
+            </div>
         </div>
         <Errors :errors="errors" />
       </div>
