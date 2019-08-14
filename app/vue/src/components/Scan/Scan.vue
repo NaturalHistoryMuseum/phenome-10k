@@ -15,7 +15,7 @@
             <router-link :key="tag.id"
                         :to="{ name: 'library', query: { [tag.category]: tag.taxonomy } }"
                         class="Scan__link">{{ tag.name }}</router-link><!--
-        ---><template v-if="scan.tags[ix+1]">, </template>
+         --><template v-if="scan.tags[ix+1]">, </template>
           </template>
         </p>
 

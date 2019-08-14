@@ -448,6 +448,9 @@ def edit_scan(scan = None):
       )
       db.session.add(scan)
 
+    # Make sure whatever publications are selected pass validation
+    form.publications.choices = [(pub, pub.title) for pub in form.publications.data]
+
     # TODO: Restrict list of uploadable file types
     # Save upload to temporary file
     if form.file.data:

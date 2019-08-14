@@ -78,6 +78,7 @@
               </li>
             </ul>
           </div>
+          <Errors :errors="form.publications.errors">
         </fieldset>
       </div>
       <div class="Upload__column">
