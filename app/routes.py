@@ -243,8 +243,6 @@ def register():
 @app.route('/library/', methods=['GET'])
 @app.route('/library/<int:page>/')
 def library(page = 1):
-  app.logger.info('Start library')
-
   per_page = 100
   sort = request.args.get("sort")
   ontogenic_age = request.args.getlist("ontogenic_age")
@@ -253,8 +251,6 @@ def library(page = 1):
   taxonomy = request.args.getlist("taxonomy")
   mine = 'mine' in request.args.keys()
   search = request.args.get('q')
-
-  app.logger.info('Start compiling conditions')
 
   scanConditions = [
     Scan.published
@@ -289,15 +285,11 @@ def library(page = 1):
 
   scanConditions = db.and_(*scanConditions)
 
-  app.logger.info('Sort & generate')
-
   # This is annoying... if we're sorting by name it's just sort,
   # but if we're sorting by tag we need to group it all.
   # Put it under the `groups` key so the view knows it needs to render differently
   if(sort in ('geologic_age', 'ontogenic_age')):
     results = [ (tag, tag.scans.filter(scanConditions).all()) for tag in Tag.query.filter_by(category=sort).all() ]
-
-    app.logger.info('serialize')
 
     data = {
       'groups': [
@@ -315,25 +307,17 @@ def library(page = 1):
 
     results = Scan.query.filter(scanConditions).order_by(query).paginate(page, per_page)
 
-    app.logger.info('serialize')
-
     data = {
       'scans': [ s.serialize(full = False) for s in results.items ],
       'page': page,
       'total_pages': math.ceil(results.total / per_page)
     }
 
-  app.logger.info('Get tag trees')
-
   data['tags'] = Tag.tree()
   data['tags']['taxonomy'] = Taxonomy.tree()
   data['q'] = search
 
-  app.logger.info('Render')
-
   out = render_vue(data, title="Library", menu='library')
-
-  app.logger.info('Done')
 
   return out
 
@@ -489,7 +473,7 @@ def edit_scan(scan = None):
     gbif_id = form.gbif_id.data
 
     if gbif_id and gbif_id != scan.gbif_id:
-      from gbif import pull_tags
+      from app.gbif import pull_tags
 
       scan.gbif_id = gbif_id
       tags = pull_tags(gbif_id)
