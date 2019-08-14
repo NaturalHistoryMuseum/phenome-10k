@@ -21,7 +21,7 @@
                 {{ pub.authors }}
               </div>
               <div class="Publications__files">
-                No. of Files: <span class="Publications__files-count">{{ pub.files.length }}</span>
+                No. of Files: <span class="Publications__files-count">{{ pub.scans.length }}</span>
               </div>
             </div>
           </td>

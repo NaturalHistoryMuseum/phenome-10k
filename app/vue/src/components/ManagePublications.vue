@@ -29,7 +29,7 @@
               <button name="action" value="delete" @click="confirmDelete">Delete</button>
             </form>
             <div class="ManagePublications__files">
-              No. of Files: <span class="ManagePublications__files-count">{{ publication.files.length }}</span>
+              No. of Files: <span class="ManagePublications__files-count">{{ publication.scans.length }}</span>
             </div>
           </td>
         </tr>
