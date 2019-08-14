@@ -11,6 +11,7 @@
         <tr>
           <th>Upload Date</th>
           <th class="ManageUploads__name-header">Name of Specimen</th>
+          <th class="ManageUploads__name-header">Name of Uploader</th>
         </tr>
       </thead>
       <tbody>
@@ -24,6 +25,9 @@
                 <dt :key="name">{{ name }}</dt>: <dd :key="name + '-val'">{{ values.join(', ') }}</dd><!--
           --></template>
             </dl>
+          </td>
+          <td>
+            {{ scan.author }}
           </td>
           <td>
             <form method="post" class="ManageUploads__actions">

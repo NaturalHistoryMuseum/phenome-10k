@@ -137,6 +137,7 @@ class Scan(db.Model):
                 'specimen_link': self.specimen_link,
                 'description': self.description,
                 'created': self.date_created.isoformat(),
+                'author': self.author.name,
 
                 'tags': [ tag.serialize() for tag in self.tags ],
                 'publications': [ publication.serialize() for publication in self.publications ],
