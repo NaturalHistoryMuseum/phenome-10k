@@ -1,7 +1,7 @@
 <template>
   <div class="Scan Subgrid">
     <img v-if="viewStill" :src="viewStill.file" />
-    <CtmViewer v-else :src="scan.ctm" />
+    <CtmViewer v-else :src="ctm" />
     <div class="Content-Sidebar">
       <router-link :to="{ name: 'library' }" class="Scan__back">« Back</router-link>
     </div>
@@ -215,6 +215,9 @@ export default {
       return this.scan.scientific_name ?
         this.scan.scientific_name[0].toUpperCase() + this.scan.scientific_name.substr(1) :
         'Unnamed Upload'
+    },
+    ctm(){
+      return decodeURIComponent(this.scan.ctm);
     }
   }
 }
