@@ -43,7 +43,7 @@ export default {
 
         this.viewer = viewer;
 
-        this.resize();
+        this.resize(true);
 
         this.resizeLisener = () => this.resize();
 
@@ -78,14 +78,14 @@ export default {
         this.resize();
       },
 
-      resize(){
+      resize(force = false){
         const canvas = this.$refs.canvas;
 
         // Resize the viewer when the canvas size changes
         const width = canvas.clientWidth;
         const height = canvas.clientHeight;
 
-        if(width === canvas.width) {
+        if(!force && (width === canvas.width)) {
           return;
         }
 

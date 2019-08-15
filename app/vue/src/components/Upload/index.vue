@@ -78,7 +78,7 @@
               </li>
             </ul>
           </div>
-          <Errors :errors="form.publications.errors">
+          <Errors :errors="form.publications.errors" />
         </fieldset>
       </div>
       <div class="Upload__column">
@@ -281,11 +281,22 @@ export default {
           this.errors = Array.isArray(responseData) ? responseData : [responseData];
         }
 
-        const url = res.url.replace(new URL(res.url).origin, '');
-        this.$router.replace(url);
         const json = await res.json();
         this.form = json.form;
-        window.scrollTo(0 ,0);
+
+        const url = res.url.replace(new URL(res.url).origin, '');
+        this.$router.replace(url);
+
+        this.$nextTick(
+          () => {
+            const err = document.querySelector('.Errors:not(:empty)');
+            if(err) {
+              err.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+            } else {
+              window.scrollTo(0 ,0);
+            }
+          }
+        );
     },
     /**
      * Delete a still by its attachment id
@@ -320,7 +331,7 @@ export default {
       data.append('attachments', still, this.stillName);
       const res = await fetch(this.formAction, { method: 'POST', headers: { 'accept': 'application/json' }, body: data });
       const json = await res.json();
-      this.scan = json.scan;
+      this.scan = json;
       this.stillName = '';
     },
     async upload(form){
