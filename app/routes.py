@@ -759,7 +759,7 @@ def users():
   users = [ user.serialize() for user in query.all() ]
   data = { 'users': users, 'error': error }
 
-  return render_vue(data, title = 'Users')
+  return render_vue(data, title = 'Users', menu = 'users')
 
 
 def render_vue(data, title, menu = None):

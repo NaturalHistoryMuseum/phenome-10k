@@ -23,6 +23,9 @@
       <li><a class="Nav__item{{ ' Nav__item--selected' if menu == 'about' else '' }}" href="{{ url_for('about') }}">About</a></li>
       <li><a class="Nav__item{{ ' Nav__item--selected' if menu == 'library' else '' }}" href="{{ url_for('library') }}">Library</a></li>
       <li><a class="Nav__item{{ ' Nav__item--selected' if menu == 'publications' else '' }}" href="{{ url_for('publications') }}">Publications</a></li>
+      {% if not current_user.is_anonymous and current_user.isAdmin() %}
+      <li><a class="Nav__item{{ ' Nav__item--selected' if menu == 'users' else '' }}" href="{{ url_for('users') }}">Users</a></li>
+      {% endif %}
     </ul>
   </nav>
   {% if not current_user.is_anonymous %}
