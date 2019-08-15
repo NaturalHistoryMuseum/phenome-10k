@@ -11,8 +11,8 @@
 
 <style>
 .Results {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, 160px);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -27,6 +27,7 @@
   display: flex;
   flex-direction: column;
   margin: 7.5px 2.5px;
+  align-items: center;
 }
 
 .Results__title {
