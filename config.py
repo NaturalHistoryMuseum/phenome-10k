@@ -13,6 +13,6 @@ class Config(object):
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER') or 'no-reply@phenome10k.org'
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL') or 'test@example.com'
     LOG_FILE = os.environ.get('LOG_FILE') or 'logs/phenome10k.log'
-    SERVER_NAME = os.environ.get('SERVER_NAME')
+    SERVER_NAME = os.environ.get('SERVER_NAME') or None
     UPLOAD_DIRECTORY = os.environ.get('UPLOAD_DIRECTORY') or os.path.abspath('uploads')
     MODEL_DIRECTORY = os.environ.get('MODEL_DIRECTORY') or os.path.abspath('uploads/models')

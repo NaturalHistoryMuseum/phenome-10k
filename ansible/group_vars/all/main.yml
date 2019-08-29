@@ -9,7 +9,7 @@ venv_bin: '{{ virtualenv_location }}/bin'
 gunicorn_binary: '{{ venv_bin }}/gunicorn'
 mysql_root_password: plaEee2eer34@
 p10k_db_user: phenome10k
-p10k_db_password: Aei0)rr2rr2r2r2r
+p10k_db_password: Aei0_rr2rr2r2r2r
 p10k_db_name: phenome10k
 p10k_db_host: data
 p10k_db_url: "mysql+pymysql://{{ p10k_db_user }}:{{ p10k_db_password|urlencode() }}@{{ p10k_db_host }}:3306/{{ p10k_db_name }}"
@@ -22,7 +22,6 @@ mmonit_client_password: "{{ mmonit_admin_password }}"
 hostname: phenome10k.localhost
 monit_hostname: monit.phenome10k.localhost
 virtual_ip: '192.168.10.21'
-vrrp_interface: ens160
 monit_mmonit_url: http://monit:{{ mmonit_client_password|urlencode() }}@{{ virtual_ip }}:8080/collector
 nfs_path: '/var/files'
 uploads_dir: '{{ nfs_path }}/uploads'
@@ -31,6 +30,9 @@ mmonit_license_owner: Vincent Smith
 mmonit_license: "{{ lookup('hashi_vault', 'secret=phenome10k/mmonit:license url=https://man-vault-2.nhm.ac.uk:8200')}}"
 vrrp_password: pass123
 flask_secret_key: "G}<Ci&XWqSqA/mF7ZCWI7JJ.:QuuZF"
+trusted_networks:
+  - '192.168.0.0/16'
+  - '127.0.0.0/16'
 
 # To gain access to this inbox, look up the phenome10k/mailtrap:invite_url secret
 postfix_relay_host: smtp.mailtrap.io

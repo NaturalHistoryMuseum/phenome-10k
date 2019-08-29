@@ -18,4 +18,8 @@ mmonit_license: "{{ lookup('hashi_vault', 'secret=phenome10k/mmonit:license url=
 postfix_relay_host: mailserver.nhm.ac.uk
 postfix_sasl_auth_enable: false
 vrrp_password: "{{ lookup('hashi_vault', 'secret=phenome10k/vrrp:password url=https://man-vault-2.nhm.ac.uk:8200')}}"
+vrrp_interface: ens160
 flask_secret_key: "{{ lookup('hashi_vault', 'secret=phenome10k/p10k:flask_secret url=https://man-vault-2.nhm.ac.uk:8200')}}"
+trusted_networks:
+  - '157.140.0.0/16'
+  - '127.0.0.0/16'

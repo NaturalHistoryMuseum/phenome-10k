@@ -26,7 +26,5 @@
       source: '{{ item }}'
       permanent: true
       immediate: true
-    loop:
-      - '157.140.0.0/16'
-      - '127.0.0.0/16'
+    loop: '{{ trusted_networks }}'
     become: y
