@@ -83,7 +83,7 @@
       </div>
       <div class="Upload__column">
         <div class="Upload__section-head">
-          <span class="Upload__section-title Upload__section-head">Categories</span> - Assign the relevant tags to this entry. At least one catagory in each of Geologic Age, Elements and Ontologic Age is required.
+          <span class="Upload__section-title Upload__section-head">Categories</span> - Assign the relevant tags to this entry. At least one catagory in each of Geologic Age, Elements and Ontogenetic Age is required.
         </div>
 
         <fieldset>
