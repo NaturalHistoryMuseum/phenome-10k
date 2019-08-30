@@ -6,6 +6,7 @@
       update: no
     become: y
     become_user: phenome10k
+    when: not skip_git_checkout
   - name: Ensure phenome10k group owns the folder
     file:
       path: '{{ p10k_src_dir }}'
@@ -53,9 +54,12 @@
   - name: Copy env variables
     template:
       src: .env.j2
-      dest: '{{ p10k_src_dir }}/.env'
+      dest: '{{ p10k_home }}/.env'
     become: y
     become_user: phenome10k
+    notify:
+      - restart gunicorn
+
   - name: Create log directory
     file:
       path: '{{ p10k_logs }}'

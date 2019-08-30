@@ -23,3 +23,5 @@ flask_secret_key: "{{ lookup('hashi_vault', 'secret=phenome10k/p10k:flask_secret
 trusted_networks:
   - '157.140.0.0/16'
   - '127.0.0.0/16'
+skip_git_checkout: no
+thumbnail_dir: '{{ p10k_src_dir }}/thumbnails'

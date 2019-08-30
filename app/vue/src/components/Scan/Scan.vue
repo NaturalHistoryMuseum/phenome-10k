@@ -78,25 +78,33 @@
 
         <Files title="Stills" :download="scan.url_slug + '/stills'">
           <div class="Scan__file" v-for="still in scan.stills" :key="still.id">
-            <input type="image" :src="still.file + '?w=80'" @click="viewStill=still" />
+            <input type="image" :src="still.file + '?w=80'" @click="viewStill=still" :alt="still.name"/>
             <div class="Scan__file-info">
               {{ still.name }}<br>
-              {{ still.size / 1000 }}k
+              {{ size(still.size) }}
             </div>
           </div>
         </Files>
 
         <Files title="3D / Web GL" :download="scan.source">
           <div class="Scan__file">
-            <input v-if="scan.thumbnail" type="image" :src="scan.thumbnail + '?w=80'" @click="viewStill=null" />
+            <input v-if="scan.thumbnail" type="image" :src="scan.thumbnail + '?w=80'" @click="viewStill=null" alt="Original file" />
             <div class="Scan__file-info">
-              (STL)
+              (Scan)
             </div>
           </div>
         </Files>
 
         <template v-for="publication in scan.publications.filter(pub => pub.published)">
-          <Files v-for="file in publication.files" :key="file" :title="'PDF — ' + publication.title" :download="file.file" />
+          <Files v-for="file in publication.files" :key="file.id" title="PDF" :download="file.file">
+            <div class="Scan__file-pdf">
+              <a :href="file.file" class="Scan__file-pdf-text" :title="`Download PDF`" download>{{ publication.title }}</a>
+            </div>
+            <div class="Scan__file-info">
+              {{ file && file.name }}<br>
+              {{ size(file.size) }}
+            </div>
+          </Files>
         </template>
       </div>
     </div>
@@ -184,12 +192,38 @@
   align-items: center;
 }
 
+.Scan__file-pdf {
+  font-size: smaller;
+  height: 60px;
+  width: 80px;
+  background: linear-gradient(to bottom,#333, #666);
+}
+
+.Scan__file-pdf-text {
+  background-image: linear-gradient(to bottom, #eee 50%, transparent);
+  color: transparent;
+  background-clip: text;
+  padding: 6px;
+  display: block;
+  width: 100%;
+  height: 100%;
+  line-height: normal;
+  font-weight: bold;
+  overflow: hidden;
+}
+
+.Scan__file-pdf-text:focus {
+  outline-offset: -1px;
+  outline: 1px dotted white;
+}
+
 .Scan__file-info {
   margin: 10px;
   min-width: 80px;
   font-family: 'Supria Sans W01 Regular', Arial, Helvetica, sans-serif;
   font-size: 11px;
   line-height: initial;
+  overflow: hidden;
 }
 </style>
 
@@ -218,6 +252,11 @@ export default {
     },
     ctm(){
       return decodeURIComponent(this.scan.ctm);
+    }
+  },
+  methods:{
+    size(bytes) {
+      return Math.floor(bytes/1000) + "k"
     }
   }
 }

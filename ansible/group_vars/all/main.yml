@@ -26,6 +26,7 @@ monit_mmonit_url: http://monit:{{ mmonit_client_password|urlencode() }}@{{ virtu
 nfs_path: '/var/files'
 uploads_dir: '{{ nfs_path }}/uploads'
 models_dir: '{{ nfs_path }}/models'
+thumbnail_dir: '{{ p10k_home }}/thumbnails'
 mmonit_license_owner: Vincent Smith
 mmonit_license: "{{ lookup('hashi_vault', 'secret=phenome10k/mmonit:license url=https://man-vault-2.nhm.ac.uk:8200')}}"
 vrrp_password: pass123
@@ -34,6 +35,7 @@ trusted_networks:
   - '192.168.0.0/16'
   - '127.0.0.0/16'
 max_upload_size_mb: 500
+skip_git_checkout: yes
 
 # To gain access to this inbox, look up the phenome10k/mailtrap:invite_url secret
 postfix_relay_host: smtp.mailtrap.io

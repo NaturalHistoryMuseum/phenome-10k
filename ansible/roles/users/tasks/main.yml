@@ -11,14 +11,14 @@
       groups: '{{ p10k_linux_group }}'
       append: y
     become: y
-  - name: Set permissions on phenome10k home directory
-    file:
-      path: '{{ p10k_home }}'
-      mode: '0750'
-      owner: '{{ p10k_linux_user }}'
-      group: '{{ p10k_linux_group }}'
-      recurse: y
-    become: y
+  # - name: Set permissions on phenome10k home directory
+  #   file:
+  #     path: '{{ p10k_home }}'
+  #     mode: '0750'
+  #     owner: '{{ p10k_linux_user }}'
+  #     group: '{{ p10k_linux_group }}'
+  #     recurse: y
+  #   become: y
   - name: Add nginx user to phenome10k group
     user:
       name: nginx

@@ -164,9 +164,9 @@ def send_uploads(path):
   thumbnail_file = path + '-' + width + '.png'
 
   try:
-    return send_from_directory('../thumbnails', thumbnail_file)
+    return send_from_directory(app.config['THUMB_DIRECTORY'], thumbnail_file)
   except NotFound:
-    thumbnail_file = safe_join('thumbnails/', thumbnail_file)
+    thumbnail_file = safe_join(app.config['THUMB_DIRECTORY'], thumbnail_file)
 
     try:
       width = int(width)

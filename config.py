@@ -1,7 +1,10 @@
 import os
-from dotenv import load_dotenv
+from dotenv import load_dotenv, find_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+# Parent directory takes precedence, which makes things
+# easier when running in vagrant.
+load_dotenv(os.path.join(basedir, '../.env'))
 load_dotenv(os.path.join(basedir, '.env'))
 
 class Config(object):
@@ -16,3 +19,4 @@ class Config(object):
     SERVER_NAME = os.environ.get('SERVER_NAME') or None
     UPLOAD_DIRECTORY = os.environ.get('UPLOAD_DIRECTORY') or os.path.abspath('uploads')
     MODEL_DIRECTORY = os.environ.get('MODEL_DIRECTORY') or os.path.abspath('uploads/models')
+    THUMB_DIRECTORY = os.environ.get('THUMB_DIRECTORY') or os.path.abspath('thumbnails')

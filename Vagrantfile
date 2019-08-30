@@ -2,7 +2,7 @@
 # vi: set ft=ruby :
 require File.dirname(__FILE__)+"/vagrant/dependency_manager"
 
-check_plugins ["vagrant-hosts"]
+check_plugins ["vagrant-hosts", "vagrant-vbguest"]
 
 mysql_password = "A1a2a_"
 
@@ -15,9 +15,8 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "data" do |config|
     config.vm.box = "centos/7"
-    #config.vm.network "forwarded_port", guest: 80, host: 8000
-    #config.vm.hostname = vmName
     config.vm.network "private_network", ip: nfs_ip
+    config.vbguest.no_install = true
   end
 
     app_ips = [
@@ -36,12 +35,10 @@ Vagrant.configure("2") do |config|
       # the path on the host to the actual folder. The second argument is
       # the path on the guest to mount the folder. And the optional third
       # argument is a set of non-required options.
-      config.vm.synced_folder '.', '/vagrant', disable: true
+      config.vm.synced_folder '.', '/vagrant', disabled: true
       config.vm.synced_folder '.',
                               '/var/phenome-10k/www',
-                              mount_options: ["gid=1234"],
-                              type: "rsync",
-                              rsync__args:["-avz", "--rsync-path='sudo rsync'"]
+                              mount_options: ["gid=1234"]
     end
   end
 
@@ -49,9 +46,8 @@ Vagrant.configure("2") do |config|
     vmName = "lb#{n}"
     config.vm.define vmName do |config|
       config.vm.box = "centos/7"
-      #config.vm.network "forwarded_port", guest: 80, host: 8000
-      #config.vm.hostname = vmName
       config.vm.network "private_network", ip: "192.168.10.1#{n}"
+      config.vbguest.no_install = true
     end
   end
 
