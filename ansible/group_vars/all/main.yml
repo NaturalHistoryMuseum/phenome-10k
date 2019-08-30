@@ -33,6 +33,7 @@ flask_secret_key: "G}<Ci&XWqSqA/mF7ZCWI7JJ.:QuuZF"
 trusted_networks:
   - '192.168.0.0/16'
   - '127.0.0.0/16'
+max_upload_size_mb: 500
 
 # To gain access to this inbox, look up the phenome10k/mailtrap:invite_url secret
 postfix_relay_host: smtp.mailtrap.io

@@ -72,7 +72,7 @@
       - "{{ uploads_dir }}"
       - "{{ models_dir }}"
     become: y
-  - name: Create database tables
+  - name: Migrate database
     command: '{{ venv_bin }}/flask db upgrade'
     args:
       chdir: '{{ p10k_src_dir }}'
