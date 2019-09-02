@@ -28,7 +28,7 @@
               <button name="id" :value="user.id">Save</button>
             </form>
           </td>
-          <td>{{ user.country_code }}</td>
+          <td><img :src="`https://www.countryflags.io/${user.country_code}/flat/48.png`" :alt="user.country_code"></td>
           <td>{{ user.user_type }}</td>
         </tr>
       </tbody>
