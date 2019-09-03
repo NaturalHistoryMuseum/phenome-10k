@@ -1,5 +1,11 @@
 <template>
-  <canvas class="CtmViewer" ref="canvas" :height="height" :width="width" @dblclick="toggelFullscreen"></canvas>
+  <canvas :class="cssClass"
+            ref="canvas"
+            :height="height" :width="width"
+            @dblclick="toggelFullscreen"
+            @click.alt="doubleSided = !doubleSided"
+            title="Use ctrl to pan, shift to zoom"
+    ></canvas>
 </template>
 
 <style>
@@ -7,13 +13,29 @@
   width: 100%;
   max-width: 100%;
 }
+
+.CtmViewer--zoom {
+  cursor: ns-resize;
+}
+
+.CtmViewer--move {
+  cursor: move;
+}
+
+.CtmViewer--moving {
+  cursor: grabbing;
+}
 </style>
 
 <script>
+import Vue from 'vue';
 import CTM from 'jsc3d/ctm-loader';
 import { Viewer, registerLoader } from "jsc3d/index.js";
 
 registerLoader(CTM);
+
+const SHIFT_KEY = 0x10;
+const CTRL_KEY = 0x11;
 
 export default {
     name: 'ctm',
@@ -28,6 +50,31 @@ export default {
         default: 500
       },
     },
+    data() {
+      return {
+        doubleSided: true,
+        keyStates: {
+          [CTRL_KEY]: false,
+          [SHIFT_KEY]: false
+        },
+        buttonStates: {
+          0: false
+        }
+      };
+    },
+    computed: {
+      cssClass(){
+        const cls = "CtmViewer";
+
+        return this.cursor ? [cls, `${cls}--${this.cursor}`] : cls
+      },
+      cursor(){
+        return this.keyStates[SHIFT_KEY] ? 'zoom'
+                : this.keyStates[CTRL_KEY] ?
+                    this.buttonStates[0] ? 'moving' : 'move'
+                : null;
+      }
+    },
     $viewer: null,
     mounted(){
       this.$nextTick(() => {
@@ -40,6 +87,12 @@ export default {
         viewer.setParameter('ProgressBar', 'on');
         viewer.setParameter('BackgroundColor1', '#09090a');
         viewer.setParameter('BackgroundColor2', '#676767');
+
+        viewer.onloadingcomplete = () => this.setDoubleSided();
+
+        // Observe the key states of the viewer so we know what cursor to use
+        viewer.keyStates = this.keyStates;
+        viewer.buttonStates = this.buttonStates;
 
         this.viewer = viewer;
 
@@ -54,6 +107,20 @@ export default {
       window.removeEventListener('resize', this.resizeLisener);
     },
     methods: {
+      /**
+       * By default jsc3d renders only one side of each mesh.
+       * However some scans appear to be inside out and look weird, like that
+       * so we need to render both sides of the meshes.
+       */
+      setDoubleSided(doubleSided = true) {
+        const scene = this.viewer && this.viewer.getScene();
+        if (scene) {
+          scene.forEachChild(mesh =>
+            mesh.isDoubleSided = doubleSided
+          );
+          this.viewer.update();
+        }
+      },
       /**
        * Utility method to allow other components to get the current rendered frame
        * as an image file.
@@ -107,6 +174,11 @@ export default {
         // Re-initialise the viewer to take into account the new size
         this.viewer.init();
       }
+  },
+  watch:{
+    doubleSided(value) {
+      this.setDoubleSided(value);
+    }
   }
 }
 </script>
