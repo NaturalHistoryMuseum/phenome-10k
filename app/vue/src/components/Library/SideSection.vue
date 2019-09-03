@@ -4,7 +4,7 @@
       <button @click="open = !open" class="SideSection__button">
         {{ title }}
       </button>
-      <img :src="'/static/' + (open ? 'minus' : 'plus') + '.png'">
+      <img :src="'/static/' + (open ? 'minus' : 'plus') + '.png'" class="SideSection__indicator">
       <div v-if="count">
         ({{ count }})
       </div>
@@ -29,6 +29,10 @@
 
 .SideSection__title {
   color: #096;
+}
+
+.SideSection__indicator {
+  background: white;
 }
 </style>
 

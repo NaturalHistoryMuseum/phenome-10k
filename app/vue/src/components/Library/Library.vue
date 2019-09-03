@@ -38,11 +38,11 @@
 
       <SideSection title="Taxonomy" :count="selectedTagCount('taxonomy')" childClass="Library__sidebar-row">
         <Tree :items="tags.taxonomy" #node="taxonomy" childKey="children" class="Library__taxon-tree">
-          <li class="Library__taxon">
+          <li :class="getTaxonFilterClass('Library__taxon', taxonomy.id)">
             <button v-if="taxonomy.hasChildren" class="Library__tax-expand" @click="$set(open, taxonomy.id, !open[taxonomy.id])">
               <img :src="'/static/' + (open[taxonomy.id] ? 'minus' : 'plus') + '.png'">
             </button>
-            <router-link :class="getTaxonFilterClass(taxonomy.id)" :to="getTaxonFilterLink(taxonomy.id)">{{ taxonomy.name }}</router-link>
+            <router-link :class="getTaxonFilterClass('Library__filter', taxonomy.id)" :to="getTaxonFilterLink(taxonomy.id)">{{ taxonomy.name }}</router-link>
             <!--SlideOpen :key="taxonomy.id"-->
               <component v-if="open[taxonomy.id]" :is="taxonomy.children" />
             <!--/SlideOpen-->
@@ -197,11 +197,12 @@ export default {
 
       return { query };
     },
-    getTaxonFilterClass(tag) {
+    getTaxonFilterClass(cls, tag) {
       const current = this.$route.query.taxonomy || [];
       const categories = new Set([].concat(current).map(str => parseInt(str, 10)));
       return {
-        'Library__filter-active': categories.has(tag)
+        [cls]: true,
+        [`${cls}--active`]: categories.has(tag)
       };
     }
   }
@@ -213,10 +214,6 @@ export default {
   display: contents;
 }
 
-.Library__taxon {
-  list-style: none;
-}
-
 .Library__tax-expand {
   appearance: none;
   background: transparent;
@@ -226,16 +223,29 @@ export default {
   margin: 1px -2px 0;
 }
 
+.Library__tax-expand:hover {
+  outline: 1px solid #096;
+  cursor: copy;
+}
+
 .Library__taxon {
-  background: linear-gradient(to right, transparent 0px, gray 1px, transparent 1px),
-              linear-gradient(to bottom, transparent 6px, gray 7px, transparent 7px);
+  background-image: linear-gradient(to right, transparent 0px, gray 1px, transparent 1px),
+                    linear-gradient(to bottom, transparent 6px, gray 7px, transparent 7px);
   background-repeat: no-repeat;
-  background-size: 7px auto;
+  background-size: 7px auto, 7px auto, auto;
   padding-left: 9px;
+  list-style: none;
+}
+
+.Library__taxon--active {
+    background-image:
+      linear-gradient(to right, transparent 0px, gray 1px, transparent 1px),
+      linear-gradient(to bottom, transparent 6px, gray 7px, transparent 7px),
+      linear-gradient(to bottom, #0963, #0963 15px, transparent 15px);
 }
 
 .Library__taxon:last-child {
-  background-size: 7px 6px, 7px auto;
+  background-size: 7px 6px, 7px auto, auto;
 }
 
 .Library__taxon ul {
@@ -279,8 +289,12 @@ export default {
   color: #096;
 }
 
-.Library__filter-active {
+.Library__filter--active {
   font-weight: bold;
+}
+
+.Library__filter:hover {
+  background: #0963;
 }
 
 .Library__filter-header {
