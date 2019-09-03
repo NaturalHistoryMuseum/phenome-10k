@@ -158,7 +158,7 @@ async function jsonOrText(source) {
 const xhrUpload = (form, progress) => {
     const formData = new FormData(form);
     const xhr = new XMLHttpRequest()
-    xhr.open('POST', form.action)
+    xhr.open('POST', form.action + '?noredirect=1')
     xhr.setRequestHeader('Accept', 'application/json')
     const ready = new Promise((res, rej) => {
         xhr.onload = async () => {
@@ -285,7 +285,7 @@ export default {
         this.form = json.form;
 
         const url = res.url.replace(new URL(res.url).origin, '');
-        this.$router.replace(url);
+        this.$router.push(url);
 
         this.$nextTick(
           () => {
@@ -336,9 +336,13 @@ export default {
     },
     async upload(form){
       try {
-        const { responseText } = await xhrUpload(form, p => this.progress = p);
+        const { responseText, responseURL } = await xhrUpload(form, p => this.progress = p);
         const { scan } = JSON.parse(responseText);
-        this.scan = scan;
+        if(scan) {
+          this.scan = scan;
+        } else {
+          this.$router.push(responseURL);
+        }
       } catch(e) {
         this.progress = null;
         this.form.file.errors = [e];

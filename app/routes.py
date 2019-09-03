@@ -536,7 +536,9 @@ def edit_scan(scan = None):
 
     if form_valid:
       db.session.commit()
-      return redirect(request.args.get('redirect') or url_for('scan', scan=scan))
+
+      if not request.args.get('noredirect'):
+        return redirect(request.args.get('redirect') or url_for('scan', scan=scan))
 
   data = {
       'form': form.serialize(),
