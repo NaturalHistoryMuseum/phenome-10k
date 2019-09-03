@@ -198,9 +198,10 @@ class File(db.Model):
     @staticmethod
     def fromName(filename, storage_area = UPLOADS_DIR, mimeType=None, size=None):
         """Create a File model from a string filename with optional size and mimetype"""
-        import time
+        import time, os
 
         filedir = time.strftime("%Y/%m/%d")
+        basename, ext = os.path.splitext(filename)
 
         try:
             os.makedirs(
@@ -214,7 +215,7 @@ class File(db.Model):
         n = 1
 
         while os.path.isfile(File.getAbsolutePathFor(storage_area,location)):
-            location = '/'.join((filedir, str(n) + secure_filename(filename)))
+            location = '/'.join((filedir, secure_filename(basename) + '-' + str(n) + ext, ))
             n += 1
 
 
