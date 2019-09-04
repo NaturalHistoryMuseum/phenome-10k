@@ -36,6 +36,9 @@ trusted_networks:
   - '127.0.0.0/16'
 max_upload_size_mb: 500
 skip_git_checkout: yes
+mysql_monit:
+  user_name: monit
+  password: 'Monit_mysql_password.8'
 
 # To gain access to this inbox, look up the phenome10k/mailtrap:invite_url secret
 postfix_relay_host: smtp.mailtrap.io

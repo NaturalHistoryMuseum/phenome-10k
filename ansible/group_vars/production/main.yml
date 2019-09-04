@@ -25,3 +25,6 @@ trusted_networks:
   - '127.0.0.0/16'
 skip_git_checkout: no
 thumbnail_dir: '{{ p10k_src_dir }}/thumbnails'
+mysql_monit:
+  user_name: monit
+  password: "{{ lookup('hashi_vault', 'secret=phenome10k/mysql:monit_password url=https://man-vault-2.nhm.ac.uk:8200')}}"

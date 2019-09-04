@@ -45,7 +45,8 @@
     become: y
   - name: Install pip dependencies
     pip:
-      requirements: '{{ p10k_src_dir }}/requirements.txt'
+      chdir: '{{ p10k_src_dir }}'
+      requirements: 'requirements.txt'
       virtualenv: '{{ virtualenv_location }}'
       virtualenv_python: python3
       virtualenv_command: virtualenv-3
@@ -77,7 +78,9 @@
       - "{{ models_dir }}"
     become: y
   - name: Migrate database
-    command: '{{ venv_bin }}/flask db upgrade'
+    command: '{{ venv_bin }}/flask db upgrade -d {{ p10k_src_dir }}/migrations'
+    environment:
+      FLASK_APP: '{{ p10k_src_dir }}/app'
     args:
       chdir: '{{ p10k_src_dir }}'
     become: y
@@ -100,6 +103,8 @@
     become: y
   - name: Set admin password
     command: '{{ venv_bin }}/flask set-admin-pw {{ p10k_admin_password }}'
+    environment:
+      FLASK_APP: '{{ p10k_src_dir }}/app'
     args:
       chdir: '{{ p10k_src_dir }}'
     register: set_pw

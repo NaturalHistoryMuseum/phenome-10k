@@ -31,7 +31,7 @@ set eventqueue
 set httpd port {{ monit_port }} and
   use address localhost
   allow localhost
-  allow {{ ansible_fqdn }}
+  #allow {{ ansible_fqdn }}
 
 set mmonit {{ monit_mmonit_url }}
 

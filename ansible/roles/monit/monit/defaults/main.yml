@@ -14,10 +14,6 @@ monit_eventqueue:
   dir: /var/tmp
   slots: 100
 
-mysql_monit:
-  user_name: monit
-  password: 'Monit_mysql_password.8'
-
 # Active - try and restart services
 monit_monitoring_mode: active
 
@@ -70,16 +66,6 @@ monit_services_conf:
       - condition: 'cpu usage (wait) > 40% for 15 cycles'
         action: 'alert'
 
-##### File systems #####
-  # data-partition:
-  #   skip: '{{ skip_monit_data_partition | default("") }}'
-  #   check_type: 'filesystem'
-  #   check_id: '/data'
-  #   id_type: 'path'
-  #   tests:
-  #     - condition: 'space > 800 GB for 10 cycles'
-  #       action: 'alert'
-
 # Servers with 50GB root directories.
   50gb-root-partition:
     check_type: 'filesystem'
@@ -89,12 +75,19 @@ monit_services_conf:
       - condition: 'space > 30 GB for 10 cycles'
         action: 'alert'
 
-# Boot partition
-  # boot-partition:
-  #   check_type: 'filesystem'
-  #   check_id: '/boot'
-  #   id_type: 'path'
-  #   #rls: [node['scratchpads']['ntp']['role']]
-  #   tests:
-  #     - condition: 'space > 500 MB for 10 cycles'
-  #       action: 'alert'
+  mysql:
+    check_type: 'process'
+    check_id: '/var/run/mysqld/mysqld.pid'
+    id_type: 'pidfile'
+    start: '/bin/systemctl restart mysqld'
+    stop: '/bin/systemctl stop mysqld'
+    group: 'data'
+    tests:
+      - condition: 'cpu > 80% for 5 cycles'
+        action: 'alert'
+      - condition: 'totalmem > 16.0 GB for 5 cycles'
+        action: 'alert'
+      - condition: 'children > 250'
+        action: 'alert'
+      - condition: "failed host localhost port 3306 protocol mysql username \"{{ mysql_monit.user_name }}\" password \"{{ mysql_monit.password }}\" for 3 cycles"
+        action: 'alert'

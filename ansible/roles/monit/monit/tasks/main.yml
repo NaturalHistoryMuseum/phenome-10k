@@ -62,3 +62,10 @@
       state: enabled
       immediate: y
     become: y
+
+  - name: enable & start monit
+    service:
+      name: monit
+      state: started
+      enabled: yes
+    become: y

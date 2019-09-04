@@ -53,6 +53,13 @@
       host: '{{ item }}'
       priv: '{{ p10k_db_name }}.*:ALL'
     loop: '{{ app_servers }}'
+  - name: Create the user for monit to ping the mysql server
+    mysql_user:
+      login_user: root
+      login_password: '{{ mysql_root_password }}'
+      name: '{{ mysql_monit.user_name }}'
+      password: '{{ mysql_monit.password }}'
+      host: 'localhost'
   - name: Enable trusted connections
     firewalld:
       zone: dmz

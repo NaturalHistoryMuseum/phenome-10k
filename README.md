@@ -61,7 +61,7 @@ Before running ansible you'll need to do a few things:
 0. Make sure you're connected to the NHM internal network
 1. Generate a Vault token:
    ```bash
-   export VAULT_TOKEN=`./get-token.py`
+   source vault-token
    ```
 2. ```bash
    pip install hvac

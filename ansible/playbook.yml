@@ -5,6 +5,13 @@
       - firewalld
       - nfs/server
       - mysql
+      - monit/monit
+    vars:
+      monit_services:
+        - systems
+        - 50gb-root-partition
+        - mysql
+
   - hosts: app
     roles:
       - python
