@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# This script must be run as the root user. The root user should have
+# a .my.cnf in their home folder (/root/.my.cnf) which allows automatic
+# login to the MySQL server. If that does not work, then this file can
+# be altered to contain passwords (far from ideal).
+
+DAY=`date +%A`
+WEEK=$((`date +%-V` % 4))
+MONTH=`date +%B`
+YEAR=`date +%Y`
+DATABASE={{ p10k_db_name }}
+
+mkdir -p {{ nfs_path }}/backups/daily
+mkdir -p {{ nfs_path }}/backups/weekly
+mkdir -p {{ nfs_path }}/backups/monthly
+mkdir -p {{ nfs_path }}/backups/year
+
+mysqldump --defaults-extra-file=/root/.my.cnf $DATABASE | gzip > {{ nfs_path }}/backups/daily/$DAY.sql.gz
+cp {{ nfs_path }}/backups/daily/$DAY.sql.gz {{ nfs_path }}/backups/weekly/$WEEK.sql.gz
+cp {{ nfs_path }}/backups/daily/$DAY.sql.gz {{ nfs_path }}/backups/monthly/$MONTH.sql.gz
+cp {{ nfs_path }}/backups/daily/$DAY.sql.gz {{ nfs_path }}/backups/year/$YEAR.sql.gz

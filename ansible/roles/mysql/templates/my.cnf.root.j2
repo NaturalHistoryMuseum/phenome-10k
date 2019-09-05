@@ -1,0 +1,5 @@
+{% for record in ['client', 'mysqladmin', 'mysqldump'] %}
+[{{ record }}]
+user=root
+password={{ mysql_root_password | quote }}
+{% endfor %}
