@@ -3,10 +3,12 @@
     git:
       repo: "https://github.com/NaturalHistoryMuseum/phenome-10k.git"
       dest: '{{ p10k_src_dir }}'
-      update: no
     become: y
     become_user: phenome10k
     when: not skip_git_checkout
+    notify:
+      - rebuild front end
+      - restart gunicorn
   - name: Ensure phenome10k group owns the folder
     file:
       path: '{{ p10k_src_dir }}'

@@ -84,4 +84,8 @@ The site's infrastructure is an HA architecture is composed of:
  - 2+ application servers
  - 1 data server (db and nfs), to be replaced in future with cloud-based storage
 
-The system can be deployed to production via ansible.
+The system can be deployed to production via ansible:
+
+```bash
+ansible-playbook -iansible/inventories/production.ini ansible/playbook.yml -e@ansible/group_vars/production/main.yml -k -K  -ua-paulk6
+```
