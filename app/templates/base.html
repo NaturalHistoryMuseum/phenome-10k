@@ -40,7 +40,9 @@
       <li><a href="{{ url_for('manage_publications') }}">Manage Pubs</a></li>
       <li><a href="{{ url_for('edit_publication') }}">Add New</a></li>
     {% endif %}
-    <li><a href="{{ url_for('contribute') }}">Contribute</a></li>
+    {% if menu == 'library' or menu == 'publications' %}
+      <li><a href="{{ url_for('contribute') }}">Contribute</a></li>
+    {% endif %}
   </ul>
   <div class="Base__user">
     Signed in as <a><b>{{ current_user.name }}</b></a>
