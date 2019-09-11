@@ -1,8 +1,8 @@
 mysql_root_password: "{{ lookup('hashi_vault', 'secret=phenome10k/mysql:root_password url=https://man-vault-2.nhm.ac.uk:8200')}}"
 p10k_db_password: "{{ lookup('hashi_vault', 'secret=phenome10k/mysql:p10k_password url=https://man-vault-2.nhm.ac.uk:8200')}}"
 p10k_db_name: phenome10k
-p10k_db_host: ct-phen-1
-nfs_server: ct-phen-1
+p10k_db_host: fls-p10k-1
+nfs_server: fls-p10k-1
 app_servers:
   - app-p10k-1.nhm.ac.uk
   - app-p10k-2.nhm.ac.uk
