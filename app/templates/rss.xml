@@ -7,7 +7,7 @@
       <title></title>
       <link>{{ url_for('library', _external=True) }}</link>
     </image>
-    <description>New scans uploaded to the Phenome 10k library</description>
+    <description>New scans uploaded to Phenome 10k</description>
     {% for scan in scans %}
     <item>
       <title>{{ scan.scientific_name }}</title>

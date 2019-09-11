@@ -7,11 +7,11 @@ export default () => {
   return new Router({
     mode: 'history',
     routes: [
-      { path: '/library', component: () => import('./components/Library'), name: 'library' },
-      { path: '/library/:page(\\d+)', component: () => import('./components/Library'), name: 'library-paged' },
-      { path: '/library/create', component: () => import('./components/Upload') },
-      { path: '/library/manage-uploads', component: () => import('./components/ManageUploads'), name: 'manage-uploads' },
-      { path: '/library/manage-uploads/page/:page(\\d+)', component: () => import('./components/ManageUploads'), name: 'manage-uploads-page' },
+      { path: '/scans', alias: '/library', component: () => import('./components/Library'), name: 'library' },
+      { path: '/scans/:page(\\d+)', alias: '/library/:page(\\d+)', component: () => import('./components/Library'), name: 'library-paged' },
+      { path: '/scans/create', alias: '/library/create', component: () => import('./components/Upload') },
+      { path: '/scans/manage-uploads', alias: '/library/manage-uploads', component: () => import('./components/ManageUploads'), name: 'manage-uploads' },
+      { path: '/scans/manage-uploads/page/:page(\\d+)', alias: '/library/manage-uploads/page/:page(\\d+)', component: () => import('./components/ManageUploads'), name: 'manage-uploads-page' },
       { path: '/publications', component: () => import('./components/Publications'), name: 'publications' },
       { path: '/publications/create', component: () => import('./components/EditPublication'), name: 'create-publication' },
       { path: '/publications/page/:page(\\d+)', component: () => import('./components/Publications'), name: 'publications-paged' },

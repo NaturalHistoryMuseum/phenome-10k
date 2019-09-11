@@ -240,8 +240,10 @@ def register():
       return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form, error=error, menu='home')
 
-@app.route('/library/', methods=['GET'])
+@app.route('/library/')
 @app.route('/library/<int:page>/')
+@app.route('/scans/')
+@app.route('/scans/<int:page>/')
 def library(page = 1):
   per_page = 100
   sort = request.args.get("sort")
@@ -317,7 +319,7 @@ def library(page = 1):
   data['tags']['taxonomy'] = Taxonomy.tree()
   data['q'] = search
 
-  out = render_vue(data, title="Library", menu='library')
+  out = render_vue(data, title="Scans", menu='library')
 
   return out
 
@@ -331,6 +333,8 @@ def feed():
 
 @app.route('/library/manage-uploads/', methods=['GET', 'POST'])
 @app.route('/library/manage-uploads/page/<int:page>/', methods=['GET', 'POST'])
+@app.route('/scans/manage-uploads/', methods=['GET', 'POST'])
+@app.route('/scans/manage-uploads/page/<int:page>/', methods=['GET', 'POST'])
 @requiresContributor
 def manage_uploads(page=1):
   """View a list of uploads with publish, edit, delete actions"""
@@ -421,6 +425,7 @@ def scan_stills(scan):
 
 @app.route('/<scan:scan>/edit', methods=['GET', 'POST'])
 @app.route('/library/create/', methods=['GET', 'POST'])
+@app.route('/scans/create/', methods=['GET', 'POST'])
 @requiresContributor
 def edit_scan(scan = None):
   form = ScanUploadForm(obj=scan)
