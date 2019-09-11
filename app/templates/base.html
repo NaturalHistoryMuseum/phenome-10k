@@ -30,18 +30,17 @@
   </nav>
   {% if not current_user.is_anonymous %}
   <ul class="Base__subnav Nav__list">
-    {% if menu == 'library' %}
+    {% if menu == 'library' and current_user.isContributor()  %}
       <li><a href="{{ url_for('library', mine='') }}">View My Uploads</a></li>
       <li><a href="{{ url_for('manage_uploads') }}">Manage Uploads</a></li>
       <li><a href="{{ url_for('edit_scan') }}">Add New</a></li>
-      <li><a href="{{ url_for('contribute') }}">Contribute</a></li>
-    {% elif menu == 'publications' %}
+    {% elif menu == 'publications' and current_user.isContributor()  %}
       <li><a href="{{ url_for('publications') }}">View all pubs</a></li>
       <li><a href="{{ url_for('publications', mine='') }}">View my pubs</a></li>
       <li><a href="{{ url_for('manage_publications') }}">Manage Pubs</a></li>
       <li><a href="{{ url_for('edit_publication') }}">Add New</a></li>
-      <li><a href="{{ url_for('contribute') }}">Contribute</a></li>
     {% endif %}
+    <li><a href="{{ url_for('contribute') }}">Contribute</a></li>
   </ul>
   <div class="Base__user">
     Signed in as <a><b>{{ current_user.name }}</b></a>

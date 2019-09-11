@@ -318,6 +318,7 @@ def library(page = 1):
   data['tags'] = Tag.tree()
   data['tags']['taxonomy'] = Taxonomy.tree()
   data['q'] = search
+  data['showMine'] = current_user.is_authenticated and current_user.isContributor()
 
   out = render_vue(data, title="Scans", menu='library')
 
@@ -555,6 +556,7 @@ def edit_scan(scan = None):
 
 @app.route('/publications/create/', methods=['GET', 'POST'])
 @app.route('/publication/<publication:publication>/edit', methods=['GET', 'POST'])
+@requiresContributor
 def edit_publication(publication=None):
     form = PublicationUploadForm(obj=publication)
 

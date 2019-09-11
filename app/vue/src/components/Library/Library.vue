@@ -10,7 +10,7 @@
           <li :class="getSortLinkClass('ontogenic_age')"><router-link :to="getSortLink('ontogenic_age')">Ontogenetic Age</router-link></li>
         </ul>
       </div-->
-      <div class="Library__sort">
+      <div class="Library__sort" v-if="data.showMine">
         Viewing:
         <ul class="Library__sort-list">
           <li :class="getMineLinkClass(false)"><router-link :to="getMineLink(false)">All</router-link></li>
