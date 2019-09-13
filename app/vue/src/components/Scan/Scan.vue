@@ -201,7 +201,9 @@
 
 .Scan__file-pdf-text {
   background-image: linear-gradient(to bottom, #eee 50%, transparent);
-  color: transparent;
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  color: #666;
   background-clip: text;
   padding: 6px;
   display: block;
