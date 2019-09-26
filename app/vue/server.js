@@ -32,7 +32,7 @@ readJson().then(async defaultData => {
 
     // Don't forget to escape < characters to stop attackers
     // closing the script tag early, allowing injection attacks.
-    const defaultJSON = JSON.stringify(defaultData).replace('<', '\\u003C');
+    const defaultJSON = JSON.stringify(defaultData).replace(/</g, '\\u003C');
 
     process.stdout.write(
       `${context.renderResourceHints()}
