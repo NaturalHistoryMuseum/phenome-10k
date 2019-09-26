@@ -126,6 +126,11 @@ def generate_slug(name):
 
   return slug_n
 
+@app.after_request
+def add_headers(response):
+    response.headers['X-Frame-Options'] = 'DENY'
+    return response
+
 def requiresAdmin(f):
     @wraps(f)
     @login_required

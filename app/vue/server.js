@@ -27,13 +27,18 @@ const renderer = SSR.createBundleRenderer(serverBundle, { clientManifest });
 readJson().then(async defaultData => {
     const context = { url, defaultData };
     const html = await renderer.renderToString(context);
-    // NB the context object is populated with some utility
+    // NB the context object gets populated with some utility
     // functions by the vue-loader
+
+    // Don't forget to escape < characters to stop attackers
+    // closing the script tag early, allowing injection attacks.
+    const defaultJSON = JSON.stringify(defaultData).replace('<', '\\u003C');
+
     process.stdout.write(
       `${context.renderResourceHints()}
       ${context.renderStyles()}
       ${html}
-      <script>window.p10k_defaultData = ${JSON.stringify(defaultData)};</script>
+      <script>window.p10k_defaultData = ${defaultJSON};</script>
       ${context.renderScripts()}`
     );
   }
