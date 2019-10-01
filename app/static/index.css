@@ -133,6 +133,8 @@ h1 {
   line-height: initial;
   row-gap: 2px;
   align-content: start;
+  /* Stop content clashing with logo for logged-out users: */
+  padding-top: 50px;
 }
 
 .Content-Sidebar > *,
