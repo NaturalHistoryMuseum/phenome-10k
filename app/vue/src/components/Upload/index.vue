@@ -171,7 +171,7 @@ const xhrUpload = (form, progress) => {
 
           res(xhr)
         };
-        xhr.onerror = rej
+        xhr.onerror = (progressEvent) => rej('The upload failed due to a network issue.')
     });
 
     xhr.upload.onprogress = function (event) {

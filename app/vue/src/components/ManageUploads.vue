@@ -234,7 +234,7 @@ export default {
       const date = new Date(scan.created);
       const pad = n => String(n).padStart(2, '0')
 
-      return `${pad(date.getDay())}.${pad(date.getMonth())}.${date.getFullYear()}`;
+      return `${pad(date.getDay())}.${pad(date.getMonth()+1)}.${date.getFullYear()}`;
     },
     /**
      * Generate an array of objects containing scan data item
