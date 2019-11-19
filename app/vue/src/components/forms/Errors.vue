@@ -5,7 +5,7 @@
     </li>
   </ul>
   <div :class="classes" v-else @click.self="dismiss" v-show="!dismissed">
-    <button class="Errors__close" @click="dismiss">Close</button>
+    <button class="Errors__close" @click="dismiss" type="button">Close</button>
     <iframe class="Errors__iframe" v-for="error in errors" :key="error" :srcdoc="error.message || error" />
   </div>
 </template>
@@ -21,6 +21,7 @@
 }
 
 .Errors--modal {
+  background: white;
   position: fixed;
   top: 0;
   width: 100%;
