@@ -37,7 +37,7 @@ def test_library(client):
     'Accept-Type': 'application/json'
   })
 
-  assert response.data == b'{"q":null,"scans":[],"tags":{"taxonomy":[]}}\n'
+  assert response.data == b'{"page":1,"q":null,"scans":[],"showMine":false,"tags":{"taxonomy":[]},"total_pages":0}\n'
 
 def test_manage_uploads(client):
   user = models.User(
