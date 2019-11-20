@@ -90,12 +90,6 @@ def create_ctm(zip):
 
       return ctmFile
 
-def convert_file(file):
-  zip = zip_upload(file)
-  ctmFile = create_ctm(zip)
-
-  return (zip, ctmFile)
-
 class SlugConverter(BaseConverter):
   regex = r'[^/]+'
   model = None
@@ -452,6 +446,20 @@ def scan_stills(scan):
 
   return send_file(zip_buffer, as_attachment=True, attachment_filename=filename)
 
+@app.route('/<scan:scan>/process', methods=['GET', 'POST'])
+@requiresContributor
+def process_scan(scan):
+  if not scan.source:
+    raise BadRequest('Nothing to process; no file has been uploaded')
+  if scan.ctm:
+    return redirect(url_for('scan', scan=scan))
+  ctmFile = create_ctm(scan.source)
+  scan.ctm = ctmFile
+  db.session.add(ctmFile)
+  db.session.commit()
+
+  return redirect(url_for('scan', scan=scan))
+
 @app.route('/<scan:scan>/edit', methods=['GET', 'POST'])
 @app.route('/library/create/', methods=['GET', 'POST'])
 @app.route('/scans/create/', methods=['GET', 'POST'])
@@ -488,11 +496,9 @@ def edit_scan(scan = None):
     # TODO: Restrict list of uploadable file types
     # Save upload to temporary file
     if form.file.data:
-        (zipFile, ctmFile) = convert_file(form.file.data)
+        zipFile = zip_upload(form.file.data)
         scan.source = zipFile
-        scan.ctm = ctmFile
         db.session.add(zipFile)
-        db.session.add(ctmFile)
 
     if scan.url_slug == None:
       scan.url_slug = generate_slug(form.scientific_name.data)
