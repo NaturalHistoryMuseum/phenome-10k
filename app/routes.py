@@ -38,40 +38,63 @@ def ensureEditable(item):
   if not current_user.canEdit(item):
       raise Forbidden('You cannot edit this item as you are not the original author.')
 
-def convert_file(file):
+def zip_upload(file):
+  """ Save the uploaded file as a zip file """
   if not file:
-    return (None, None)
+    return None
+
+  # Zip source file & save to large file storage
+  zip = File.fromName(file.filename + '.zip', File.MODELS_DIR)
+  zip.mime_type = 'application/zip'
+
   filename, fileExt = os.path.splitext(file.filename)
   with tempfile.NamedTemporaryFile(suffix=fileExt) as uploadFile:
     file.save(uploadFile.name)
-
-    # Convert to bin if ascii
-    file.seek(0)
-    if file.read(5) == b'solid':
-      # TODO: Don't override original file
-      Mesh.from_file(uploadFile.name).save(uploadFile.name)
-
-    # Convert to ctm in uploads storage
-    ctmFile = File.fromName(filename + '.ctm')
-    ctmFile.mime_type = 'application/octet-stream'
-
-    ctmConvert = subprocess.run(["ctmconv", uploadFile.name, ctmFile.getAbsolutePath()], stderr=subprocess.PIPE)
-    if ctmConvert.returncode > 0:
-      # TODO: Deal with this error properly
-      app.logger.warn(ctmConvert.stderr)
-
-    ctmFile.size = os.stat(ctmFile.getAbsolutePath()).st_size
-
-    # Zip source file & save to large file storage
-    zip = File.fromName(file.filename + '.zip', File.MODELS_DIR)
-    zip.mime_type = 'application/zip'
-
     with ZipFile(zip.getAbsolutePath(), 'w', ZIP_DEFLATED) as zipFile:
       zipFile.write(uploadFile.name, file.filename)
 
-    zip.size = os.stat(zip.getAbsolutePath()).st_size
+  zip.size = os.stat(zip.getAbsolutePath()).st_size
 
-    return (zip, ctmFile)
+  return zip
+
+def create_ctm(zip):
+  """ Convert an uploaded model file to a ctm file """
+  if not zip:
+    return None
+
+  with ZipFile(zip.getAbsolutePath(), 'r', ZIP_DEFLATED) as zipFile:
+    uploadFileName = zipFile.infolist()[0].filename
+
+    uploadFileData = zipFile.read(uploadFileName)
+
+    filename, fileExt = os.path.splitext(uploadFileName)
+
+    with tempfile.NamedTemporaryFile(suffix=fileExt) as uploadFile:
+      uploadFile.write(uploadFileData)
+
+      # Convert to bin if ascii
+      uploadFile.seek(0)
+      if uploadFile.read(5) == b'solid':
+        Mesh.from_file(uploadFile.name).save(uploadFile.name)
+
+      # Convert to ctm in uploads storage
+      ctmFile = File.fromName(filename + '.ctm')
+      ctmFile.mime_type = 'application/octet-stream'
+
+      ctmConvert = subprocess.run(["ctmconv", uploadFile.name, ctmFile.getAbsolutePath()], stderr=subprocess.PIPE)
+      if ctmConvert.returncode > 0:
+        # TODO: Deal with this error properly
+        app.logger.warn(ctmConvert.stderr)
+
+      ctmFile.size = os.stat(ctmFile.getAbsolutePath()).st_size
+
+      return ctmFile
+
+def convert_file(file):
+  zip = zip_upload(file)
+  ctmFile = create_ctm(zip)
+
+  return (zip, ctmFile)
 
 class SlugConverter(BaseConverter):
   regex = r'[^/]+'
