@@ -43,6 +43,13 @@ def zip_upload(file):
   if not file:
     return None
 
+  # Allow uploading zip file.
+  if file.filename.endswith('.zip'):
+    zipFile = ZipFile(file.stream, 'r', ZIP_DEFLATED)
+    if(len(zipFile.infolist()) != 1):
+      raise BadRequest('ZIP uploads must contain exactly one file')
+    return File.fromUpload(file, File.MODELS_DIR)
+
   # Zip source file & save to large file storage
   zip = File.fromName(file.filename + '.zip', File.MODELS_DIR)
   zip.mime_type = 'application/zip'
