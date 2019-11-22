@@ -38,40 +38,64 @@ def ensureEditable(item):
   if not current_user.canEdit(item):
       raise Forbidden('You cannot edit this item as you are not the original author.')
 
-def convert_file(file):
+def zip_upload(file):
+  """ Save the uploaded file as a zip file """
   if not file:
-    return (None, None)
+    return None
+
+  # Allow uploading zip file.
+  if file.filename.endswith('.zip'):
+    zipFile = ZipFile(file.stream, 'r', ZIP_DEFLATED)
+    if(len(zipFile.infolist()) != 1):
+      raise BadRequest('ZIP uploads must contain exactly one file')
+    return File.fromUpload(file, File.MODELS_DIR)
+
+  # Zip source file & save to large file storage
+  zip = File.fromName(file.filename + '.zip', File.MODELS_DIR)
+  zip.mime_type = 'application/zip'
+
   filename, fileExt = os.path.splitext(file.filename)
   with tempfile.NamedTemporaryFile(suffix=fileExt) as uploadFile:
     file.save(uploadFile.name)
-
-    # Convert to bin if ascii
-    file.seek(0)
-    if file.read(5) == b'solid':
-      # TODO: Don't override original file
-      Mesh.from_file(uploadFile.name).save(uploadFile.name)
-
-    # Convert to ctm in uploads storage
-    ctmFile = File.fromName(filename + '.ctm')
-    ctmFile.mime_type = 'application/octet-stream'
-
-    ctmConvert = subprocess.run(["ctmconv", uploadFile.name, ctmFile.getAbsolutePath()], stderr=subprocess.PIPE)
-    if ctmConvert.returncode > 0:
-      # TODO: Deal with this error properly
-      app.logger.warn(ctmConvert.stderr)
-
-    ctmFile.size = os.stat(ctmFile.getAbsolutePath()).st_size
-
-    # Zip source file & save to large file storage
-    zip = File.fromName(file.filename + '.zip', File.MODELS_DIR)
-    zip.mime_type = 'application/zip'
-
     with ZipFile(zip.getAbsolutePath(), 'w', ZIP_DEFLATED) as zipFile:
       zipFile.write(uploadFile.name, file.filename)
 
-    zip.size = os.stat(zip.getAbsolutePath()).st_size
+  zip.size = os.stat(zip.getAbsolutePath()).st_size
 
-    return (zip, ctmFile)
+  return zip
+
+def create_ctm(zip):
+  """ Convert an uploaded model file to a ctm file """
+  if not zip:
+    return None
+
+  with ZipFile(zip.getAbsolutePath(), 'r', ZIP_DEFLATED) as zipFile:
+    uploadFileName = zipFile.infolist()[0].filename
+
+    uploadFileData = zipFile.read(uploadFileName)
+
+    filename, fileExt = os.path.splitext(uploadFileName)
+
+    with tempfile.NamedTemporaryFile(suffix=fileExt) as uploadFile:
+      uploadFile.write(uploadFileData)
+
+      # Convert to bin if ascii
+      uploadFile.seek(0)
+      if uploadFile.read(5) == b'solid':
+        Mesh.from_file(uploadFile.name).save(uploadFile.name)
+
+      # Convert to ctm in uploads storage
+      ctmFile = File.fromName(filename + '.ctm')
+      ctmFile.mime_type = 'application/octet-stream'
+
+      ctmConvert = subprocess.run(["ctmconv", uploadFile.name, ctmFile.getAbsolutePath()], stderr=subprocess.PIPE)
+      if ctmConvert.returncode > 0:
+        # TODO: Deal with this error properly
+        app.logger.warn(ctmConvert.stderr)
+
+      ctmFile.size = os.stat(ctmFile.getAbsolutePath()).st_size
+
+      return ctmFile
 
 class SlugConverter(BaseConverter):
   regex = r'[^/]+'
@@ -429,6 +453,20 @@ def scan_stills(scan):
 
   return send_file(zip_buffer, as_attachment=True, attachment_filename=filename)
 
+@app.route('/<scan:scan>/process', methods=['GET', 'POST'])
+@requiresContributor
+def process_scan(scan):
+  if not scan.source:
+    raise BadRequest('Nothing to process; no file has been uploaded')
+  if scan.ctm:
+    return redirect(url_for('scan', scan=scan))
+  ctmFile = create_ctm(scan.source)
+  scan.ctm = ctmFile
+  db.session.add(ctmFile)
+  db.session.commit()
+
+  return redirect(url_for('scan', scan=scan))
+
 @app.route('/<scan:scan>/edit', methods=['GET', 'POST'])
 @app.route('/library/create/', methods=['GET', 'POST'])
 @app.route('/scans/create/', methods=['GET', 'POST'])
@@ -465,11 +503,9 @@ def edit_scan(scan = None):
     # TODO: Restrict list of uploadable file types
     # Save upload to temporary file
     if form.file.data:
-        (zipFile, ctmFile) = convert_file(form.file.data)
+        zipFile = zip_upload(form.file.data)
         scan.source = zipFile
-        scan.ctm = ctmFile
         db.session.add(zipFile)
-        db.session.add(ctmFile)
 
     if scan.url_slug == None:
       scan.url_slug = generate_slug(form.scientific_name.data)

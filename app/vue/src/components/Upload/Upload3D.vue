@@ -1,15 +1,15 @@
 <template>
     <div class="Upload3D" @dragover="dragOver" @dragleave="dragEnd" @drop="drop">
-        <label :class="labelClass" v-show="progress == null">
-            <div class="Upload3D__drop-text">Drop scan here</div>
+        <label :class="labelClass" v-show="progress == null && status == null">
+            <div class="Upload3D__drop-text">Drop scan or zip here</div>
             <div class="Upload3D__or">or</div>
             <div class="Upload3D__select">Select File</div>
             <input type="file" name="file" @change="fileChange" class="Upload3D__file" />
         </label>
-        <div v-if="progress != null" class="Upload3D__progress">
-            <progress class="Upload3D__progress-bar" :value="progress" max="100"></progress>
+        <div v-if="progress != null || status != null" class="Upload3D__progress">
+            <progress class="Upload3D__progress-bar" :value="progress || 100" max="100"></progress>
             <div class="Upload3D__progress-text">
-                {{ progress == 100 ? 'Processing...' : progress + '%' }}
+                {{ status || (progress + '%') }}
             </div>
         </div>
         <Errors :errors="errors" />
@@ -24,7 +24,7 @@ export default  {
     components: {
       Errors
     },
-    props:['progress', 'errors'],
+    props:['progress', 'status', 'errors'],
     data(){
         return {
             dragging: false

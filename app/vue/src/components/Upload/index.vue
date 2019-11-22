@@ -7,7 +7,8 @@
       <Errors v-if="errors" :errors="errors" />
       <h2 class="Upload__section-title Upload__section-head">Browse and preview STL file</h2>
       <CtmViewer v-if="scan && scan.ctm" ref="canvas" :src="scan.ctm" height=400px width=500px />
-      <Upload3D v-else @change="upload" :progress="progress" :errors="form.file.errors"></Upload3D>
+      <Upload3D v-else @change="upload" :progress="progress" :status="status || (scan && scan.source && 'Uploaded' )" :errors="form.file.errors"></Upload3D>
+      <div v-if="scan && scan.source && !scan.ctm && !processing"><a :href="'/' + scan.id + '/process'">Process</a></div>
     </form>
     <div class="Upload__stills">
       <span class="Upload__section-title Upload__section-head">Take Stills</span> - Move image into appropriate position and click the button below (Minimum of 1 snapshot image, maximum of 6 images).
@@ -204,6 +205,8 @@ export default {
 
     return {
       progress: null,     // Upload progress of the model file
+      status: null,       // Upload status of the model file
+      processing: false,  // Whether or not the upload is being processed
       gbifData    ,       // List of GBIF search results
       gbifSelected,       // Selected GBIF result
       stillName: '',      // Contents of the Still Name text input
@@ -221,6 +224,10 @@ export default {
   mounted(){
     if (this.scan) {
       this.searchGbif(this.scan.scientific_name)
+
+      if(this.scan.source && !this.scan.ctm) {
+        this.processUpload()
+      }
     }
   },
   watch:{
@@ -336,8 +343,15 @@ export default {
     },
     async upload(form){
       try {
-        const { responseText, responseURL } = await xhrUpload(form, p => this.progress = p);
-        const { scan } = JSON.parse(responseText);
+        const { responseText, responseURL } = await xhrUpload(form, p => {
+          this.progress = p;
+          if(p === 100) {
+            this.status = 'Compressing...';
+          }
+        });
+        const { scan: { id } } = JSON.parse(responseText);
+        const res = await this.processUpload(id);
+        const scan = await res.json();
         if(scan) {
           this.scan = scan;
         } else {
@@ -347,6 +361,29 @@ export default {
         this.progress = null;
         this.form.file.errors = [e];
       }
+    },
+    async processUpload(id = this.scan.id){
+      this.processing = true;
+      this.progress = 100;
+      this.status = 'Creating CTM file...';
+
+      const result = await fetch('/' + id + '/process', {
+        headers: {
+          Accept: 'application/json'
+        }
+      });
+
+      if(result.status >= 400) {
+        this.progress = null;
+        this.status = null;
+        this.form.file.errors = [await result.text()];
+      } else {
+        this.scan = await result.json();
+      }
+
+      this.processing = false;
+
+      return result;
     },
     async pubSearch(event) {
         const query = encodeURIComponent(event.target.value);

@@ -181,7 +181,7 @@ class File(db.Model):
         return file
 
     @staticmethod
-    def fromBinary(filename, stream, storage_area = UPLOADS_DIR):
+    def fromBinary(filename, stream, storage_area = UPLOADS_DIR, owner_id=None):
         """Create a File model from a string filename and file-like object"""
         mimeType = magic.from_buffer(stream.read(1024), mime=True)
         stream.seek(0, os.SEEK_END)
@@ -192,11 +192,12 @@ class File(db.Model):
             filename,
             size = size,
             mimeType = mimeType,
-            storage_area = storage_area
+            storage_area = storage_area,
+            owner_id = owner_id
         )
 
     @staticmethod
-    def fromName(filename, storage_area = UPLOADS_DIR, mimeType=None, size=None):
+    def fromName(filename, storage_area = UPLOADS_DIR, mimeType=None, size=None, owner_id=None):
         """Create a File model from a string filename with optional size and mimetype"""
         import time, os
 
@@ -222,7 +223,7 @@ class File(db.Model):
         return File(
             filename = filename,
             location = location,
-            owner_id = current_user.id,
+            owner_id = owner_id or current_user.id,
             mime_type = mimeType,
             size = size,
             storage_area = storage_area

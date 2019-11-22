@@ -41,6 +41,10 @@
 .Errors li {
   color: red;
 }
+
+.Errors__iframe {
+  background: white;
+}
 </style>
 
 <script>
