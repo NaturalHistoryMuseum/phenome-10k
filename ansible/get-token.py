@@ -39,3 +39,6 @@ except HTTPError as e:
   resp = e.read().decode()
   errors = json.loads(resp)['errors']
   sys.exit('\n'.join(errors))
+except URLError as e:
+  print(f'Could not connect to vault server. Are you on the museum network?', file=sys.stderr)
+  sys.exit(e)

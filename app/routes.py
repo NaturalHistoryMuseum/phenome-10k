@@ -813,6 +813,9 @@ def users():
 
 
 def render_vue(data, title, menu = None):
+  # Ensure browser cache doesn't confuse html and json docs at the same url
+  # response.headers['Vary'] = 'Content-Type'
+
   if request.accept_mimetypes.accept_html:
     return render_template('base.html', content=vue(data), title=title, menu=menu)
   return jsonify(data)
