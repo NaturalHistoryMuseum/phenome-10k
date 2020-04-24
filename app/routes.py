@@ -40,60 +40,83 @@ def ensureEditable(item):
 
 def zip_upload(file):
   """ Save the uploaded file as a zip file """
+  app.logger.warn('generating zip from upload')
   if not file:
     return None
 
   # Allow uploading zip file.
   if file.filename.endswith('.zip'):
+    app.logger.warn('zip file, validate contents')
     zipFile = ZipFile(file.stream, 'r', ZIP_DEFLATED)
     if(len(zipFile.infolist()) != 1):
+      app.logger.error('wrong number of files in zip')
       raise BadRequest('ZIP uploads must contain exactly one file')
+    app.logger.warn('valid zip')
     return File.fromUpload(file, File.MODELS_DIR)
 
   # Zip source file & save to large file storage
+  app.logger.warn('create empty zip')
   zip = File.fromName(file.filename + '.zip', File.MODELS_DIR)
   zip.mime_type = 'application/zip'
 
   filename, fileExt = os.path.splitext(file.filename)
   with tempfile.NamedTemporaryFile(suffix=fileExt) as uploadFile:
+    app.logger.warn('save upload to temp')
     file.save(uploadFile.name)
     with ZipFile(zip.getAbsolutePath(), 'w', ZIP_DEFLATED) as zipFile:
+      app.logger.warn('write temp file to zip')
       zipFile.write(uploadFile.name, file.filename)
 
+  app.logger.warn('set zip size')
   zip.size = os.stat(zip.getAbsolutePath()).st_size
+
+  app.logger.warn('generated zip')
 
   return zip
 
 def create_ctm(zip):
   """ Convert an uploaded model file to a ctm file """
+  app.logger.warn('create ctm from zip')
   if not zip:
     return None
 
+  app.logger.warn('extract zip')
+
   with ZipFile(zip.getAbsolutePath(), 'r', ZIP_DEFLATED) as zipFile:
     uploadFileName = zipFile.infolist()[0].filename
+
+    app.logger.warn('read zip file')
 
     uploadFileData = zipFile.read(uploadFileName)
 
     filename, fileExt = os.path.splitext(uploadFileName)
 
     with tempfile.NamedTemporaryFile(suffix=fileExt) as uploadFile:
+      app.logger.warn('created temp file, now write')
       uploadFile.write(uploadFileData)
 
       # Convert to bin if ascii
       uploadFile.seek(0)
       if uploadFile.read(5) == b'solid':
+        app.logger.warn('Solid Ascii, convert to binary')
         Mesh.from_file(uploadFile.name).save(uploadFile.name)
 
       # Convert to ctm in uploads storage
       ctmFile = File.fromName(filename + '.ctm')
       ctmFile.mime_type = 'application/octet-stream'
 
+      app.logger.warn('run ctm conv')
+
       ctmConvert = subprocess.run(["ctmconv", uploadFile.name, ctmFile.getAbsolutePath()], stderr=subprocess.PIPE)
       if ctmConvert.returncode > 0:
         # TODO: Deal with this error properly
-        app.logger.warn(ctmConvert.stderr)
+        app.logger.error(ctmConvert.stderr)
+
+      app.logger.warn('ctm conv done, set size')
 
       ctmFile.size = os.stat(ctmFile.getAbsolutePath()).st_size
+
+      app.logger.warn('ctmCreated')
 
       return ctmFile
 
@@ -456,6 +479,7 @@ def scan_stills(scan):
 @app.route('/<scan:scan>/process', methods=['GET', 'POST'])
 @requiresContributor
 def process_scan(scan):
+  app.logger.warn('process scan')
   if not scan.source:
     raise BadRequest('Nothing to process; no file has been uploaded')
   if scan.ctm:
@@ -503,9 +527,12 @@ def edit_scan(scan = None):
     # TODO: Restrict list of uploadable file types
     # Save upload to temporary file
     if form.file.data:
+        app.logger.warn('call zip_upload')
         zipFile = zip_upload(form.file.data)
+        app.logger.warn('zip_upload done')
         scan.source = zipFile
         db.session.add(zipFile)
+        app.logger.warn('zip added to session')
 
     if scan.url_slug == None:
       scan.url_slug = generate_slug(form.scientific_name.data)
@@ -581,7 +608,10 @@ def edit_scan(scan = None):
     else:
       scan.published = False
 
+    app.logger.warn('check form valid')
+
     if form_valid:
+      app.logger.warn('form valid, continue')
       db.session.commit()
 
       if not request.args.get('noredirect'):
