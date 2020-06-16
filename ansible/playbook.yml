@@ -10,6 +10,7 @@
       monit_services:
         - systems
         - 50gb-root-partition
+        - data-partition
         - mysql
 
   - hosts: app

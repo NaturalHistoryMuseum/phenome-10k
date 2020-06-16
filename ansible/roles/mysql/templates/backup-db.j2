@@ -10,13 +10,14 @@ WEEK=$((`date +%-V` % 4))
 MONTH=`date +%B`
 YEAR=`date +%Y`
 DATABASE={{ p10k_db_name }}
+BACKUPS_DIR={{ nfs_path }}/backups
 
-mkdir -p {{ nfs_path }}/backups/daily
-mkdir -p {{ nfs_path }}/backups/weekly
-mkdir -p {{ nfs_path }}/backups/monthly
-mkdir -p {{ nfs_path }}/backups/year
+mkdir -p $BACKUPS_DIR/daily
+mkdir -p $BACKUPS_DIR/weekly
+mkdir -p $BACKUPS_DIR/monthly
+mkdir -p $BACKUPS_DIR/year
 
-mysqldump --defaults-extra-file=/root/.my.cnf $DATABASE | gzip > {{ nfs_path }}/backups/daily/$DAY.sql.gz
-cp {{ nfs_path }}/backups/daily/$DAY.sql.gz {{ nfs_path }}/backups/weekly/$WEEK.sql.gz
-cp {{ nfs_path }}/backups/daily/$DAY.sql.gz {{ nfs_path }}/backups/monthly/$MONTH.sql.gz
-cp {{ nfs_path }}/backups/daily/$DAY.sql.gz {{ nfs_path }}/backups/year/$YEAR.sql.gz
+mysqldump --defaults-extra-file=/root/.my.cnf $DATABASE | gzip > $BACKUPS_DIR/daily/$DAY.sql.gz
+cp $BACKUPS_DIR/daily/$DAY.sql.gz $BACKUPS_DIR/weekly/$WEEK.sql.gz
+cp $BACKUPS_DIR/daily/$DAY.sql.gz $BACKUPS_DIR/monthly/$MONTH.sql.gz
+cp $BACKUPS_DIR/daily/$DAY.sql.gz $BACKUPS_DIR/year/$YEAR.sql.gz

@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "csvtojson": "^2.0.10",
     "proxymise": "^1.0.2",
     "webdriver": "^5.18.7"
   }

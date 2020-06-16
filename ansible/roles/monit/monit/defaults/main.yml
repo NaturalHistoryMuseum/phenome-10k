@@ -91,3 +91,12 @@ monit_services_conf:
         action: 'alert'
       - condition: "failed host localhost port 3306 protocol mysql username \"{{ mysql_monit.user_name }}\" password \"{{ mysql_monit.password }}\" for 3 cycles"
         action: 'alert'
+
+# Storage server with 50GB data partition.
+  data-partition:
+    check_type: 'filesystem'
+    check_id: '/data'
+    id_type: 'path'
+    tests:
+      - condition: 'space > 40 GB for 10 cycles'
+        action: 'alert'
