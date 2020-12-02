@@ -5,7 +5,7 @@ const VueSSRClientPlugin = require('vue-server-renderer/client-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = merge(baseConfig, {
-  entry: './app/vue/src/entry-client.js',
+  entry: './node/src/entry-client.js',
   output: {
     path: path.resolve('./app/static/dist'),
     publicPath: '/static/dist/'

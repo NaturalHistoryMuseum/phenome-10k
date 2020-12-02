@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Renders data 1`] = `
+"[resource hints]
+		[styles]
+		[rendered context
+	url: /etc
+	defaultData: [object Object]
+]
+		<script>window.p10k_defaultData = {\\"a\\":1};</script>
+		[scripts]"
+`;

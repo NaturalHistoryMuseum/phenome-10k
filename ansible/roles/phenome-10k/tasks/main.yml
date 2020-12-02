@@ -9,6 +9,7 @@
     notify:
       - rebuild front end
       - restart gunicorn
+      - restart node
   - name: Ensure phenome10k group owns the folder
     file:
       path: '{{ p10k_src_dir }}'
@@ -90,6 +91,7 @@
     register: upgrade_db
     changed_when: upgrade_db.stdout.find('Running upgrade') >= 0
     run_once: true
+
   - name: Create the gunicorn service
     template:
       src: gunicorn.service.j2
@@ -103,6 +105,21 @@
       state: started
       enabled: y
     become: y
+
+  - name: Create the node service
+    template:
+      src: node.service.j2
+      dest: /etc/systemd/system/node.service
+    become: y
+    notify:
+      - restart node
+  - name: Enable node service
+    systemd:
+      name: node.service
+      state: started
+      enabled: y
+    become: y
+
   - name: Set admin password
     command: '{{ venv_bin }}/flask set-admin-pw {{ p10k_admin_password }}'
     environment:

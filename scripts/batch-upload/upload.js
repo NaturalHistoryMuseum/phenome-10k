@@ -52,9 +52,11 @@ const delIx = () => fs.unlinkSync('./ix.json');
 
 const ucfirst = s=>s.replace(/./, a=>a.toUpperCase());
 
+const host = 'http://app-p10k-1:8000'
+
 Client.run(config, async (window) => {
   await window.maximizeWindow();
-  await window.navigateTo('https://phenome10k.org/login');
+  await window.navigateTo(host + '/login');
 
   const adminUser = 'admin';
   const adminPassword = process.env.ADMIN /* get this from vault */;
@@ -67,22 +69,21 @@ Client.run(config, async (window) => {
 
   console.log('loop for');
   for(let ix = readIx(); ix < records.length; saveIx(++ix)) {
-    await window.navigateTo('https://phenome10k.org/scans/create/');
+    await window.navigateTo(host + '/scans/create/');
     const record = records[ix];
     const fileInput = await window.find(css('input[name=file]'));
-    const filename = './files/' + record['source filename'] + '.stl.zip';
+    const filename = './files/' + record['source filename'].replace(/(\.stl)?$/, '.stl.zip');
     console.log(filename);
     const zip = require.resolve(filename)
 
     await fileInput.sendKeys(zip);
-
-    await window.find(css('.Upload__still-capture-name input')).sendKeys('Preview');
 
     await waitFor(() => window.find(css('.CtmViewer')), 10 * 60 * 1000);
 
     // Wait for CTM to actually render
     await sleep(10000);
 
+    await window.find(css('.Upload__still-capture-name input')).sendKeys('Preview');
     await window.find(css('.Upload__still-capture-name button')).click();
     await window.find(css('.Upload__still-image'));
 

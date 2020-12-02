@@ -6,9 +6,9 @@ const VueSSRServerPlugin = require('vue-server-renderer/server-plugin')
 
 module.exports = merge(baseConfig, {
   // Point entry to your app's server entry file
-  entry: './app/vue/src/entry-server.js',
+  entry: './node/src/entry-server.js',
   output: {
-    path: path.resolve('./app/vue/dist'),
+    path: path.resolve('./node/dist'),
     // This tells the server bundle to use Node-style exports
     libraryTarget: 'commonjs2'
   },

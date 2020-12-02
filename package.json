@@ -5,10 +5,19 @@
   "main": "index.js",
   "author": "Paul Kiddle <p.kiddle@nhm.ac.uk>",
   "license": "MIT",
+  "scripts": {
+    "start": "node node",
+    "test": "jest",
+    "test-ratchet": "jest && jest-coverage-ratchet && git add package.json"
+  },
   "dependencies": {
+    "busboy": "^0.3.1",
+    "cookie": "^0.4.1",
     "css-loader": "^2.1.1",
+    "encode-html-template-tag": "^1.0.0",
     "exports-loader": "^0.7.0",
     "expose-loader": "^0.7.5",
+    "form-data": "^3.0.0",
     "imports-loader": "^0.8.0",
     "jsc3d": "github:naturalhistorymuseum/jsc3d",
     "mini-css-extract-plugin": "^0.6.0",
@@ -24,10 +33,40 @@
     "vue-template-compiler": "^2.6.10",
     "webpack": "^4.29.6",
     "webpack-merge": "^4.2.1",
-    "webpack-node-externals": "^1.7.2"
+    "webpack-node-externals": "^1.7.2",
+    "yargs": "^16.1.1"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "husky": "^4.3.0",
+    "jest": "^26.6.3",
+    "jest-coverage-ratchet": "^0.2.3",
+    "simple-wsgi": "^1.1.0"
+  },
   "napa": {
     "jsc3d": "humu2009/jsc3d"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run test-ratchet"
+    }
+  },
+  "jest": {
+    "collectCoverage": true,
+    "collectCoverageFrom": [
+      "node/server/*.js",
+      "node/src/*.js"
+    ],
+    "coverageReporters": [
+      "text",
+      "json-summary"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "lines": 6.58,
+        "statements": 8.86,
+        "functions": 8.33,
+        "branches": 0
+      }
+    }
   }
 }

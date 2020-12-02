@@ -1,0 +1,12 @@
+[Unit]
+Description=phenome10k nodejs service
+
+[Service]
+Type=simple
+ExecStart={{ node_binary }} {{ node_source }} --bind 127.0.0.1:{{ node_port }}
+Restart=on-abort
+WorkingDirectory={{ p10k_src_dir }}
+User={{ p10k_linux_user }}
+
+[Install]
+WantedBy=multi-user.target

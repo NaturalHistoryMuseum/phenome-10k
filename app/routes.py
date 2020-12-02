@@ -23,6 +23,7 @@ from PIL import Image
 import io
 from flask_mail import Message
 from app import mail
+from app import rpc
 
 def hideScanFiles(data):
   if not current_user.is_authenticated:
@@ -854,15 +855,4 @@ def render_vue(data, title, menu = None):
 # pass the url path and an object to be provided as the defaultData property to the vue model
 def vue(defaultData = None):
   path = request.full_path
-  pipes = subprocess.Popen(['node', 'app/vue/server.js', path], stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-  std_out, std_err = pipes.communicate(input = json.dumps(defaultData).encode('utf-8'))
-
-  if pipes.returncode != 0:
-      # an error happened!
-      err_msg = "%s. Code: %s" % (std_err.decode().strip(), pipes.returncode)
-      raise Exception(err_msg)
-
-  elif len(std_err):
-    app.logger.error(std_err.decode())
-
-  return std_out.decode()
+  return rpc.rpc(app.config['RPC_HOST'], 'render', [path, defaultData])

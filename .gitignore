@@ -4,10 +4,11 @@ venv
 node_modules
 *.pyc
 app/static/dist
-app/vue/dist
+node/dist
 *.env
 .vagrant
 ansible/playbook.retry
 .coverage
 htmlcov/
 *.so
+coverage

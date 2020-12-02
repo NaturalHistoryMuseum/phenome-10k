@@ -13,3 +13,9 @@
       name: gunicorn
       state: restarted
     become: y
+
+  - name: restart node
+    service:
+      name: node
+      state: restarted
+    become: y

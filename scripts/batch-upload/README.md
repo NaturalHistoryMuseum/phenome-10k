@@ -28,3 +28,8 @@ This can be done with
 ```bash
 ./records.js src.csv
 ```
+
+Start geckodriver with `./geckodriver &`.
+Find the admin password on NHM Vault,
+export it with `export ADMIN="whatever-the-password-is"`
+Then run `node upload.js`.
