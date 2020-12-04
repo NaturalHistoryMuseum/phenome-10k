@@ -8,7 +8,8 @@ static_files_dir: '{{ app_root_dir }}/static'
 virtualenv_location: '{{ p10k_home }}/production'
 venv_bin: '{{ virtualenv_location }}/bin'
 gunicorn_binary: '{{ venv_bin }}/gunicorn'
-node_binary: '{{ venv_bin }}/node'
+node_version: '12.x'
+node_binary: '/usr/bin/node'
 node_source: '{{ p10k_src_dir }}/node'
 mysql_root_password: plaEee2eer34@
 p10k_db_user: phenome10k

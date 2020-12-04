@@ -13,6 +13,8 @@ mysql_password = "A1a2a_"
 Vagrant.configure("2") do |config|
   nfs_ip = "192.168.10.5"
 
+  config.vm.synced_folder ".", "/vagrant", disabled: true
+
   config.vm.define "data" do |config|
     config.vm.box = "centos/7"
     config.vm.network "private_network", ip: nfs_ip
@@ -59,7 +61,7 @@ Vagrant.configure("2") do |config|
       "lb" => ["lb1", "lb2"],
       "all:vars" => {
         "nfs_server" => nfs_ip,
-        "app_servers" => ["app1", "app2"]
+        "app_servers" => app_ips
       }
     }
     ansible.host_vars = {

@@ -1,17 +1,34 @@
 ---
   - name: Download node installer
     get_url:
-      url: https://rpm.nodesource.com/setup_10.x
-      dest: /tmp/setup_10.x.sh
+      url: https://rpm.nodesource.com/setup_{{node_version}}
+      dest: /tmp/setup_{{node_version}}.sh
       mode: 755
     become: y
-  - name: Install node rpm
-    shell: /tmp/setup_10.x.sh
+
+  - name: Clear yum cache
+    command: yum clean all
     args:
-      creates: /var/cache/yum/x86_64/7/nodesource
+      creates: "{{ p10k_home }}/.node-{{node_version}}-installed"
     become: y
+
+  - name: Install node rpm
+    shell: /tmp/setup_{{node_version}}.sh
+    args:
+      creates: "{{ p10k_home }}/.node-{{node_version}}-installed"
+    become: y
+
+  - name: Mark node {{ node_version }} as installed
+    copy:
+      content: ""
+      dest: "{{ p10k_home }}/.node-{{node_version}}-installed"
+      force: no
+      owner: phenome10k
+    become: y
+
   - name: Install node
     yum:
       name:
         - nodejs
+      state: latest
     become: y

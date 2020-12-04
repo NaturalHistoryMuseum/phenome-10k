@@ -14,7 +14,7 @@
     file:
       path: '{{ p10k_src_dir }}'
       group: phenome10k
-      recurse: y
+      #recurse: y
     become: y
   - name: Allow nginx to read from static files dir
     sefcontext:
