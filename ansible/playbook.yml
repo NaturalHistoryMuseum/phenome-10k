@@ -19,8 +19,8 @@
       - users
       - firewalld
       - nfs/client
-      - nodejs
-      - phenome-10k
+      - { role: nodejs, tags: nodejs }
+      - { role: phenome-10k, tags: phenome-10k }
       - openctm
       - monit/monit
     vars:

@@ -18,6 +18,12 @@
       creates: "{{ p10k_home }}/.node-{{node_version}}-installed"
     become: y
 
+  - name: Mark node modules as needing rebuild
+    command: "touch {{ p10k_home }}/.node-{{node_version}}-rebuild"
+    args:
+      creates: "{{ p10k_home }}/.node-{{node_version}}-installed"
+    become: y
+
   - name: Mark node {{ node_version }} as installed
     copy:
       content: ""
@@ -32,3 +38,6 @@
         - nodejs
       state: latest
     become: y
+    notify:
+      - rebuild front end
+      - restart node

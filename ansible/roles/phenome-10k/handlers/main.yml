@@ -1,4 +1,13 @@
 ---
+  - name: rebuild node modules
+    command: npm rebuild
+    args:
+      chdir: '{{ p10k_src_dir }}'
+    environment:
+      NODE_ENV: production
+    become: y
+    become_user: phenome10k
+
   - name: rebuild front end
     command: node {{ p10k_src_dir }}/build
     args:

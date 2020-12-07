@@ -3,6 +3,7 @@
     git:
       repo: "https://github.com/NaturalHistoryMuseum/phenome-10k.git"
       dest: '{{ p10k_src_dir }}'
+      version: main
     become: y
     become_user: phenome10k
     when: not skip_git_checkout
@@ -31,6 +32,18 @@
       path: '{{ p10k_src_dir }}'
     become: y
     become_user: phenome10k
+  - name: Rebuild node modules
+    command: "npm rebuild"
+    args:
+      chdir: '{{ p10k_src_dir }}'
+      removes: "{{ p10k_home }}/.node-{{node_version}}-rebuild"
+    become: y
+    become_user: phenome10k
+  - name: Remove rebuild flag
+    command: "rm {{ p10k_home }}/.node-{{node_version}}-rebuild"
+    args:
+      removes: "{{ p10k_home }}/.node-{{node_version}}-rebuild"
+    become: y
   - name: Build front end
     command: node {{ p10k_src_dir }}/build
     args:
