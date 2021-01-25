@@ -53,8 +53,8 @@
   "jest": {
     "collectCoverage": true,
     "collectCoverageFrom": [
-      "node/server/*.js",
-      "node/src/*.js"
+      "node/server/**/*.js",
+      "node/src/**/*.js"
     ],
     "coverageReporters": [
       "text",
