@@ -24,6 +24,10 @@ import io
 from flask_mail import Message
 from app import mail
 from app import rpc
+from .data.scan_store import ScanStore, ScanException
+from .data.slugs import generate_slug
+
+scanStore = ScanStore(db)
 
 def hideScanFiles(data):
   if not current_user.is_authenticated:
@@ -39,85 +43,49 @@ def ensureEditable(item):
   if not current_user.canEdit(item):
       raise Forbidden('You cannot edit this item as you are not the original author.')
 
-def zip_upload(file):
-  """ Save the uploaded file as a zip file """
-  app.logger.warn('generating zip from upload')
-  if not file:
-    return None
-
-  # Allow uploading zip file.
-  if file.filename.endswith('.zip'):
-    app.logger.warn('zip file, validate contents')
-    zipFile = ZipFile(file.stream, 'r', ZIP_DEFLATED)
-    if(len(zipFile.infolist()) != 1):
-      app.logger.error('wrong number of files in zip')
-      raise BadRequest('ZIP uploads must contain exactly one file')
-    app.logger.warn('valid zip')
-    return File.fromUpload(file, File.MODELS_DIR)
-
-  # Zip source file & save to large file storage
-  app.logger.warn('create empty zip')
-  zip = File.fromName(file.filename + '.zip', File.MODELS_DIR)
-  zip.mime_type = 'application/zip'
-
-  filename, fileExt = os.path.splitext(file.filename)
-  with tempfile.NamedTemporaryFile(suffix=fileExt) as uploadFile:
-    app.logger.warn('save upload to temp')
-    file.save(uploadFile.name)
-    with ZipFile(zip.getAbsolutePath(), 'w', ZIP_DEFLATED) as zipFile:
-      app.logger.warn('write temp file to zip')
-      zipFile.write(uploadFile.name, file.filename)
-
-  app.logger.warn('set zip size')
-  zip.size = os.stat(zip.getAbsolutePath()).st_size
-
-  app.logger.warn('generated zip')
-
-  return zip
-
 def create_ctm(zip):
   """ Convert an uploaded model file to a ctm file """
-  app.logger.warn('create ctm from zip')
+  app.logger.warning('create ctm from zip')
   if not zip:
     return None
 
-  app.logger.warn('extract zip')
+  app.logger.warning('extract zip')
 
   with ZipFile(zip.getAbsolutePath(), 'r', ZIP_DEFLATED) as zipFile:
     uploadFileName = zipFile.infolist()[0].filename
 
-    app.logger.warn('read zip file')
+    app.logger.warning('read zip file')
 
     uploadFileData = zipFile.read(uploadFileName)
 
     filename, fileExt = os.path.splitext(uploadFileName)
 
     with tempfile.NamedTemporaryFile(suffix=fileExt) as uploadFile:
-      app.logger.warn('created temp file, now write')
+      app.logger.warning('created temp file, now write')
       uploadFile.write(uploadFileData)
 
       # Convert to bin if ascii
       uploadFile.seek(0)
       if uploadFile.read(5) == b'solid':
-        app.logger.warn('Solid Ascii, convert to binary')
+        app.logger.warning('Solid Ascii, convert to binary')
         Mesh.from_file(uploadFile.name).save(uploadFile.name)
 
       # Convert to ctm in uploads storage
       ctmFile = File.fromName(filename + '.ctm')
       ctmFile.mime_type = 'application/octet-stream'
 
-      app.logger.warn('run ctm conv')
+      app.logger.warning('run ctm conv')
 
       ctmConvert = subprocess.run(["ctmconv", uploadFile.name, ctmFile.getAbsolutePath()], stderr=subprocess.PIPE)
       if ctmConvert.returncode > 0:
         # TODO: Deal with this error properly
         app.logger.error(ctmConvert.stderr)
 
-      app.logger.warn('ctm conv done, set size')
+      app.logger.warning('ctm conv done, set size')
 
       ctmFile.size = os.stat(ctmFile.getAbsolutePath()).st_size
 
-      app.logger.warn('ctmCreated')
+      app.logger.warning('ctmCreated')
 
       return ctmFile
 
@@ -148,31 +116,6 @@ class FileConverter(PathConverter):
 app.url_map.converters['scan'] = ScanConverter
 app.url_map.converters['publication'] = PublicationConverter
 app.url_map.converters['file'] = FileConverter
-
-def slug_available(slug):
-  """ Returns true if the slug url is availabe """
-  app.logger.warn(slug)
-  try:
-    return not app.url_map.bind('').match('/' + slug)
-  except NotFound:
-    return True
-
-def generate_slug(name):
-  """ Generate a URL slug for a given name """
-  if not name:
-    return None
-
-  # Slugify the title and check
-  slug = secure_filename(name).lower().replace('_', '-')
-  slug_n = slug
-  n = 1
-
-  # Append an increasing number to the slug until we find an available url
-  while not slug_available(slug_n):
-    n += 1
-    slug_n = slug + '-' + str(n)
-
-  return slug_n
 
 @app.after_request
 def add_headers(response):
@@ -480,7 +423,7 @@ def scan_stills(scan):
 @app.route('/<scan:scan>/process', methods=['GET', 'POST'])
 @requiresContributor
 def process_scan(scan):
-  app.logger.warn('process scan')
+  app.logger.warning('process scan')
   if not scan.source:
     raise BadRequest('Nothing to process; no file has been uploaded')
   if scan.ctm:
@@ -517,106 +460,25 @@ def edit_scan(scan = None):
 
   if request.method == 'POST':
     if scan == None:
-      scan = Scan(
-        author_id = current_user.id,
-      )
-      db.session.add(scan)
+      scan = scanStore.new(current_user.email)
 
     # Make sure whatever publications are selected pass validation
     form.publications.choices = [(pub, pub.title) for pub in form.publications.data]
 
-    # TODO: Restrict list of uploadable file types
-    # Save upload to temporary file
-    if form.file.data:
-        app.logger.warn('call zip_upload')
-        zipFile = zip_upload(form.file.data)
-        app.logger.warn('zip_upload done')
-        scan.source = zipFile
-        db.session.add(zipFile)
-        app.logger.warn('zip added to session')
-
-    if scan.url_slug == None:
-      scan.url_slug = generate_slug(form.scientific_name.data)
-
-    scan.scientific_name = form.scientific_name.data
-    scan.alt_name = form.alt_name.data
-    scan.specimen_location = form.specimen_location.data
-    scan.specimen_id = form.specimen_id.data
-    scan.specimen_url = form.specimen_url.data
-    scan.description = form.description.data
-    scan.publications = form.publications.data
-
-    scan.tags = form.geologic_age.data + form.ontogenic_age.data + form.elements.data
-
-    gbif_id = form.gbif_id.data
-
-    if gbif_id and gbif_id != scan.gbif_id:
-      from app.gbif import pull_tags
-
-      scan.gbif_id = gbif_id
-      tags = pull_tags(gbif_id)
-
-      tagIds = [ tag.id for tag in tags ]
-      existingTags = Taxonomy.query.filter(Taxonomy.id.in_(tagIds)).all()
-      existingTagIds = [ tag.id for tag in existingTags ]
-      scan.taxonomy = existingTags
-
-      for tag in tags:
-        if tag.id in existingTagIds:
-          continue
-
-        db.session.add(tag)
-        scan.taxonomy.append(tag)
-
-    for file in form.attachments.data:
-      if isinstance(file, Attachment):
-        continue
-      import string
-      import random
-      import magic
-
-      # Take the filename as the label and generate a new, safe filename
-      label = file.filename
-      filename = secure_filename(file.filename) + '.png'
-
-      fileModel = File.fromBinary(filename, file.stream)
-
-      if (fileModel.mime_type != 'image/png'):
-        form.stills.errors.append('Stills must be png files')
-      else:
-        file.save(fileModel.getAbsolutePath())
-        attachment = Attachment(
-          name = label,
-          file = fileModel
-        )
-        db.session.add(attachment)
-        scan.attachments.append(attachment)
-
     form_valid = True
 
-    if form.published.data:
-      form_valid = form.validate()
-      if not scan.source:
-        form_valid = False
-        form.file.errors.append('A scan file is required')
+    try:
+      url = scanStore.update(scan, form.file.data, form.data, form.attachments.data)
 
-      if not scan.attachments:
-        form_valid = False
-        form.stills.errors.append('A still is required')
+      if form.published.data and form.validate():
+        scanStore.publish(url)
 
-      if form_valid:
-        scan.published = True
-    else:
-      scan.published = False
+    except ScanException as error:
+      form_valid = False
+      form.errors.append(error.message)
 
-    app.logger.warn('check form valid')
-
-    if form_valid:
-      app.logger.warn('form valid, continue')
-      db.session.commit()
-
-      if not request.args.get('noredirect'):
-        return redirect(request.args.get('redirect') or url_for('scan', scan=scan))
+    if form_valid and not request.args.get('noredirect'):
+      return redirect(request.args.get('redirect') or url_for('scan', scan=scan))
 
   data = {
       'form': form.serialize(),

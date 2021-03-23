@@ -173,9 +173,9 @@ class File(db.Model):
     owner = db.relationship('User')
 
     @staticmethod
-    def fromUpload(fileStorage, storage_area = UPLOADS_DIR, save = True):
+    def fromUpload(fileStorage, storage_area = UPLOADS_DIR, save = True, owner_id=None):
         """Create a File model from a Werkzeug FileStorage object, and save the file to disk"""
-        file = File.fromBinary(fileStorage.filename, fileStorage.stream, storage_area)
+        file = File.fromBinary(fileStorage.filename, fileStorage.stream, storage_area, owner_id)
         if save:
             fileStorage.save(file.getAbsolutePath())
         return file

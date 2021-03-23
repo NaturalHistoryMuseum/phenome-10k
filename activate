@@ -1,0 +1,10 @@
+#!/bin/bash
+if [ ! -d "venv" ]
+then
+	echo "Creating virual environment"
+	python3 -m venv venv
+
+	ln -s $(realpath scripts/test.sh) venv/bin/tests
+fi
+
+source venv/bin/activate

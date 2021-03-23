@@ -10,19 +10,21 @@ First, make sure you have the following binaries available:
  - NPM 5.6
  - openctm-tools
 
-To create a new virtual environment:
-
+To create and/or activate the virtual environment:
 ```bash
-python3 -m venv venv
+source activate
 ```
 
-To activate the virtual environment:
+This basicaly just runs the venv scripts:
 
 ```bash
+# Create env
+python3 -m venv venv
+# Activate env
 source venv/bin/activate
 ```
 
-To install and run:
+To install requirments and run:
 
 ```bash
 # Install dependencies
@@ -48,11 +50,7 @@ FLASK_DEBUG=1 flask run
 The default user for a new site has the email address `admin` and the username `pass`.
 Make sure to change this!
 
-To run tests, use the `pytest` command. For coverage use the --cov arg with the `app` directory:
-
-```bash
-pytest --cov=app
-```
+To run tests with coverage, use the `tests` script, or use `pytest` with custom arguments.
 
 ## Local staging
 
