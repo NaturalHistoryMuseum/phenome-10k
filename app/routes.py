@@ -12,6 +12,7 @@ from werkzeug.routing import ValidationError, BaseConverter, PathConverter
 from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import NotFound, BadRequest, Forbidden
+from werkzeug.datastructures import FileStorage
 from stl.mesh import Mesh
 from app import app, db, models
 from app.forms import LoginForm, RegistrationForm, ScanUploadForm, PublicationUploadForm
@@ -26,8 +27,10 @@ from app import mail
 from app import rpc
 from .data.scan_store import ScanStore, ScanException
 from .data.slugs import generate_slug
+from .data.tmp_upload_store import TmpUploadStore
 
 scanStore = ScanStore(db)
+uploadStore = TmpUploadStore(app.config['TMP_UPLOAD'])
 
 def hideScanFiles(data):
   if not current_user.is_authenticated:
@@ -435,6 +438,35 @@ def process_scan(scan):
 
   return redirect(url_for('scan', scan=scan))
 
+@app.route('/scans/batch-upload/', methods=['GET', 'POST'])
+@requiresContributor
+def upload_multi():
+  files = []
+  if request.method == 'POST':
+    files = list(map(lambda f: f.filename ,request.files.getlist('source')))
+    app.logger.warning(files)
+
+  data = rpc_call('views.batchUpload', [{'inputName': 'source', 'files': files}])
+
+  return render_content(
+    data.get('content'),
+    data.get('title'),
+    data.get('menu')
+  )
+
+@app.route('/files/', methods = ['POST'])
+@requiresContributor
+def create_tmp_upload_file():
+  res = Response(status=201)
+  res.headers['Location'] = '/files/' + uploadStore.create()
+  return res
+
+@app.route('/files/<id>', methods = ['PATCH'])
+@requiresContributor
+def append_tmp_upload_file(id):
+  uploadStore.append(id, request.get_data())
+  return Response(status=200)
+
 @app.route('/<scan:scan>/edit', methods=['GET', 'POST'])
 @app.route('/library/create/', methods=['GET', 'POST'])
 @app.route('/scans/create/', methods=['GET', 'POST'])
@@ -466,6 +498,19 @@ def edit_scan(scan = None):
     form.publications.choices = [(pub, pub.title) for pub in form.publications.data]
 
     form_valid = True
+
+    # If file data is a UUID string then it's been through the blob uploader, get actual file
+    # Todo: move this to uploadStore
+    # Todo: do we need to close this?
+    if isinstance(form.file.data, str):
+      parts = form.file.data.split('/')
+      location = parts[0]
+      filename = parts[1] if len(parts) > 1 else None
+
+      f = open(uploadStore.getFilepath(location), 'rb')
+      form.file.data = FileStorage(f, filename)
+
+    print(form.file.data)
 
     try:
       url = scanStore.update(scan, form.file.data, form.data, form.attachments.data)
@@ -710,11 +755,17 @@ def render_vue(data, title, menu = None):
   # response.headers['Vary'] = 'Content-Type'
 
   if request.accept_mimetypes.accept_html:
-    return render_template('base.html', content=vue(data), title=title, menu=menu)
+    return render_content(content=vue(data), title=title, menu=menu)
   return jsonify(data)
+
+def render_content(content, title, menu=None):
+  return render_template('base.html', content=content, title=title, menu=menu)
 
 # This is for server-side rendering a view in vue
 # pass the url path and an object to be provided as the defaultData property to the vue model
 def vue(defaultData = None):
   path = request.full_path
-  return rpc.rpc(app.config['RPC_HOST'], 'render', [path, defaultData])
+  return rpc_call('render', [path, defaultData])
+
+def rpc_call(method, data):
+  return rpc.rpc(app.config['RPC_HOST'], method, data)

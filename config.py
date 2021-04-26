@@ -20,4 +20,5 @@ class Config(object):
     UPLOAD_DIRECTORY = os.environ.get('UPLOAD_DIRECTORY') or os.path.abspath('uploads')
     MODEL_DIRECTORY = os.environ.get('MODEL_DIRECTORY') or os.path.abspath('uploads/models')
     THUMB_DIRECTORY = os.environ.get('THUMB_DIRECTORY') or os.path.abspath('thumbnails')
+    TMP_UPLOAD = os.environ.get('TMP_UPLOAD') or '/tmp/upload-'
     RPC_HOST = os.environ.get('RPC_HOST') or 'http://localhost:8080'

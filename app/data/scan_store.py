@@ -85,8 +85,11 @@ class ScanStore:
 			scan.source = zipFile
 			self.db.session.add(zipFile)
 
-		scan.url_slug = 	generate_slug(data.get('scientific_name'))
 		scan.scientific_name = 	data.get('scientific_name')
+
+		if (not scan.url_slug) and scan.scientific_name:
+			scan.url_slug = 	generate_slug(scan.scientific_name)
+
 		scan.alt_name = 	data.get('alt_name')
 		scan.specimen_location = 	data.get('specimen_location')
 		scan.specimen_id = 	data.get('specimen_id')

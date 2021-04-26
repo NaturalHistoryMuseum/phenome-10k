@@ -1,10 +1,14 @@
 const rpc = require('./rpc');
 const makeRender = require('./render');
+const views = import('./views/index.js').then(m=>m.default);
 
-function app(renderer) {
+async function app(renderer) {
 	const render = makeRender(renderer);
 
-	return rpc({ render });
+	return rpc({
+		render,
+		views: await views
+	});
 }
 
 module.exports = app;

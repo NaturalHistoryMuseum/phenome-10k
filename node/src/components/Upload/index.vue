@@ -156,8 +156,38 @@ async function jsonOrText(source) {
   }
 }
 
-const xhrUpload = (form, progress) => {
+function* blobIterator(blob, chunkSize=500000){
+  for(let i=0; i<blob.size; i+=chunkSize) {
+    console.log(i, blob.size, i/blob.size)
+    yield [
+    	blob.slice(i, i+chunkSize),
+	100*i/blob.size
+    ];
+  }
+}
+
+const xhrUpload = async (form, progress) => {
     const formData = new FormData(form);
+
+    const file = formData.get('file');
+    const uploadRequest = await fetch('/files/', { method: 'POST' });
+    if(!uploadRequest.ok) {
+      throw new Error('POST to /files/ failed')
+    }
+    const uploadEndpoint = uploadRequest.headers.get('Location')
+
+    for(const [blob, pc] of blobIterator(file)) {
+      const res = await fetch(uploadEndpoint, { method: 'PATCH', body: blob });
+      if(!res.ok) {
+        throw new Error('Patch failed')
+      }
+      progress(Math.round(pc));
+    }
+
+    const uploadId = uploadEndpoint.split('/').pop();
+
+    formData.set('file', uploadId + '/' + file.name);
+
     const xhr = new XMLHttpRequest()
     xhr.open('POST', form.action + '?noredirect=1')
     xhr.setRequestHeader('Accept', 'application/json')

@@ -92,6 +92,7 @@
     loop:
       - "{{ uploads_dir }}"
       - "{{ models_dir }}"
+      - "{{ tmp_upload }}"
     become: y
   - name: Migrate database
     command: '{{ venv_bin }}/flask db upgrade -d {{ p10k_src_dir }}/migrations'

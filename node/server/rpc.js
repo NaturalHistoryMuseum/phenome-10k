@@ -32,21 +32,24 @@ async function parseBody(request) {
 }
 
 module.exports = methods => {
-	function getMethod(methodName) {
-		const method = typeof methods === 'function' ? methods(methodName) :
-									 methodName in methods ? methods[methodName].bind(methods) :
-									 null;
-
+	function getMethod(methodName, ctx=methods) {
+		const method =	typeof ctx === 'function' ? ctx(methodName) :
+			methodName in ctx ? ctx[methodName].bind(ctx) :
+			null;
 		if(method) {
 			return method;
-		} else {
-			throw new RpcError(`There is no method called ${methodName}`, -32601);
+		} else if(methodName.indexOf('.')>=0) {
+			const [newCtx, ...parts] = methodName.split('.');
+			return Object.hasOwnProperty.call(methods, newCtx) && getMethod(parts.join('.'), methods[newCtx]);
 		}
 	}
 
 	async function rpcCall(method, params) {
 		try {
 			const call = getMethod(method);
+			if(!call) {
+				throw new RpcError(`There is no method called ${method}`, -32601);
+			}
 
 			return {
 				result: await call(...params)
