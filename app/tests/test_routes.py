@@ -202,3 +202,12 @@ def test_upload_process(client, tmpdir, admin):
   )
 
   assert json.loads(response.data)  ['ctm'] == expected_file
+
+def test_upload_file_chunk(client, admin):
+  login_admin(client)
+
+  response = client.post('/files/')
+  assert response.status_code == 201
+
+  response = client.patch(response.location, data=u'some data')
+  assert response.status_code == 200
