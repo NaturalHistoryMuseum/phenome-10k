@@ -162,3 +162,16 @@
       day: "1"
       month: "*"
       job: "{{ venv_bin }}/python {{ p10k_src_dir }}/gbif.py"
+    become: y
+    become_user: phenome10k
+
+  - name: Add cron job to clear tmp_uploads directory
+    cron:
+      name: Clear tmp_uploads
+      minute: "0"
+      hour: "0"
+      day: "*"
+      month: "*"
+      job: "find {{ tmp_upload }} -type f -mtime +1 -delete"
+    become: y
+    become_user: phenome10k
