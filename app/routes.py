@@ -501,7 +501,6 @@ def edit_scan(scan = None):
 
     # If file data is a UUID string then it's been through the blob uploader, get actual file
     # Todo: move this to uploadStore
-    # Todo: do we need to close this?
     if isinstance(form.file.data, str):
       parts = form.file.data.split('/')
       location = parts[0]
@@ -509,8 +508,6 @@ def edit_scan(scan = None):
 
       f = open(uploadStore.getFilepath(location), 'rb')
       form.file.data = FileStorage(f, filename)
-
-    print(form.file.data)
 
     try:
       url = scanStore.update(scan, form.file.data, form.data, form.attachments.data)
@@ -521,6 +518,10 @@ def edit_scan(scan = None):
     except ScanException as error:
       form_valid = False
       form.errors.append(error.message)
+
+    finally:
+      # Close the underlying stream if it's a file
+      form.file.data.close()
 
     if form_valid and not request.args.get('noredirect'):
       return redirect(request.args.get('redirect') or url_for('scan', scan=scan))
