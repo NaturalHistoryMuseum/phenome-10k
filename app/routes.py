@@ -1,10 +1,8 @@
-import tempfile
-import subprocess
 import os
 import uuid
 import math
 from functools import wraps
-from zipfile import ZipFile, ZIP_DEFLATED
+from zipfile import ZipFile
 from flask import request, render_template, redirect, url_for, flash, send_from_directory, jsonify, g, Response, send_file, make_response
 from flask.helpers import safe_join
 from flask_login import current_user, login_user, login_required, logout_user
@@ -13,24 +11,23 @@ from werkzeug.urls import url_parse
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import NotFound, BadRequest, Forbidden
 from werkzeug.datastructures import FileStorage
-from stl.mesh import Mesh
-from app import app, db, models
+from app import app, db, models, scanStore
 from app.forms import LoginForm, RegistrationForm, ScanUploadForm, PublicationUploadForm
 from app.models import User, Scan, File, Publication, Tag, Taxonomy, Attachment, ScanAttachment, PublicationFile
 import mimetypes
-import subprocess
 import json
 from PIL import Image
 import io
 from flask_mail import Message
 from app import mail
 from app import rpc
-from .data.scan_store import ScanStore, ScanException
+from .data.scan_store import ScanException
 from .data.slugs import generate_slug
 from .data.tmp_upload_store import TmpUploadStore
+from .tasks.client import TaskQueue
 
-scanStore = ScanStore(db)
 uploadStore = TmpUploadStore(app.config['TMP_UPLOAD'])
+taskQueue = TaskQueue(models.Queue)
 
 def hideScanFiles(data):
   if not current_user.is_authenticated:
@@ -45,52 +42,6 @@ def ensureEditable(item):
   """ Throw Forbidden exception if the current user is not allowed to edit the given model """
   if not current_user.canEdit(item):
       raise Forbidden('You cannot edit this item as you are not the original author.')
-
-def create_ctm(zip):
-  """ Convert an uploaded model file to a ctm file """
-  app.logger.warning('create ctm from zip')
-  if not zip:
-    return None
-
-  app.logger.warning('extract zip')
-
-  with ZipFile(zip.getAbsolutePath(), 'r', ZIP_DEFLATED) as zipFile:
-    uploadFileName = zipFile.infolist()[0].filename
-
-    app.logger.warning('read zip file')
-
-    uploadFileData = zipFile.read(uploadFileName)
-
-    filename, fileExt = os.path.splitext(uploadFileName)
-
-    with tempfile.NamedTemporaryFile(suffix=fileExt) as uploadFile:
-      app.logger.warning('created temp file, now write')
-      uploadFile.write(uploadFileData)
-
-      # Convert to bin if ascii
-      uploadFile.seek(0)
-      if uploadFile.read(5) == b'solid':
-        app.logger.warning('Solid Ascii, convert to binary')
-        Mesh.from_file(uploadFile.name).save(uploadFile.name)
-
-      # Convert to ctm in uploads storage
-      ctmFile = File.fromName(filename + '.ctm')
-      ctmFile.mime_type = 'application/octet-stream'
-
-      app.logger.warning('run ctm conv')
-
-      ctmConvert = subprocess.run(["ctmconv", uploadFile.name, ctmFile.getAbsolutePath()], stderr=subprocess.PIPE)
-      if ctmConvert.returncode > 0:
-        # TODO: Deal with this error properly
-        app.logger.error(ctmConvert.stderr)
-
-      app.logger.warning('ctm conv done, set size')
-
-      ctmFile.size = os.stat(ctmFile.getAbsolutePath()).st_size
-
-      app.logger.warning('ctmCreated')
-
-      return ctmFile
 
 class SlugConverter(BaseConverter):
   regex = r'[^/]+'
@@ -423,21 +374,6 @@ def scan_stills(scan):
 
   return send_file(zip_buffer, as_attachment=True, attachment_filename=filename)
 
-@app.route('/<scan:scan>/process', methods=['GET', 'POST'])
-@requiresContributor
-def process_scan(scan):
-  app.logger.warning('process scan')
-  if not scan.source:
-    raise BadRequest('Nothing to process; no file has been uploaded')
-  if scan.ctm:
-    return redirect(url_for('scan', scan=scan))
-  ctmFile = create_ctm(scan.source)
-  scan.ctm = ctmFile
-  db.session.add(ctmFile)
-  db.session.commit()
-
-  return redirect(url_for('scan', scan=scan))
-
 @app.route('/scans/batch-upload/', methods=['GET', 'POST'])
 @requiresContributor
 def upload_multi():
@@ -511,6 +447,8 @@ def edit_scan(scan = None):
 
     try:
       url = scanStore.update(scan, form.file.data, form.data, form.attachments.data)
+      if form.file.data != None:
+        taskQueue.create_ctm(scan.id)
 
       if form.published.data and form.validate():
         scanStore.publish(url)

@@ -34,8 +34,8 @@ npm i
 flask db upgrade
 # Create the admin account
 flask set-admin-pw pass
-# Build the front end
-node build
+# Start the front end
+npm start &
 # Start
 flask run
 ```
@@ -43,7 +43,7 @@ flask run
 If you want to run in developer/debug mode:
 
 ```bash
-node build/watch &
+npm start &
 FLASK_DEBUG=1 flask run
 ```
 
@@ -87,3 +87,8 @@ The system can be deployed to production via ansible:
 ```bash
 ansible-playbook -iansible/inventories/production.ini ansible/playbook.yml -e@ansible/group_vars/production/main.yml -k -K  -ua-paulk6
 ```
+
+
+## Adding database migrations
+
+Add or modify models in models.py then run `flask db revision`

@@ -18,6 +18,9 @@ login = LoginManager(app)
 login.login_view = 'login'
 mail = Mail(app)
 
+from .data.scan_store import ScanStore
+scanStore = ScanStore(db)
+
 if not app.debug:
     if not os.path.exists('logs'):
         os.mkdir('logs')
@@ -32,6 +35,7 @@ if not app.debug:
     app.logger.info('Phenome10k startup')
 
 from app import models, routes, errors
+from .routes import taskQueue
 
 @app.shell_context_processor
 def make_shell_context():
@@ -58,3 +62,16 @@ def set_admin_pw(password):
     db.session.commit()
 
     print('Password changed')
+
+from .tasks.server import TaskExecutor
+
+taskExecutor = TaskExecutor(models.Queue, scanStore)
+
+@app.cli.command()
+@click.argument('scan_slug')
+def create_ctm(scan_slug):
+    taskQueue.create_ctm(scan_slug)
+
+@app.cli.command()
+def task_runner():
+    taskExecutor.run()

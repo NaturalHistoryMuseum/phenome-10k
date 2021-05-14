@@ -8,7 +8,6 @@
       <h2 class="Upload__section-title Upload__section-head">Browse and preview STL file</h2>
       <CtmViewer v-if="scan && scan.ctm" ref="canvas" :src="scan.ctm" height=400px width=500px />
       <Upload3D v-else @change="upload" :progress="progress" :status="status || (scan && scan.source && 'Uploaded' )" :errors="form.file.errors"></Upload3D>
-      <div v-if="scan && scan.source && !scan.ctm && !processing"><a :href="'/' + scan.id + '/process'">Process</a></div>
     </form>
     <div class="Upload__stills">
       <span class="Upload__section-title Upload__section-head">Take Stills</span> - Move image into appropriate position and click the button below (Minimum of 1 snapshot image, maximum of 6 images).
@@ -397,18 +396,25 @@ export default {
       this.progress = 100;
       this.status = 'Creating CTM file...';
 
-      const result = await fetch('/' + id + '/process', {
-        headers: {
-          Accept: 'application/json'
-        }
-      });
+      while(!this.scan || !this.scan.ctm) {
+        await new Promise(resolve=>setTimeout(resolve, 3000))
 
-      if(result.status >= 400) {
-        this.progress = null;
-        this.status = null;
-        this.form.file.errors = [await result.text()];
-      } else {
-        this.scan = await result.json();
+        const result = await fetch('/' + id, {
+          headers: {
+            Accept: 'application/json'
+          }
+        });
+
+        if(result.status >= 400) {
+          this.progress = null;
+          this.status = null;
+          this.form.file.errors = [await result.text()];
+        } else {
+          const scan = await result.json();
+          if(scan) {
+            this.scan = scan;
+          }
+        }
       }
 
       this.processing = false;

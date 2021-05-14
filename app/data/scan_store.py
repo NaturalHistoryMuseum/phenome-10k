@@ -4,6 +4,8 @@ import os
 import tempfile
 from zipfile import ZipFile, ZIP_DEFLATED
 from werkzeug.utils import secure_filename
+from stl.mesh import Mesh
+import subprocess
 
 class ScanException(Exception):
 	pass
@@ -166,3 +168,44 @@ class ScanStore:
 
 	def get(self, scan_uri):
 		return models.Scan.findBySlug(scan_uri)
+
+	def create_ctm(self, scan):
+		""" Convert an uploaded model file to a ctm file """
+		if not isinstance(scan, models.Scan):
+			scan = self.get(scan)
+
+		if not scan.source:
+			raise ScanException('Nothing to process; no file has been uploaded')
+
+		zip = scan.source
+
+		with ZipFile(zip.getAbsolutePath(), 'r', ZIP_DEFLATED) as zipFile:
+			uploadFileName = zipFile.infolist()[0].filename
+
+			uploadFileData = zipFile.read(uploadFileName)
+
+			filename, fileExt = os.path.splitext(uploadFileName)
+
+			with tempfile.NamedTemporaryFile(suffix=fileExt) as uploadFile:
+				uploadFile.write(uploadFileData)
+
+				# Convert to bin if ascii
+				uploadFile.seek(0)
+				if uploadFile.read(5) == b'solid':
+					Mesh.from_file(uploadFile.name).save(uploadFile.name)
+
+				# Convert to ctm in uploads storage
+				ctmFile = models.File.fromName(filename + '.ctm', owner_id=scan.author_id)
+				ctmFile.mime_type = 'application/octet-stream'
+
+				ctmConvert = subprocess.run(["ctmconv", uploadFile.name, ctmFile.getAbsolutePath()], stderr=subprocess.PIPE)
+				if ctmConvert.returncode > 0:
+					# TODO: Deal with this error properly
+					# app.logger.error(ctmConvert.stderr)
+					return
+
+				ctmFile.size = os.stat(ctmFile.getAbsolutePath()).st_size
+
+				scan.ctm = ctmFile
+				self.db.session.add(ctmFile)
+				self.db.session.commit()

@@ -61,6 +61,12 @@ def image():
 
 	f.close()
 
+@pytest.fixture
+def horse():
+	horse = open(os.path.dirname(__file__) + '/../../../fixtures/Horse.zip', 'rb')
+	yield FileStorage(stream=horse, filename='horse.zip')
+	horse.close()
+
 def test_scan_store_create(store, image):
 	file = objectview(dict(
 		filename = 'my-file',
@@ -295,3 +301,26 @@ def test_unpublishable(store):
 
 	with pytest.raises(Unpublishable):
 		store.publish(uri)
+
+def test_create_ctm(store, horse):
+	"""Test to make sure an uploaded file gets processed"""
+	data = {
+		'scientific_name': 'Paul',
+		'alt_name': 'alt name',
+		'specimen_location': 'specimen_location',
+		'specimen_id': 'specimen_id',
+		#'specimen_url': 'specimen_url',
+		'description': 'description',
+		'publications': [],
+		'geologic_age': [],
+		'ontogenic_age': [],
+		'elements': [],
+		'gbif_id': None
+	}
+
+	slug = store.create(horse, 'admin', data, [])
+	store.create_ctm(slug)
+
+	scan = store.get(slug)
+
+	assert scan.ctm != None

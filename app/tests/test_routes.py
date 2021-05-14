@@ -157,51 +157,7 @@ def test_zip_upload(client, tmpdir, admin):
   assert json.loads(response.data)['scan']['source'] == expected_file
   assert path.exists(expected_location)
 
-def test_upload_process(client, tmpdir, admin):
-  """Test to make sure an uploaded file gets processed"""
-  login_admin(client)
-
-  modeldir = tmpdir.join('models')
-  app.config['UPLOAD_DIRECTORY'] = tmpdir
-  app.config['MODEL_DIRECTORY'] = modeldir
-
-  from pathlib import Path
-  from app.models import File, Scan
-  import io
-
-  horse = io.BytesIO(Path(__file__).parent.parent.parent.joinpath('fixtures/Horse.zip').read_bytes())
-  horseFile = File.fromBinary('horse.zip', horse, storage_area = File.MODELS_DIR, owner_id = admin.id)
-  with open(horseFile.getAbsolutePath(),'wb') as f:
-    f.write(horse.read())
-  horseScan = Scan()
-  horseScan.source = horseFile
-  horseScan.author = admin
-  db.session.add(horseFile)
-  db.session.add(horseScan)
-  db.session.commit()
-
-  response = client.post(
-      '/{0}/process'.format(horseScan.id)
-  )
-
-  import time
-  ctm_file = '/'.join((time.strftime("%Y/%m/%d"), 'Horse.ascii.ctm'))
-  expected_file = '/uploads/' + ctm_file
-  expected_location = tmpdir.join(ctm_file)
-
-  from os import path
-
-  assert path.exists(expected_location)
-  assert response.location == 'http://localhost/1/'
-
-  response = client.get(
-      response.location,
-      headers = {
-        'Accept': 'application/json'
-      }
-  )
-
-  assert json.loads(response.data)  ['ctm'] == expected_file
+  assert models.Queue.query.order_by('created').first() != None
 
 def test_upload_file_chunk(client, admin):
   login_admin(client)
