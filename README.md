@@ -35,6 +35,8 @@ flask db upgrade
 flask set-admin-pw pass
 # Start the front end
 npm start &
+# Start the task queue
+scripts/tasks.sh &
 # Start
 flask run
 ```

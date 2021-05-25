@@ -75,3 +75,14 @@ def create_ctm(scan_slug):
 @app.cli.command()
 def task_runner():
     taskExecutor.run()
+
+import sys
+
+@app.cli.command()
+def task():
+    res = taskExecutor.next()
+    if res:
+        print('task success')
+    else:
+        print('no task to run')
+        sys.exit(69)
