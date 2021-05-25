@@ -134,6 +134,28 @@
       enabled: y
     become: y
 
+  - name: Create task queue script
+    template:
+      src: tasks.sh
+      dest: '{{ p10k_home }}/tasks.sh'
+      mode: preserve
+    become: y
+    become_user: phenome10k
+
+  - name: Create the task queue service
+    template:
+      src: task-queue.service.j2
+      dest: /etc/systemd/system/task-queue.service
+    become: y
+    notify:
+      - restart task-queue
+  - name: Enable task-queue service
+    systemd:
+      name: task-queue.service
+      state: started
+      enabled: y
+    become: y
+
   - name: Set admin password
     command: '{{ venv_bin }}/flask set-admin-pw {{ p10k_admin_password }}'
     environment:
@@ -145,6 +167,7 @@
     become: y
     become_user: phenome10k
     run_once: true
+
   - name: Open gunicorn port on firewall
     firewalld:
       zone: dmz

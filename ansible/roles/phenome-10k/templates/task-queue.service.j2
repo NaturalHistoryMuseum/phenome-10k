@@ -1,0 +1,12 @@
+[Unit]
+Description=phenome10k task queue service
+
+[Service]
+Type=simple
+ExecStart={{ p10k_home }}/tasks.sh
+Restart=on-abort
+WorkingDirectory={{ p10k_src_dir }}
+User={{ p10k_linux_user }}
+
+[Install]
+WantedBy=multi-user.target
