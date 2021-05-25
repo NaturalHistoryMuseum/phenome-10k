@@ -10,5 +10,4 @@ node/dist
 ansible/playbook.retry
 .coverage
 htmlcov/
-*.so
 coverage

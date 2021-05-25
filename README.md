@@ -8,7 +8,6 @@ First, make sure you have the following binaries available:
  - Python 3
  - Node 10
  - NPM 5.6
- - openctm-tools
 
 To create and/or activate the virtual environment:
 ```bash

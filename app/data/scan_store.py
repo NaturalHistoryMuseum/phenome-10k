@@ -6,6 +6,7 @@ from zipfile import ZipFile, ZIP_DEFLATED
 from werkzeug.utils import secure_filename
 from stl.mesh import Mesh
 import subprocess
+from .ctmconv import ctmconv
 
 class ScanException(Exception):
 	pass
@@ -198,11 +199,7 @@ class ScanStore:
 				ctmFile = models.File.fromName(filename + '.ctm', owner_id=scan.author_id)
 				ctmFile.mime_type = 'application/octet-stream'
 
-				ctmConvert = subprocess.run(["ctmconv", uploadFile.name, ctmFile.getAbsolutePath()], stderr=subprocess.PIPE)
-				if ctmConvert.returncode > 0:
-					# TODO: Deal with this error properly
-					# app.logger.error(ctmConvert.stderr)
-					return
+				ctmconv(uploadFile.name, ctmFile.getAbsolutePath())
 
 				ctmFile.size = os.stat(ctmFile.getAbsolutePath()).st_size
 

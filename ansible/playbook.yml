@@ -21,7 +21,6 @@
       - nfs/client
       - { role: nodejs, tags: nodejs }
       - { role: phenome-10k, tags: phenome-10k }
-      - openctm
       - monit/monit
     vars:
       monit_services:
