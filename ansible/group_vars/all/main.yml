@@ -31,7 +31,7 @@ monit_mmonit_url: http://monit:{{ mmonit_client_password|urlencode() }}@{{ virtu
 nfs_path: '/var/files'
 uploads_dir: '{{ nfs_path }}/uploads'
 models_dir: '{{ nfs_path }}/models'
-tmp_upload_dir: '{ nfs_path }}/tmp-uploads'
+tmp_upload_dir: '{{ nfs_path }}/tmp-uploads'
 thumbnail_dir: '{{ p10k_home }}/thumbnails'
 mmonit_license_owner: Vincent Smith
 mmonit_license: "{{ lookup('hashi_vault', 'secret=phenome10k/mmonit:license url=https://man-vault-2.nhm.ac.uk:8200')}}"

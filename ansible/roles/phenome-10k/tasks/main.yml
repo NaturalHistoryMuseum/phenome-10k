@@ -92,7 +92,7 @@
     loop:
       - "{{ uploads_dir }}"
       - "{{ models_dir }}"
-      - "{{ tmp_upload }}"
+      - "{{ tmp_upload_dir }}"
     become: y
   - name: Migrate database
     command: '{{ venv_bin }}/flask db upgrade -d {{ p10k_src_dir }}/migrations'
@@ -136,7 +136,7 @@
 
   - name: Create task queue script
     template:
-      src: tasks.sh
+      src: tasks.sh.j2
       dest: '{{ p10k_home }}/tasks.sh'
       mode: preserve
     become: y
@@ -148,7 +148,8 @@
       dest: /etc/systemd/system/task-queue.service
     become: y
     notify:
-      - restart task-queue
+      - restart task queue
+
   - name: Enable task-queue service
     systemd:
       name: task-queue.service
@@ -195,6 +196,6 @@
       hour: "0"
       day: "*"
       month: "*"
-      job: "find {{ tmp_upload }} -type f -mtime +1 -delete"
+      job: "find {{ tmp_upload_dir }} -type f -mtime +1 -delete"
     become: y
     become_user: phenome10k

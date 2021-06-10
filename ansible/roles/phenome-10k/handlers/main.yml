@@ -28,3 +28,9 @@
       name: node
       state: restarted
     become: y
+
+  - name: restart task queue
+    service:
+      name: task-queue
+      state: restarted
+    become: y
