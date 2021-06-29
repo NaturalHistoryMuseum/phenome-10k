@@ -5,6 +5,7 @@
             @dblclick="toggelFullscreen"
             @click.alt="doubleSided = !doubleSided"
             title="Use ctrl to pan, shift to zoom"
+            :data-loaded="loaded"
     ></canvas>
 </template>
 
@@ -52,6 +53,7 @@ export default {
     },
     data() {
       return {
+        loaded: false,
         doubleSided: true,
         keyStates: {
           [CTRL_KEY]: false,
@@ -88,7 +90,10 @@ export default {
         viewer.setParameter('BackgroundColor1', '#09090a');
         viewer.setParameter('BackgroundColor2', '#676767');
 
-        viewer.onloadingcomplete = () => this.setDoubleSided();
+        viewer.onloadingcomplete = () => {
+          this.loaded = true;
+          this.setDoubleSided();
+        }
 
         // Observe the key states of the viewer so we know what cursor to use
         viewer.keyStates = this.keyStates;

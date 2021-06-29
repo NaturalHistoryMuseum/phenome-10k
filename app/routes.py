@@ -459,7 +459,8 @@ def edit_scan(scan = None):
 
     finally:
       # Close the underlying stream if it's a file
-      form.file.data.close()
+      if form.file.data != None:
+        form.file.data.close()
 
     if form_valid and not request.args.get('noredirect'):
       return redirect(request.args.get('redirect') or url_for('scan', scan=scan))
