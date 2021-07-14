@@ -7,6 +7,8 @@
   "license": "MIT",
   "scripts": {
     "start": "node node",
+    "build": "node build",
+    "watch": "node build/watch.js",
     "test": "jest",
     "test-ratchet": "jest && jest-coverage-ratchet && git add package.json"
   },

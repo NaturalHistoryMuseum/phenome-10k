@@ -11,3 +11,5 @@ ansible/playbook.retry
 .coverage
 htmlcov/
 coverage
+
+.idea/

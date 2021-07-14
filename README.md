@@ -5,20 +5,20 @@
 How to get it working:
 
 First, make sure you have the following binaries available:
- - Python 3
- - Node 10
- - NPM 5.6
+ - Python 3.8
+ - Node 14.5
+ - NPM 6.14
 
 To create and/or activate the virtual environment:
 ```bash
 source activate
 ```
 
-This basicaly just runs the venv scripts:
+This basically just runs the venv scripts:
 
 ```bash
 # Create env
-python3 -m venv venv
+python3.8 -m venv venv
 # Activate env
 source venv/bin/activate
 ```
@@ -33,6 +33,8 @@ npm i
 flask db upgrade
 # Create the admin account
 flask set-admin-pw pass
+# build the front end
+npm build
 # Start the front end
 npm start &
 # Start the task queue
@@ -47,6 +49,8 @@ If you want to run in developer/debug mode:
 npm start &
 FLASK_DEBUG=1 flask run
 ```
+
+`npm start` has to be restarted every time the frontend is rebuilt via `npm build` or `npm watch`.
 
 The default user for a new site has the email address `admin` and the username `pass`.
 Make sure to change this!
