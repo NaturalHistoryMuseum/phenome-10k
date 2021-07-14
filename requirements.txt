@@ -20,7 +20,7 @@ gunicorn==19.9.0
 idna==2.10
 importlib-metadata==0.15
 itsdangerous==1.1.0
-Jinja2==2.10.3
+Jinja2==2.11.3
 Mako==1.0.9
 MarkupSafe==1.1.1
 more-itertools==7.0.0
