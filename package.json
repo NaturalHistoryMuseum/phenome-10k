@@ -8,9 +8,11 @@
   "scripts": {
     "start": "node node",
     "build": "node build",
-    "watch": "node build/watch.js",
     "test": "jest",
-    "test-ratchet": "jest && jest-coverage-ratchet && git add package.json"
+    "test-ratchet": "jest && jest-coverage-ratchet && git add package.json",
+    "watch": "run-p watch:*",
+    "watch:server": "nodemon node",
+    "watch:build": "node build/watch.js"
   },
   "dependencies": {
     "busboy": "^0.3.1",
@@ -24,6 +26,8 @@
     "jsc3d": "github:naturalhistorymuseum/jsc3d",
     "mini-css-extract-plugin": "^0.6.0",
     "node-sass": "^6.0.1",
+    "nodemon": "^2.0.12",
+    "npm-run-all": "^4.1.5",
     "null-loader": "^0.1.1",
     "rimraf": "^2.6.3",
     "sass-loader": "^10.2.0",
@@ -70,5 +74,12 @@
         "branches": 0
       }
     }
+  },
+  "nodemonConfig": {
+    "watch": [
+      "app/static/"
+    ],
+    "ext": "json",
+    "delay": 2000
   }
 }

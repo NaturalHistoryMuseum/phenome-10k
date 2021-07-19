@@ -3,7 +3,10 @@
 const SSR = require('vue-server-renderer');
 const serverBundle = require('./dist/vue-ssr-server-bundle.json');
 const clientManifest = require('../app/static/dist/vue-ssr-client-manifest.json');
-const renderer = SSR.createBundleRenderer(serverBundle, { clientManifest });
+const renderer = SSR.createBundleRenderer(serverBundle, {
+	runInNewContext: false,
+	clientManifest
+});
 const argv = require('yargs/yargs')(process.argv.slice(2)).argv;
 
 const server = require('./server');

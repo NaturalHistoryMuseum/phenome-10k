@@ -43,14 +43,14 @@ scripts/tasks.sh &
 flask run
 ```
 
-If you want to run in developer/debug mode:
+If you want to run in developer/debug mode (with hot reload for both servers):
 
 ```bash
-npm start &
+npm watch &
 FLASK_DEBUG=1 flask run
 ```
 
-`npm start` has to be restarted every time the frontend is rebuilt via `npm build` or `npm watch`.
+`npm start` has to be restarted every time the frontend is rebuilt. If you are making frequent changes, `npm watch` is much easier as it handles both the bundling _and_ the server restarts.
 
 The default user for a new site has the email address `admin` and the username `pass`.
 Make sure to change this!
