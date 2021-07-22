@@ -5,17 +5,17 @@ class TmpUploadStore:
     def __init__(self, prefix):
         self.prefix = prefix
 
-    def get_filepath(self, id):
+    def get_filepath(self, file_id):
         # Validate the ID is a uuid
-        uuid.UUID(id, version=4)
-        return self.prefix + id
+        uuid.UUID(file_id, version=4)
+        return self.prefix + file_id
 
     def create(self):
-        id = str(uuid.uuid4())
-        return id
+        file_id = str(uuid.uuid4())
+        return file_id
 
-    def append(self, id, data):
-        filename = self.get_filepath(id)
+    def append(self, file_id, data):
+        filename = self.get_filepath(file_id)
         file = open(filename, 'ab')
         file.write(data)
         file.close()

@@ -17,10 +17,10 @@ def test_get_name(store):
 
 
 def test_write_to_file(store):
-    id = store.create()
+    file_id = store.create()
 
-    store.append(id, b'string a')
-    store.append(id, b'string b')
+    store.append(file_id, b'string a')
+    store.append(file_id, b'string b')
 
-    with open(store.get_filepath(id), 'r') as file:
+    with open(store.get_filepath(file_id), 'r') as file:
         assert file.read() == 'string astring b'

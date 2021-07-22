@@ -372,11 +372,11 @@ def scan(scan_object):
     return render_vue(data, title=scan_object.scientific_name, menu='library')
 
 
-@app.route('/stills/<int:id>/', methods=['DELETE'])
+@app.route('/stills/<int:still_id>/', methods=['DELETE'])
 @login_required
-def delete_still(id):
+def delete_still(still_id):
     """Url for deleting a still"""
-    attachment = ScanAttachment.query.filter_by(attachment_id=id).first()
+    attachment = ScanAttachment.query.filter_by(attachment_id=still_id).first()
     return_to = url_for('library')
 
     if attachment:
@@ -429,10 +429,10 @@ def create_tmp_upload_file():
     return res
 
 
-@app.route('/files/<id>', methods=['PATCH'])
+@app.route('/files/<file_id>', methods=['PATCH'])
 @requires_contributor
-def append_tmp_upload_file(id):
-    uploadStore.append(id, request.get_data())
+def append_tmp_upload_file(file_id):
+    uploadStore.append(file_id, request.get_data())
     return Response(status=200)
 
 
@@ -556,11 +556,11 @@ def edit_publication(pub_object=None):
     return render_vue(data, title='Edit' if pub_object else 'Create', menu='publications')
 
 
-@app.route('/remove-pub-file/<int:id>', methods=['DELETE'])
+@app.route('/remove-pub-file/<int:attach_id>', methods=['DELETE'])
 @requires_contributor
-def delete_pub_file(id):
+def delete_pub_file(attach_id):
     """Url for deleting a file"""
-    attachment = PublicationFile.query.filter_by(attachment_id=id).first()
+    attachment = PublicationFile.query.filter_by(attachment_id=attach_id).first()
     return_to = url_for('publications')
 
     if attachment:
@@ -707,8 +707,8 @@ def users():
     error = ''
 
     if request.method == 'POST':
-        id = request.form.get('id')
-        user = User.query.get(id)
+        user_id = request.form.get('id')
+        user = User.query.get(user_id)
 
         if user:
             # Todo: Validation and errors
@@ -716,13 +716,13 @@ def users():
             db.session.commit()
             return redirect(url_for('users'))
         else:
-            error = 'No user was found for id ' + id
+            error = 'No user was found for id ' + user_id
 
     query = User.query
-    id = request.args.get('id')
+    user_id = request.args.get('id')
 
-    if id:
-        query = query.filter_by(id=id)
+    if user_id:
+        query = query.filter_by(id=user_id)
 
     users = [user.serialize() for user in query.all()]
     data = {'users': users, 'error': error}

@@ -59,19 +59,19 @@ class ScanUploadForm(FlaskForm):
     specimen_url = StringField('Additional Media')
     description = TextAreaField('Description')
     publications = SelectMultipleField('Publications', choices=[],
-                                       coerce=lambda id: id if isinstance(id, Publication) else Publication.query.get(
-                                           int(id)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
+                                       coerce=lambda f: f if isinstance(f, Publication) else Publication.query.get(
+                                           int(f)), widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput())
     attachments = MultipleFileField('Add files', default=[])
     geologic_age = SelectMultipleField('Geologic Age', choices=[],
-                                       coerce=lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)),
+                                       coerce=lambda f: f if isinstance(f, Tag) else Tag.query.get(int(f)),
                                        widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput(),
                                        validators=[DataRequired()])
     ontogenic_age = SelectMultipleField('Ontogenetic Age', choices=[],
-                                        coerce=lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)),
+                                        coerce=lambda f: f if isinstance(f, Tag) else Tag.query.get(int(f)),
                                         widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput(),
                                         validators=[DataRequired()])
     elements = SelectMultipleField('Elements', choices=[],
-                                   coerce=lambda id: id if isinstance(id, Tag) else Tag.query.get(int(id)),
+                                   coerce=lambda f: f if isinstance(f, Tag) else Tag.query.get(int(f)),
                                    widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput(),
                                    validators=[DataRequired()])
     gbif_id = StringField()

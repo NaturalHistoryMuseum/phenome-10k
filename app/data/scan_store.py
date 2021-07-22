@@ -41,8 +41,8 @@ class ScanStore:
         if file.filename.endswith('.zip'):
             # app.logger.warn('zip file, validate contents')
             print(file.stream)
-            zip_file = ZipFile(file.stream, 'r', ZIP_DEFLATED)
-            if len(zip_file.infolist()) != 1:
+            zf = ZipFile(file.stream, 'r', ZIP_DEFLATED)
+            if len(zf.infolist()) != 1:
                 # app.logger.error('wrong number of files in zip')
                 raise AmbiguousZip('ZIP uploads must contain exactly one file')
             # app.logger.warn('valid zip')
@@ -50,23 +50,23 @@ class ScanStore:
 
         # Zip source file & save to large file storage
         # app.logger.warn('create empty zip')
-        zip = models.File.from_name(file.filename + '.zip', models.File.MODELS_DIR, owner_id=owner_id)
-        zip.mime_type = 'application/zip'
+        zip_file = models.File.from_name(file.filename + '.zip', models.File.MODELS_DIR, owner_id=owner_id)
+        zip_file.mime_type = 'application/zip'
 
         filename, file_ext = os.path.splitext(file.filename)
         with tempfile.NamedTemporaryFile(suffix=file_ext) as uploadFile:
             # app.logger.warn('save upload to temp')
             file.save(uploadFile.name)
-            with ZipFile(zip.get_absolute_path(), 'w', ZIP_DEFLATED) as zip_file:
+            with ZipFile(zip_file.get_absolute_path(), 'w', ZIP_DEFLATED) as zf:
                 # app.logger.warn('write temp file to zip')
-                zip_file.write(uploadFile.name, file.filename)
+                zf.write(uploadFile.name, file.filename)
 
         # app.logger.warn('set zip size')
-        zip.size = os.stat(zip.get_absolute_path()).st_size
+        zip_file.size = os.stat(zip_file.get_absolute_path()).st_size
 
         # app.logger.warn('generated zip')
 
-        return zip
+        return zip_file
 
     def create(self, file, author_uri, data, attachments=None):
         attachments = attachments or []
@@ -184,12 +184,12 @@ class ScanStore:
         if not scan.source:
             raise ScanException('Nothing to process; no file has been uploaded')
 
-        zip = scan.source
+        zip_file = scan.source
 
-        with ZipFile(zip.get_absolute_path(), 'r', ZIP_DEFLATED) as zipFile:
-            upload_file_name = zipFile.infolist()[0].filename
+        with ZipFile(zip_file.get_absolute_path(), 'r', ZIP_DEFLATED) as zf:
+            upload_file_name = zf.infolist()[0].filename
 
-            upload_file_data = zipFile.read(upload_file_name)
+            upload_file_data = zf.read(upload_file_name)
 
             filename, file_ext = os.path.splitext(upload_file_name)
 

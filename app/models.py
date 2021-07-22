@@ -13,8 +13,8 @@ from app import db, login, app
 
 
 @login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 # Allow decoding phpasswords, but deprecate all but argon2
