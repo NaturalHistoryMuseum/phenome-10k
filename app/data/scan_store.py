@@ -46,23 +46,23 @@ class ScanStore:
                 # app.logger.error('wrong number of files in zip')
                 raise AmbiguousZip('ZIP uploads must contain exactly one file')
             # app.logger.warn('valid zip')
-            return models.File.fromUpload(file, models.File.MODELS_DIR, owner_id=owner_id)
+            return models.File.from_upload(file, models.File.MODELS_DIR, owner_id=owner_id)
 
         # Zip source file & save to large file storage
         # app.logger.warn('create empty zip')
-        zip = models.File.fromName(file.filename + '.zip', models.File.MODELS_DIR, owner_id=owner_id)
+        zip = models.File.from_name(file.filename + '.zip', models.File.MODELS_DIR, owner_id=owner_id)
         zip.mime_type = 'application/zip'
 
         filename, fileExt = os.path.splitext(file.filename)
         with tempfile.NamedTemporaryFile(suffix=fileExt) as uploadFile:
             # app.logger.warn('save upload to temp')
             file.save(uploadFile.name)
-            with ZipFile(zip.getAbsolutePath(), 'w', ZIP_DEFLATED) as zipFile:
+            with ZipFile(zip.get_absolute_path(), 'w', ZIP_DEFLATED) as zipFile:
                 # app.logger.warn('write temp file to zip')
                 zipFile.write(uploadFile.name, file.filename)
 
         # app.logger.warn('set zip size')
-        zip.size = os.stat(zip.getAbsolutePath()).st_size
+        zip.size = os.stat(zip.get_absolute_path()).st_size
 
         # app.logger.warn('generated zip')
 
@@ -139,12 +139,12 @@ class ScanStore:
             label = file.filename
             filename = secure_filename(file.filename) + '.png'
 
-            fileModel = models.File.fromBinary(filename, file.stream, owner_id=author_id)
+            fileModel = models.File.from_binary(filename, file.stream, owner_id=author_id)
 
             if (fileModel.mime_type != 'image/png'):
                 raise InvalidAttachment('Stills must be png files')
             else:
-                file.save(fileModel.getAbsolutePath())
+                file.save(fileModel.get_absolute_path())
                 attachment = models.Attachment(
                     name=label,
                     file=fileModel
@@ -172,7 +172,7 @@ class ScanStore:
         self.db.session.commit()
 
     def get(self, scan_uri):
-        return models.Scan.findBySlug(scan_uri)
+        return models.Scan.find_by_slug(scan_uri)
 
     def create_ctm(self, scan):
         """ Convert an uploaded model file to a ctm file """
@@ -184,7 +184,7 @@ class ScanStore:
 
         zip = scan.source
 
-        with ZipFile(zip.getAbsolutePath(), 'r', ZIP_DEFLATED) as zipFile:
+        with ZipFile(zip.get_absolute_path(), 'r', ZIP_DEFLATED) as zipFile:
             uploadFileName = zipFile.infolist()[0].filename
 
             uploadFileData = zipFile.read(uploadFileName)
@@ -200,12 +200,12 @@ class ScanStore:
                     Mesh.from_file(uploadFile.name).save(uploadFile.name)
 
                 # Convert to ctm in uploads storage
-                ctmFile = models.File.fromName(filename + '.ctm', owner_id=scan.author_id)
+                ctmFile = models.File.from_name(filename + '.ctm', owner_id=scan.author_id)
                 ctmFile.mime_type = 'application/octet-stream'
 
-                ctmconv(uploadFile.name, ctmFile.getAbsolutePath())
+                ctmconv(uploadFile.name, ctmFile.get_absolute_path())
 
-                ctmFile.size = os.stat(ctmFile.getAbsolutePath()).st_size
+                ctmFile.size = os.stat(ctmFile.get_absolute_path()).st_size
 
                 scan.ctm = ctmFile
                 self.db.session.add(ctmFile)

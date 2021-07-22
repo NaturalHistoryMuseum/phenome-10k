@@ -28,7 +28,7 @@ def database():
             email='admin',
             role='ADMIN'
         )
-        user.setPassword('pass')
+        user.set_password('pass')
         db.session.add(user)
         db.session.commit()
 

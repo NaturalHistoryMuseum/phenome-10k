@@ -80,7 +80,7 @@ def admin(client):
         email='admin@example.com',
         role='ADMIN'
     )
-    user.setPassword('pass')
+    user.set_password('pass')
     db.session.add(user)
     db.session.commit()
     return user

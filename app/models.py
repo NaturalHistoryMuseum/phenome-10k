@@ -36,31 +36,31 @@ class User(UserMixin, db.Model):
 
     scans = db.relationship('Scan', backref='author')
 
-    def isAdmin(self):
+    def is_admin(self):
         return self.role == 'ADMIN'
 
-    def isContributor(self):
-        return self.isAdmin() or self.role == 'CONTRIBUTOR'
+    def is_contributor(self):
+        return self.is_admin() or self.role == 'CONTRIBUTOR'
 
-    def setPassword(self, password):
+    def set_password(self, password):
         self.password = cryptCtx.hash(password)
 
-    def checkPassword(self, password):
+    def check_password(self, password):
         return cryptCtx.verify(password, self.password)
 
-    def passwordNeedsUpdate(self):
+    def password_needs_update(self):
         return cryptCtx.needs_update(self.password)
 
-    def checkAndMigratePassword(self, password):
-        if (self.checkPassword(password)):
-            if (self.passwordNeedsUpdate()):
-                self.setPassword(password)
+    def check_and_migrate_password(self, password):
+        if (self.check_password(password)):
+            if (self.password_needs_update()):
+                self.set_password(password)
             return True
         return False
 
-    def canEdit(self, item):
+    def can_edit(self, item):
         """ Returns true if the user can edit the given model """
-        return self.isAdmin() or item.isOwnedBy(self)
+        return self.is_admin() or item.is_owned_by(self)
 
     def __repr__(self):
         return '<User {}>'.format(self.name)
@@ -149,10 +149,10 @@ class Scan(db.Model):
         return obj
 
     @staticmethod
-    def findBySlug(slug):
+    def find_by_slug(slug):
         return Scan.query.filter(db.or_(Scan.url_slug == slug, Scan.id == slug)).first()
 
-    def isOwnedBy(self, user):
+    def is_owned_by(self, user):
         """ Return true if the given user owns this model """
         return self.author_id == user.id
 
@@ -176,31 +176,31 @@ class File(db.Model):
     owner = db.relationship('User')
 
     @staticmethod
-    def fromUpload(fileStorage, storage_area=UPLOADS_DIR, save=True, owner_id=None):
+    def from_upload(file_storage, storage_area=UPLOADS_DIR, save=True, owner_id=None):
         """Create a File model from a Werkzeug FileStorage object, and save the file to disk"""
-        file = File.fromBinary(fileStorage.filename, fileStorage.stream, storage_area, owner_id)
+        file = File.from_binary(file_storage.filename, file_storage.stream, storage_area, owner_id)
         if save:
-            fileStorage.save(file.getAbsolutePath())
+            file_storage.save(file.get_absolute_path())
         return file
 
     @staticmethod
-    def fromBinary(filename, stream, storage_area=UPLOADS_DIR, owner_id=None):
+    def from_binary(filename, stream, storage_area=UPLOADS_DIR, owner_id=None):
         """Create a File model from a string filename and file-like object"""
-        mimeType = magic.from_buffer(stream.read(1024), mime=True)
+        mime_type = magic.from_buffer(stream.read(1024), mime=True)
         stream.seek(0, os.SEEK_END)
         size = stream.tell()
         stream.seek(0)
 
-        return File.fromName(
+        return File.from_name(
             filename,
             size=size,
-            mimeType=mimeType,
+            mime_type=mime_type,
             storage_area=storage_area,
             owner_id=owner_id
         )
 
     @staticmethod
-    def fromName(filename, storage_area=UPLOADS_DIR, mimeType=None, size=None, owner_id=None):
+    def from_name(filename, storage_area=UPLOADS_DIR, mime_type=None, size=None, owner_id=None):
         """Create a File model from a string filename with optional size and mimetype"""
 
         filedir = time.strftime('%Y/%m/%d')
@@ -208,7 +208,7 @@ class File(db.Model):
 
         try:
             os.makedirs(
-                File.getAbsolutePathFor(storage_area, filedir)
+                File.get_absolute_path_for(storage_area, filedir)
             )
         except FileExistsError:
             pass
@@ -217,7 +217,7 @@ class File(db.Model):
 
         n = 1
 
-        while os.path.isfile(File.getAbsolutePathFor(storage_area, location)):
+        while os.path.isfile(File.get_absolute_path_for(storage_area, location)):
             location = '/'.join((filedir, secure_filename(basename) + '-' + str(n) + ext,))
             n += 1
 
@@ -225,13 +225,13 @@ class File(db.Model):
             filename=filename,
             location=location,
             owner_id=owner_id or current_user.id,
-            mime_type=mimeType,
+            mime_type=mime_type,
             size=size,
             storage_area=storage_area
         )
 
     @staticmethod
-    def getAbsolutePathFor(storage_area, location):
+    def get_absolute_path_for(storage_area, location):
         """Returns the absolute path on the filesystem for a file"""
         storage_dir = app.config['UPLOAD_DIRECTORY'] if storage_area == File.UPLOADS_DIR else \
             app.config['MODEL_DIRECTORY'] if storage_area == File.MODELS_DIR else None
@@ -241,9 +241,9 @@ class File(db.Model):
 
         return os.path.join(storage_dir, location)
 
-    def getAbsolutePath(self):
+    def get_absolute_path(self):
         """Returns the absolute path on the filesystem for this file"""
-        return File.getAbsolutePathFor(self.storage_area, self.location)
+        return File.get_absolute_path_for(self.storage_area, self.location)
 
     def serialize(self, external=False):
         """Returns the url for downloading this file over http"""
@@ -259,7 +259,7 @@ class File(db.Model):
 def receive_after_delete(mapper, connection, target):
     """Ensure the files get deleted from disk when the record is deleted"""
     try:
-        os.remove(target.getAbsolutePath())
+        os.remove(target.get_absolute_path())
     except Exception:
         # FIXME log the exception
         pass
@@ -293,9 +293,9 @@ class PublicationFile(db.Model):
     publication = db.relationship('Publication')
     attachment = db.relationship('Attachment', cascade='all')
 
-    def isOwnedBy(self, user):
+    def is_owned_by(self, user):
         """ Return true if the given user owns this model """
-        return self.publication.isOwnedBy(user)
+        return self.publication.is_owned_by(user)
 
 
 class Publication(db.Model):
@@ -339,10 +339,10 @@ class Publication(db.Model):
     files = db.relationship('Attachment', secondary='publication_file', cascade='all')
 
     @staticmethod
-    def findBySlug(slug):
+    def find_by_slug(slug):
         return Publication.query.filter(db.or_(Publication.url_slug == slug, Publication.id == slug)).first()
 
-    def isOwnedBy(self, user):
+    def is_owned_by(self, user):
         """ Return true if the given user owns this model """
         return self.author_id == user.id
 
@@ -359,9 +359,9 @@ class Tag(db.Model):
     def children(self):
         return Tag.query.filter(db.and_(Tag.parent_id == self.id, Tag.category == self.category))
 
-    def serializeTree(self):
+    def serialize_tree(self):
         data = self.serialize()
-        data['children'] = [child.serializeTree() for child in self.children]
+        data['children'] = [child.serialize_tree() for child in self.children]
         if len(data['children']) == 1:
             return data['children'][0]
         return data
@@ -380,9 +380,9 @@ class Tag(db.Model):
 
         for tag in Tag.query.filter_by(parent_id=None).all():
             if tag.category in cats:
-                cats[tag.category].append(tag.serializeTree())
+                cats[tag.category].append(tag.serialize_tree())
             else:
-                cats[tag.category] = [tag.serializeTree()]
+                cats[tag.category] = [tag.serialize_tree()]
         return cats
 
     def __eq__(self, obj):
@@ -402,7 +402,7 @@ class Taxonomy(db.Model):
     scans = db.relationship('Scan', secondary='scan_taxonomy')
     children = db.relationship('Taxonomy')
 
-    def serializeTree(self, depth=float('inf')):
+    def serialize_tree(self, depth=float('inf')):
         """
         Returns a serialized version of this model, with all of its children
         serialized too. If this node only has one child, it will use
@@ -413,9 +413,9 @@ class Taxonomy(db.Model):
 
         if depth > 0:
             if len(self.children) == 1:
-                data['children'] = self.children[0].serializeTree(depth)['children']
+                data['children'] = self.children[0].serialize_tree(depth)['children']
             else:
-                data['children'] = [child.serializeTree(depth - 1) for child in self.children]
+                data['children'] = [child.serialize_tree(depth - 1) for child in self.children]
         else:
             data['children'] = []
         return data
@@ -428,7 +428,7 @@ class Taxonomy(db.Model):
 
     @staticmethod
     def tree():
-        return [tag.serializeTree() for tag in Taxonomy.query.filter_by(parent_id=None).all()]
+        return [tag.serialize_tree() for tag in Taxonomy.query.filter_by(parent_id=None).all()]
 
     def __repr__(self):
         return '<Taxonomy {}>'.format(self.name)
@@ -460,9 +460,9 @@ class ScanAttachment(db.Model):
     scan = db.relationship('Scan')
     attachment = db.relationship('Attachment', cascade='all')
 
-    def isOwnedBy(self, user):
+    def is_owned_by(self, user):
         """ Return true if the given user owns this model """
-        return self.scan.isOwnedBy(user)
+        return self.scan.is_owned_by(user)
 
 
 class Queue(db.Model):

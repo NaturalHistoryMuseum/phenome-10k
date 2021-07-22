@@ -41,7 +41,7 @@ def hideScanFiles(data):
 
 def ensureEditable(item):
     """ Throw Forbidden exception if the current user is not allowed to edit the given model """
-    if not current_user.canEdit(item):
+    if not current_user.can_edit(item):
         raise Forbidden('You cannot edit this item as you are not the original author.')
 
 
@@ -50,7 +50,7 @@ class SlugConverter(BaseConverter):
     model = None
 
     def to_python(self, slug):
-        model = self.model.findBySlug(slug)
+        model = self.model.find_by_slug(slug)
         if model is None:
             raise ValidationError
         return model
@@ -88,7 +88,7 @@ def requiresAdmin(f):
     @wraps(f)
     @login_required
     def decorated_function(*args, **kwargs):
-        if not current_user.isAdmin():
+        if not current_user.is_admin():
             return render_template('403.html', message='You must be an administrator to access this page.',
                                    menu='home'), 403
         return f(*args, **kwargs)
@@ -100,7 +100,7 @@ def requiresContributor(f):
     @wraps(f)
     @login_required
     def decorated_function(*args, **kwargs):
-        if not current_user.isContributor():
+        if not current_user.is_contributor():
             return render_template('403.html', message='You must be a contributor to access this page.',
                                    menu='home'), 403
         return f(*args, **kwargs)
@@ -176,7 +176,7 @@ def login():
     error = None
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user is not None and user.checkAndMigratePassword(form.password.data):
+        if user is not None and user.check_and_migrate_password(form.password.data):
             # db.session.commit()
             login_user(user, remember=form.remember_me.data)
             next_page = form.next.data
@@ -204,7 +204,7 @@ def register():
     if form.validate_on_submit():
         user = User(name=form.name.data, email=form.email.data, country_code=form.country.data,
                     user_type=form.organisation.data)
-        user.setPassword(form.password.data)
+        user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
         flash('You are now registered and may log in')
@@ -291,7 +291,7 @@ def library(page=1):
     data['tags'] = Tag.tree()
     data['tags']['taxonomy'] = Taxonomy.tree()
     data['q'] = search
-    data['showMine'] = current_user.is_authenticated and current_user.isContributor()
+    data['showMine'] = current_user.is_authenticated and current_user.is_contributor()
 
     out = render_vue(data, title='Scans', menu='library')
 
@@ -354,7 +354,7 @@ def manage_uploads(page=1):
         query = query.filter(Scan.scientific_name.startswith(startswith))
     scans = query.paginate(page, per_page)
     data = {
-        'scans': [s.serialize() for s in scans.items if current_user.canEdit(s)],
+        'scans': [s.serialize() for s in scans.items if current_user.can_edit(s)],
         'page': page,
         'total_pages': math.ceil(scans.total / per_page),
         'csrf_token': g.csrf_token,
@@ -365,7 +365,7 @@ def manage_uploads(page=1):
 
 @app.route('/<scan:scan>/')
 def scan(scan):
-    if not scan.published and not (current_user.is_authenticated and current_user.canEdit(scan)):
+    if not scan.published and not (current_user.is_authenticated and current_user.can_edit(scan)):
         raise NotFound()
     data = hideScanFiles(scan.serialize())
 
@@ -396,7 +396,7 @@ def scan_stills(scan):
     zip_buffer = io.BytesIO()
     with ZipFile(zip_buffer, 'w') as zip_file:
         for still in scan.attachments:
-            zip_file.write(still.file.getAbsolutePath(), still.file.filename)
+            zip_file.write(still.file.get_absolute_path(), still.file.filename)
 
     zip_buffer.seek(0)
     filename = scan.url_slug + '_stills.zip'
@@ -534,7 +534,7 @@ def edit_publication(publication=None):
         for file in form.files.data:
             if file == '':
                 continue
-            f = File.fromUpload(file)
+            f = File.from_upload(file)
             db.session.add(f)
             publication.files.append(
                 Attachment(
@@ -657,7 +657,7 @@ def manage_publications(page=1):
         query = query.filter_by(pub_year=pub_year)
     publications = query.order_by(Publication.pub_year.desc()).paginate(page, per_page)
     data = {
-        'publications': [pub.serialize() for pub in publications.items if current_user.canEdit(pub)],
+        'publications': [pub.serialize() for pub in publications.items if current_user.can_edit(pub)],
         'page': page,
         'total_pages': math.ceil(publications.total / per_page),
         'years': [y[0] for y in
@@ -669,7 +669,7 @@ def manage_publications(page=1):
 
 @app.route('/publication/<publication:publication>/')
 def publication(publication):
-    if not publication.published and not (current_user.is_authenticated and current_user.canEdit(publication)):
+    if not publication.published and not (current_user.is_authenticated and current_user.can_edit(publication)):
         raise NotFound()
     return render_vue(publication.serialize(), title=publication.title, menu='publications')
 
