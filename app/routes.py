@@ -29,7 +29,7 @@ uploadStore = TmpUploadStore(app.config['TMP_UPLOAD'])
 taskQueue = TaskQueue(models.Queue)
 
 
-def hideScanFiles(data):
+def hide_scan_files(data):
     if not current_user.is_authenticated:
         login = url_for('login')
         data['source'] = login
@@ -39,7 +39,7 @@ def hideScanFiles(data):
     return data
 
 
-def ensureEditable(item):
+def ensure_editable(item):
     """ Throw Forbidden exception if the current user is not allowed to edit the given model """
     if not current_user.can_edit(item):
         raise Forbidden('You cannot edit this item as you are not the original author.')
@@ -84,7 +84,7 @@ def add_headers(response):
     return response
 
 
-def requiresAdmin(f):
+def requires_admin(f):
     @wraps(f)
     @login_required
     def decorated_function(*args, **kwargs):
@@ -96,7 +96,7 @@ def requiresAdmin(f):
     return decorated_function
 
 
-def requiresContributor(f):
+def requires_contributor(f):
     @wraps(f)
     @login_required
     def decorated_function(*args, **kwargs):
@@ -159,10 +159,10 @@ def send_uploads(path):
 
         height = im.height * width / im.width
         im.thumbnail((width, height))
-        byteIO = io.BytesIO()
-        im.save(byteIO, format='PNG')
+        byte_io = io.BytesIO()
+        im.save(byte_io, format='PNG')
         im.save(thumbnail_file, format='PNG')
-        return Response(byteIO.getvalue(), mimetype='image/png', direct_passthrough=True)
+        return Response(byte_io.getvalue(), mimetype='image/png', direct_passthrough=True)
 
 
 @app.route('/about/', methods=['GET', 'POST'])
@@ -226,26 +226,26 @@ def library(page=1):
     mine = 'mine' in request.args.keys()
     search = request.args.get('q')
 
-    scanConditions = [
+    scan_conditions = [
         Scan.published
     ]
 
     if search:
-        searchQuery = '%{0}%'.format(search)
+        search_query = '%{0}%'.format(search)
 
-        textSearch = db.or_(
-            Scan.scientific_name.ilike(searchQuery),
-            Scan.alt_name.ilike(searchQuery),
-            Scan.specimen_id.ilike(searchQuery),
-            Scan.specimen_location.ilike(searchQuery),
-            Scan.description.ilike(searchQuery)
+        text_search = db.or_(
+            Scan.scientific_name.ilike(search_query),
+            Scan.alt_name.ilike(search_query),
+            Scan.specimen_id.ilike(search_query),
+            Scan.specimen_location.ilike(search_query),
+            Scan.description.ilike(search_query)
         )
 
-        scanConditions.append(textSearch)
+        scan_conditions.append(text_search)
 
     for searchTags in [ontogenic_age, geologic_age, elements]:
         if len(searchTags) > 0:
-            scanConditions.append(
+            scan_conditions.append(
                 Scan.tags.any(
                     Tag.taxonomy.startswith(searchTags[0]) if len(searchTags) == 1 else db.or_(
                         *[Tag.taxonomy.startswith(term) for term in searchTags])
@@ -253,18 +253,18 @@ def library(page=1):
             )
 
     if len(taxonomy) > 0:
-        scanConditions.append(Scan.taxonomy.any(Taxonomy.id.in_(taxonomy)))
+        scan_conditions.append(Scan.taxonomy.any(Taxonomy.id.in_(taxonomy)))
 
     if mine and current_user.is_authenticated:
-        scanConditions.append(Scan.author_id == current_user.id)
+        scan_conditions.append(Scan.author_id == current_user.id)
 
-    scanConditions = db.and_(*scanConditions)
+    scan_conditions = db.and_(*scan_conditions)
 
     # This is annoying... if we're sorting by name it's just sort,
     # but if we're sorting by tag we need to group it all.
     # Put it under the `groups` key so the view knows it needs to render differently
     if (sort in ('geologic_age', 'ontogenic_age')):
-        results = [(tag, tag.scans.filter(scanConditions).all()) for tag in Tag.query.filter_by(category=sort).all()]
+        results = [(tag, tag.scans.filter(scan_conditions).all()) for tag in Tag.query.filter_by(category=sort).all()]
 
         data = {
             'groups': [
@@ -280,7 +280,7 @@ def library(page=1):
     else:
         query = Scan.scientific_name
 
-        results = Scan.query.filter(scanConditions).order_by(query).paginate(page, per_page)
+        results = Scan.query.filter(scan_conditions).order_by(query).paginate(page, per_page)
 
         data = {
             'scans': [s.serialize(full=False) for s in results.items],
@@ -311,7 +311,7 @@ def feed():
 @app.route('/library/manage-uploads/page/<int:page>/', methods=['GET', 'POST'])
 @app.route('/scans/manage-uploads/', methods=['GET', 'POST'])
 @app.route('/scans/manage-uploads/page/<int:page>/', methods=['GET', 'POST'])
-@requiresContributor
+@requires_contributor
 def manage_uploads(page=1):
     """View a list of uploads with publish, edit, delete actions"""
 
@@ -319,7 +319,7 @@ def manage_uploads(page=1):
     if request.method == 'POST':
         scan_id = request.form.get('delete')
         scan = Scan.query.get(scan_id)
-        ensureEditable(scan)
+        ensure_editable(scan)
         db.session.delete(scan)
         db.session.commit()
         return redirect(request.full_path)
@@ -338,15 +338,15 @@ def manage_uploads(page=1):
     query = Scan.query
 
     if search:
-        searchQuery = '%{0}%'.format(search)
+        search_query = '%{0}%'.format(search)
 
         query = query.filter(
             db.or_(
-                Scan.scientific_name.ilike(searchQuery),
-                Scan.alt_name.ilike(searchQuery),
-                Scan.specimen_id.ilike(searchQuery),
-                Scan.specimen_location.ilike(searchQuery),
-                Scan.description.ilike(searchQuery)
+                Scan.scientific_name.ilike(search_query),
+                Scan.alt_name.ilike(search_query),
+                Scan.specimen_id.ilike(search_query),
+                Scan.specimen_location.ilike(search_query),
+                Scan.description.ilike(search_query)
             )
         )
 
@@ -367,7 +367,7 @@ def manage_uploads(page=1):
 def scan(scan):
     if not scan.published and not (current_user.is_authenticated and current_user.can_edit(scan)):
         raise NotFound()
-    data = hideScanFiles(scan.serialize())
+    data = hide_scan_files(scan.serialize())
 
     return render_vue(data, title=scan.scientific_name, menu='library')
 
@@ -380,7 +380,7 @@ def delete_still(id):
     return_to = url_for('library')
 
     if attachment:
-        ensureEditable(attachment)
+        ensure_editable(attachment)
         return_to = url_for('edit_scan', scan=attachment.scan)
         db.session.delete(attachment)
         db.session.commit()
@@ -405,7 +405,7 @@ def scan_stills(scan):
 
 
 @app.route('/scans/batch-upload/', methods=['GET', 'POST'])
-@requiresContributor
+@requires_contributor
 def upload_multi():
     files = []
     if request.method == 'POST':
@@ -422,7 +422,7 @@ def upload_multi():
 
 
 @app.route('/files/', methods=['POST'])
-@requiresContributor
+@requires_contributor
 def create_tmp_upload_file():
     res = Response(status=201)
     res.headers['Location'] = '/files/' + uploadStore.create()
@@ -430,7 +430,7 @@ def create_tmp_upload_file():
 
 
 @app.route('/files/<id>', methods=['PATCH'])
-@requiresContributor
+@requires_contributor
 def append_tmp_upload_file(id):
     uploadStore.append(id, request.get_data())
     return Response(status=200)
@@ -439,12 +439,12 @@ def append_tmp_upload_file(id):
 @app.route('/<scan:scan>/edit', methods=['GET', 'POST'])
 @app.route('/library/create/', methods=['GET', 'POST'])
 @app.route('/scans/create/', methods=['GET', 'POST'])
-@requiresContributor
+@requires_contributor
 def edit_scan(scan=None):
     form = ScanUploadForm(obj=scan)
 
     if scan:
-        ensureEditable(scan)
+        ensure_editable(scan)
 
         if not form.geologic_age.data:
             form.geologic_age.data = scan.geologic_age
@@ -509,12 +509,12 @@ def edit_scan(scan=None):
 
 @app.route('/publications/create/', methods=['GET', 'POST'])
 @app.route('/publication/<publication:publication>/edit', methods=['GET', 'POST'])
-@requiresContributor
+@requires_contributor
 def edit_publication(publication=None):
     form = PublicationUploadForm(obj=publication)
 
     if publication:
-        ensureEditable(publication)
+        ensure_editable(publication)
 
     if form.validate_on_submit():
         if not publication:
@@ -557,14 +557,14 @@ def edit_publication(publication=None):
 
 
 @app.route('/remove-pub-file/<int:id>', methods=['DELETE'])
-@requiresContributor
+@requires_contributor
 def delete_pub_file(id):
     """Url for deleting a file"""
     attachment = PublicationFile.query.filter_by(attachment_id=id).first()
     return_to = url_for('publications')
 
     if attachment:
-        ensureEditable(attachment)
+        ensure_editable(attachment)
         return_to = url_for('edit_publication', publication=attachment.publication)
         db.session.delete(attachment)
         db.session.commit()
@@ -582,12 +582,12 @@ def publications(page=1):
     mine = 'mine' in request.args.keys()
 
     if search:
-        searchQuery = '%{0}%'.format(search)
+        search_query = '%{0}%'.format(search)
 
         query = Publication.query.filter(
             db.or_(
-                Publication.title.ilike(searchQuery),
-                Publication.authors.ilike(searchQuery)
+                Publication.title.ilike(search_query),
+                Publication.authors.ilike(search_query)
             )
         )
     else:
@@ -612,7 +612,7 @@ def publications(page=1):
 
 @app.route('/publications/manage-publications/', methods=['GET', 'POST'])
 @app.route('/publications/manage-publications/page/<int:page>/', methods=['GET', 'POST'])
-@requiresContributor
+@requires_contributor
 def manage_publications(page=1):
     """View a list of publications with publish, edit, delete actions"""
 
@@ -622,7 +622,7 @@ def manage_publications(page=1):
         publication_id = request.form.get('id')
         if publication_id:
             publication = Publication.query.get(publication_id)
-            ensureEditable(publication)
+            ensure_editable(publication)
 
             if action == 'delete':
                 db.session.delete(publication)
@@ -645,12 +645,12 @@ def manage_publications(page=1):
     query = Publication.query
 
     if search:
-        searchQuery = '%{0}%'.format(search)
+        search_query = '%{0}%'.format(search)
 
         query = query.filter(
             db.or_(
-                Publication.title.ilike(searchQuery),
-                Publication.authors.ilike(searchQuery)
+                Publication.title.ilike(search_query),
+                Publication.authors.ilike(search_query)
             )
         )
     if (pub_year):
@@ -686,10 +686,10 @@ def contribute():
             body += '"' + message + '"\n\n'
             html += '<blockquote>"' + message + '"</blockquote><br><br>'
 
-        profileLink = url_for('users', id=current_user.id, _external=True)
+        profile_link = url_for('users', id=current_user.id, _external=True)
 
-        body += ('To approve their request, use the following link:\n' + profileLink)
-        html += '<a href="' + profileLink + '">Approve this request</a>'
+        body += ('To approve their request, use the following link:\n' + profile_link)
+        html += '<a href="' + profile_link + '">Approve this request</a>'
 
         mail.send(Message(
             recipients=[app.config['ADMIN_EMAIL']],
@@ -702,7 +702,7 @@ def contribute():
 
 
 @app.route('/users', methods=['GET', 'POST'])
-@requiresAdmin
+@requires_admin
 def users():
     error = ''
 
@@ -745,9 +745,9 @@ def render_content(content, title, menu=None):
 
 # This is for server-side rendering a view in vue
 # pass the url path and an object to be provided as the defaultData property to the vue model
-def vue(defaultData=None):
+def vue(default_data=None):
     path = request.full_path
-    return rpc_call('render', [path, defaultData])
+    return rpc_call('render', [path, default_data])
 
 
 def rpc_call(method, data):
