@@ -1,25 +1,27 @@
-import magic
 import os
-import string
-import random
-from datetime import datetime
+
+import magic
+from flask.helpers import url_for
+from flask_login import UserMixin, current_user
+from passlib.context import CryptContext
 from sqlalchemy import event
 from sqlalchemy.sql import func
-from app import db, login, app
-from passlib.context import CryptContext
-from flask_login import UserMixin, current_user
-from flask.helpers import safe_join, url_for
 from werkzeug.utils import secure_filename
+
+from app import db, login, app
+
 
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
 
+
 # Allow decoding phpasswords, but deprecate all but argon2
 cryptCtx = CryptContext(
-    schemes = ['argon2', 'phpass'],
-    deprecated = ['auto']
+    schemes=['argon2', 'phpass'],
+    deprecated=['auto']
 )
+
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -49,8 +51,8 @@ class User(UserMixin, db.Model):
         return cryptCtx.needs_update(self.password)
 
     def checkAndMigratePassword(self, password):
-        if(self.checkPassword(password)):
-            if(self.passwordNeedsUpdate()):
+        if (self.checkPassword(password)):
+            if (self.passwordNeedsUpdate()):
                 self.setPassword(password)
             return True
         return False
@@ -73,6 +75,7 @@ class User(UserMixin, db.Model):
             'user_type': self.user_type
         }
 
+
 class Scan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     gbif_id = db.Column(db.Integer)
@@ -81,19 +84,19 @@ class Scan(db.Model):
     date_modified = db.Column(db.DateTime, onupdate=func.now())
     scientific_name = db.Column(db.String(250), index=True)
     published = db.Column(db.Boolean)
-    url_slug = db.Column(db.String(250), index = True, unique=True)
+    url_slug = db.Column(db.String(250), index=True, unique=True)
     alt_name = db.Column(db.String(250))
     file_id = db.Column(db.Integer, db.ForeignKey('file.id'))
     ctm_id = db.Column(db.Integer, db.ForeignKey('file.id'))
     specimen_id = db.Column(db.String(250))
     specimen_location = db.Column(db.String(250))
     specimen_link = db.Column(db.String(250))
-    description  = db.Column(db.Text())
+    description = db.Column(db.Text())
 
-    source = db.relationship('File', foreign_keys = 'Scan.file_id', cascade="all")
-    ctm = db.relationship('File', foreign_keys = 'Scan.ctm_id', cascade="all")
+    source = db.relationship('File', foreign_keys='Scan.file_id', cascade='all')
+    ctm = db.relationship('File', foreign_keys='Scan.ctm_id', cascade='all')
     publications = db.relationship('Publication', secondary='scan_publication', backref='scans')
-    attachments = db.relationship('Attachment', secondary='scan_attachment', cascade="all")
+    attachments = db.relationship('Attachment', secondary='scan_attachment', cascade='all')
     tags = db.relationship('Tag', secondary='scan_tag', lazy='dynamic')
     taxonomy = db.relationship('Taxonomy', secondary='scan_taxonomy')
 
@@ -115,7 +118,7 @@ class Scan(db.Model):
     def thumbnail(self):
         return len(self.attachments) > 0 and self.attachments[0]
 
-    def serialize(self, full = True):
+    def serialize(self, full=True):
         obj = {
             'id': self.id,
             'url_slug': '/' + (self.url_slug if self.url_slug else str(self.id)),
@@ -139,9 +142,9 @@ class Scan(db.Model):
                 'created': self.date_created.isoformat(),
                 'author': self.author.name,
 
-                'tags': [ tag.serialize() for tag in self.tags ],
-                'publications': [ publication.serialize() for publication in self.publications ],
-                'stills': [ still.serialize() for still in self.attachments ]
+                'tags': [tag.serialize() for tag in self.tags],
+                'publications': [publication.serialize() for publication in self.publications],
+                'stills': [still.serialize() for still in self.attachments]
             })
 
         return obj
@@ -157,6 +160,7 @@ class Scan(db.Model):
     def __repr__(self):
         return '<Scan {}>'.format(self.scientific_name)
 
+
 class File(db.Model):
     UPLOADS_DIR = 'uploads'
     MODELS_DIR = 'models'
@@ -164,7 +168,7 @@ class File(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(250), nullable=False)
     location = db.Column(db.String(250), nullable=False)
-    storage_area= db.Column(db.Enum(UPLOADS_DIR, MODELS_DIR), server_default=UPLOADS_DIR)
+    storage_area = db.Column(db.Enum(UPLOADS_DIR, MODELS_DIR), server_default=UPLOADS_DIR)
     date_created = db.Column(db.DateTime, index=True, server_default=func.now())
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     mime_type = db.Column(db.String(250), nullable=False)
@@ -173,7 +177,7 @@ class File(db.Model):
     owner = db.relationship('User')
 
     @staticmethod
-    def fromUpload(fileStorage, storage_area = UPLOADS_DIR, save = True, owner_id=None):
+    def fromUpload(fileStorage, storage_area=UPLOADS_DIR, save=True, owner_id=None):
         """Create a File model from a Werkzeug FileStorage object, and save the file to disk"""
         file = File.fromBinary(fileStorage.filename, fileStorage.stream, storage_area, owner_id)
         if save:
@@ -181,7 +185,7 @@ class File(db.Model):
         return file
 
     @staticmethod
-    def fromBinary(filename, stream, storage_area = UPLOADS_DIR, owner_id=None):
+    def fromBinary(filename, stream, storage_area=UPLOADS_DIR, owner_id=None):
         """Create a File model from a string filename and file-like object"""
         mimeType = magic.from_buffer(stream.read(1024), mime=True)
         stream.seek(0, os.SEEK_END)
@@ -190,23 +194,23 @@ class File(db.Model):
 
         return File.fromName(
             filename,
-            size = size,
-            mimeType = mimeType,
-            storage_area = storage_area,
-            owner_id = owner_id
+            size=size,
+            mimeType=mimeType,
+            storage_area=storage_area,
+            owner_id=owner_id
         )
 
     @staticmethod
-    def fromName(filename, storage_area = UPLOADS_DIR, mimeType=None, size=None, owner_id=None):
+    def fromName(filename, storage_area=UPLOADS_DIR, mimeType=None, size=None, owner_id=None):
         """Create a File model from a string filename with optional size and mimetype"""
         import time, os
 
-        filedir = time.strftime("%Y/%m/%d")
+        filedir = time.strftime('%Y/%m/%d')
         basename, ext = os.path.splitext(filename)
 
         try:
             os.makedirs(
-                File.getAbsolutePathFor(storage_area,filedir)
+                File.getAbsolutePathFor(storage_area, filedir)
             )
         except FileExistsError:
             pass
@@ -215,26 +219,25 @@ class File(db.Model):
 
         n = 1
 
-        while os.path.isfile(File.getAbsolutePathFor(storage_area,location)):
-            location = '/'.join((filedir, secure_filename(basename) + '-' + str(n) + ext, ))
+        while os.path.isfile(File.getAbsolutePathFor(storage_area, location)):
+            location = '/'.join((filedir, secure_filename(basename) + '-' + str(n) + ext,))
             n += 1
 
-
         return File(
-            filename = filename,
-            location = location,
-            owner_id = owner_id or current_user.id,
-            mime_type = mimeType,
-            size = size,
-            storage_area = storage_area
+            filename=filename,
+            location=location,
+            owner_id=owner_id or current_user.id,
+            mime_type=mimeType,
+            size=size,
+            storage_area=storage_area
         )
 
     @staticmethod
     def getAbsolutePathFor(storage_area, location):
         """Returns the absolute path on the filesystem for a file"""
-        storage_dir =  app.config['UPLOAD_DIRECTORY'] if storage_area == File.UPLOADS_DIR else \
-                       app.config['MODEL_DIRECTORY'] if storage_area == File.MODELS_DIR else \
-                       None
+        storage_dir = app.config['UPLOAD_DIRECTORY'] if storage_area == File.UPLOADS_DIR else \
+            app.config['MODEL_DIRECTORY'] if storage_area == File.MODELS_DIR else \
+                None
 
         if storage_dir == None:
             raise Exception('No filesystem path is configured for storage area named ' + storage_area)
@@ -245,14 +248,15 @@ class File(db.Model):
         """Returns the absolute path on the filesystem for this file"""
         return File.getAbsolutePathFor(self.storage_area, self.location)
 
-    def serialize(self, external = False):
+    def serialize(self, external=False):
         """Returns the url for downloading this file over http"""
         return url_for('send_uploads', path=self, _external=external) if self.storage_area == File.UPLOADS_DIR else \
-               url_for('send_models', path=self, _external=external) if self.storage_area == File.MODELS_DIR else \
-               os.path.join('/', self.location)
+            url_for('send_models', path=self, _external=external) if self.storage_area == File.MODELS_DIR else \
+                os.path.join('/', self.location)
 
     def __repr__(self):
         return '<File {}>'.format(self.filename)
+
 
 @event.listens_for(File, 'after_delete')
 def receive_after_delete(mapper, connection, target):
@@ -262,6 +266,7 @@ def receive_after_delete(mapper, connection, target):
     except:
         pass
 
+
 class Attachment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
@@ -269,7 +274,7 @@ class Attachment(db.Model):
 
     file = db.relationship(
         'File',
-        cascade="all"
+        cascade='all'
     )
 
     def serialize(self):
@@ -281,6 +286,7 @@ class Attachment(db.Model):
             'filename': self.file.filename
         }
 
+
 class PublicationFile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     publication_id = db.Column(db.Integer, db.ForeignKey('publication.id'))
@@ -290,8 +296,8 @@ class PublicationFile(db.Model):
     attachment = db.relationship('Attachment', cascade='all')
 
     def isOwnedBy(self, user):
-      """ Return true if the given user owns this model """
-      return self.publication.isOwnedBy(user)
+        """ Return true if the given user owns this model """
+        return self.publication.isOwnedBy(user)
 
 
 class Publication(db.Model):
@@ -310,25 +316,25 @@ class Publication(db.Model):
 
     def serialize(self):
         return {
-          'id': self.id,
-          'author_id': self.author_id,
-        #   'date_created': self.date_created,
-        #   'date_modified': self.date_modified,
-          'title': self.title,
-          'published': self.published,
-          'url_slug': self.url_slug,
-          'pub_year': self.pub_year,
-          'authors': self.authors,
-          'journal': self.journal,
-          'link': self.link,
-          'abstract': self.abstract,
-          'files': [ file.serialize() for file in self.files ],
-          'scans': [
-              {
-                  'id': scan.id,
-                  'url_slug': scan.url_slug,
-                  'scientific_name': scan.scientific_name
-              } for scan in self.scans
+            'id': self.id,
+            'author_id': self.author_id,
+            #   'date_created': self.date_created,
+            #   'date_modified': self.date_modified,
+            'title': self.title,
+            'published': self.published,
+            'url_slug': self.url_slug,
+            'pub_year': self.pub_year,
+            'authors': self.authors,
+            'journal': self.journal,
+            'link': self.link,
+            'abstract': self.abstract,
+            'files': [file.serialize() for file in self.files],
+            'scans': [
+                {
+                    'id': scan.id,
+                    'url_slug': scan.url_slug,
+                    'scientific_name': scan.scientific_name
+                } for scan in self.scans
             ]
         }
 
@@ -342,6 +348,7 @@ class Publication(db.Model):
         """ Return true if the given user owns this model """
         return self.author_id == user.id
 
+
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     category = db.Column(db.String(250), nullable=False)
@@ -352,7 +359,7 @@ class Tag(db.Model):
 
     @property
     def children(self):
-        return Tag.query.filter(db.and_(Tag.parent_id==self.id, Tag.category==self.category))
+        return Tag.query.filter(db.and_(Tag.parent_id == self.id, Tag.category == self.category))
 
     def serializeTree(self):
         data = self.serialize()
@@ -389,6 +396,7 @@ class Tag(db.Model):
     def __hash__(self):
         return hash(self.id)
 
+
 class Taxonomy(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
@@ -396,7 +404,7 @@ class Taxonomy(db.Model):
     scans = db.relationship('Scan', secondary='scan_taxonomy')
     children = db.relationship('Taxonomy')
 
-    def serializeTree(self, depth = float('inf')):
+    def serializeTree(self, depth=float('inf')):
         """
         Returns a serialized version of this model, with all of its children
         serialized too. If this node only has one child, it will use
@@ -422,10 +430,11 @@ class Taxonomy(db.Model):
 
     @staticmethod
     def tree():
-        return [ tag.serializeTree() for tag in Taxonomy.query.filter_by(parent_id=None).all() ]
+        return [tag.serializeTree() for tag in Taxonomy.query.filter_by(parent_id=None).all()]
 
     def __repr__(self):
         return '<Taxonomy {}>'.format(self.name)
+
 
 class ScanPublication(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -433,14 +442,17 @@ class ScanPublication(db.Model):
     scan_id = db.Column(db.Integer, db.ForeignKey('scan.id'))
     publication_id = db.Column(db.Integer, db.ForeignKey('publication.id'))
 
+
 class ScanTag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     tag_id = db.Column(db.Integer, db.ForeignKey('tag.id'))
     scan_id = db.Column(db.Integer, db.ForeignKey('scan.id'))
 
+
 class ScanTaxonomy(db.Model):
     taxonomy_id = db.Column(db.Integer, db.ForeignKey('taxonomy.id'), primary_key=True)
     scan_id = db.Column(db.Integer, db.ForeignKey('scan.id'), primary_key=True)
+
 
 class ScanAttachment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -451,8 +463,9 @@ class ScanAttachment(db.Model):
     attachment = db.relationship('Attachment', cascade='all')
 
     def isOwnedBy(self, user):
-      """ Return true if the given user owns this model """
-      return self.scan.isOwnedBy(user)
+        """ Return true if the given user owns this model """
+        return self.scan.isOwnedBy(user)
+
 
 class Queue(db.Model):
     id = db.Column(db.Integer, primary_key=True)
