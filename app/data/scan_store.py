@@ -76,7 +76,7 @@ class ScanStore:
     def new(self, author_uri):
         # Create instance of scan
         author = models.User.query.filter_by(email=author_uri).first()
-        if author == None:
+        if author is None:
             raise NoAuthor('No author for ' + author_uri)
 
         scan = models.Scan(

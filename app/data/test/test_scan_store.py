@@ -177,7 +177,7 @@ def test_zip_upload(store, zipFile):
 
     scan = store.get(store.create(file, 'admin', data))
 
-    assert scan.source != None
+    assert scan.source is not None
 
 
 def test_empty_zip_upload(store, emptyZip):
@@ -339,4 +339,4 @@ def test_create_ctm(store, horse):
 
     scan = store.get(slug)
 
-    assert scan.ctm != None
+    assert scan.ctm is not None

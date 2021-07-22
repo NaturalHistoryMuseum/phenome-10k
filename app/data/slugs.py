@@ -5,8 +5,8 @@ from .. import models
 
 def slug_available(slug):
     """ Returns true if the slug url is available """
-    return (models.Scan.query.filter_by(url_slug=slug).first() == None) \
-           and (models.Publication.query.filter_by(url_slug=slug).first() == None)
+    return (models.Scan.query.filter_by(url_slug=slug).first() is None) and (
+                models.Publication.query.filter_by(url_slug=slug).first() is None)
 
 
 def generate_slug(name):

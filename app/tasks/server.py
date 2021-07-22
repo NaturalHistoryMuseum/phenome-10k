@@ -11,14 +11,14 @@ class TaskExecutor:
         function = self.methods.get(method, None)
 
         print(method, args)
-        if function == None:
+        if function is None:
             print('No function for method ' + method)
         else:
             function(*args)
 
     def next(self):
         task = self.queue.get()
-        if task == None:
+        if task is None:
             return False
 
         self.execute(task)

@@ -6,7 +6,7 @@ from zipfile import ZipFile
 
 from PIL import Image
 from flask import request, render_template, redirect, url_for, flash, send_from_directory, jsonify, g, Response, \
-  send_file, make_response
+    send_file, make_response
 from flask.helpers import safe_join
 from flask_login import current_user, login_user, login_required, logout_user
 from flask_mail import Message
@@ -51,7 +51,7 @@ class SlugConverter(BaseConverter):
 
     def to_python(self, slug):
         model = self.model.findBySlug(slug)
-        if model == None:
+        if model is None:
             raise ValidationError
         return model
 
@@ -124,7 +124,7 @@ def send_uploads(path):
     """Route for downloading an uploaded file. Images may be resized using the `w` parameter to specify width"""
     width = request.args.get('w')
 
-    if width == None:
+    if width is None:
         return send_from_directory(app.config['UPLOAD_DIRECTORY'], path)
 
     thumbnail_file = path + '-' + width + '.png'
@@ -459,7 +459,7 @@ def edit_scan(scan=None):
     form.publications.choices = [(pub, pub.title) for pub in pubs]
 
     if request.method == 'POST':
-        if scan == None:
+        if scan is None:
             scan = scanStore.new(current_user.email)
 
         # Make sure whatever publications are selected pass validation
@@ -479,7 +479,7 @@ def edit_scan(scan=None):
 
         try:
             url = scanStore.update(scan, form.file.data, form.data, form.attachments.data)
-            if form.file.data != None:
+            if form.file.data is not None:
                 taskQueue.create_ctm(scan.id)
 
             if form.published.data and form.validate():
@@ -491,7 +491,7 @@ def edit_scan(scan=None):
 
         finally:
             # Close the underlying stream if it's a file
-            if form.file.data != None:
+            if form.file.data is not None:
                 form.file.data.close()
 
         if form_valid and not request.args.get('noredirect'):

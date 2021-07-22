@@ -102,7 +102,7 @@ def test_manage_uploads(client, admin):
     data = json.loads(response.data)
 
     assert data['page'] == 1
-    assert data['q'] == None
+    assert data['q'] is None
     assert data['scans'] == []
     assert data['total_pages'] == 0
 
@@ -167,7 +167,7 @@ def test_zip_upload(client, tmpdir, admin):
     assert json.loads(response.data)['scan']['source'] == expected_file
     assert path.exists(expected_location)
 
-    assert models.Queue.query.order_by('created').first() != None
+    assert models.Queue.query.order_by('created').first() is not None
 
 
 def test_upload_file_chunk(client, admin):

@@ -239,7 +239,7 @@ class File(db.Model):
             app.config['MODEL_DIRECTORY'] if storage_area == File.MODELS_DIR else \
                 None
 
-        if storage_dir == None:
+        if storage_dir is None:
             raise Exception('No filesystem path is configured for storage area named ' + storage_area)
 
         return os.path.join(storage_dir, location)
@@ -482,7 +482,7 @@ class Queue(db.Model):
     @staticmethod
     def get():
         task = Queue.query.order_by('created').first()
-        if task == None:
+        if task is None:
             return None
 
         method = task.method
@@ -498,7 +498,7 @@ class Queue(db.Model):
         import time
         while True:
             task = Queue.get()
-            if task == None:
+            if task is None:
                 time.sleep(sleep)
             else:
                 yield task
