@@ -1,9 +1,9 @@
 class TaskExecutor:
-    def __init__(self, QueueModel, scanStore):
-        self.queue = QueueModel
-        self.scanStore = scanStore
+    def __init__(self, queue_model, scan_store):
+        self.queue = queue_model
+        self.scan_store = scan_store
         self.methods = {
-            'create_ctm': lambda slug: scanStore.create_ctm(slug)
+            'create_ctm': lambda slug: scan_store.create_ctm(slug)
         }
 
     def execute(self, task):
