@@ -31,11 +31,11 @@ taskQueue = TaskQueue(models.Queue)
 
 def hide_scan_files(data):
     if not current_user.is_authenticated:
-        login = url_for('login')
-        data['source'] = login
+        login_url = url_for('login')
+        data['source'] = login_url
         for pub in data['publications']:
             for file in pub['files']:
-                file['file'] = login
+                file['file'] = login_url
     return data
 
 
@@ -318,9 +318,9 @@ def manage_uploads(page=1):
     # Process delete request
     if request.method == 'POST':
         scan_id = request.form.get('delete')
-        scan = Scan.query.get(scan_id)
-        ensure_editable(scan)
-        db.session.delete(scan)
+        scan_object = Scan.query.get(scan_id)
+        ensure_editable(scan_object)
+        db.session.delete(scan_object)
         db.session.commit()
         return redirect(request.full_path)
 
@@ -363,13 +363,13 @@ def manage_uploads(page=1):
     return render_vue(data, title='Manage Uploads', menu='library')
 
 
-@app.route('/<scan:scan>/')
-def scan(scan):
-    if not scan.published and not (current_user.is_authenticated and current_user.can_edit(scan)):
+@app.route('/<scan:scan_object>/')
+def scan(scan_object):
+    if not scan_object.published and not (current_user.is_authenticated and current_user.can_edit(scan_object)):
         raise NotFound()
-    data = hide_scan_files(scan.serialize())
+    data = hide_scan_files(scan_object.serialize())
 
-    return render_vue(data, title=scan.scientific_name, menu='library')
+    return render_vue(data, title=scan_object.scientific_name, menu='library')
 
 
 @app.route('/stills/<int:id>/', methods=['DELETE'])
@@ -389,17 +389,17 @@ def delete_still(id):
     return redirect(return_to, code=303)
 
 
-@app.route('/<scan:scan>/stills/')
+@app.route('/<scan:scan_object>/stills/')
 @login_required
-def scan_stills(scan):
+def scan_stills(scan_object):
     """Return a zip file containing all of the stills attached to this scan"""
     zip_buffer = io.BytesIO()
     with ZipFile(zip_buffer, 'w') as zip_file:
-        for still in scan.attachments:
+        for still in scan_object.attachments:
             zip_file.write(still.file.get_absolute_path(), still.file.filename)
 
     zip_buffer.seek(0)
-    filename = scan.url_slug + '_stills.zip'
+    filename = scan_object.url_slug + '_stills.zip'
 
     return send_file(zip_buffer, as_attachment=True, attachment_filename=filename)
 
@@ -436,32 +436,32 @@ def append_tmp_upload_file(id):
     return Response(status=200)
 
 
-@app.route('/<scan:scan>/edit', methods=['GET', 'POST'])
+@app.route('/<scan:scan_object>/edit', methods=['GET', 'POST'])
 @app.route('/library/create/', methods=['GET', 'POST'])
 @app.route('/scans/create/', methods=['GET', 'POST'])
 @requires_contributor
-def edit_scan(scan=None):
-    form = ScanUploadForm(obj=scan)
+def edit_scan(scan_object=None):
+    form = ScanUploadForm(obj=scan_object)
 
-    if scan:
-        ensure_editable(scan)
+    if scan_object:
+        ensure_editable(scan_object)
 
         if not form.geologic_age.data:
-            form.geologic_age.data = scan.geologic_age
+            form.geologic_age.data = scan_object.geologic_age
 
         if not form.ontogenic_age.data:
-            form.ontogenic_age.data = scan.ontogenic_age
+            form.ontogenic_age.data = scan_object.ontogenic_age
 
         if not form.elements.data:
-            form.elements.data = scan.elements
+            form.elements.data = scan_object.elements
 
     # Get the records for the currently selected publications
     pubs = Publication.query.filter(Publication.author_id == current_user.id).all()
     form.publications.choices = [(pub, pub.title) for pub in pubs]
 
     if request.method == 'POST':
-        if scan is None:
-            scan = scanStore.new(current_user.email)
+        if scan_object is None:
+            scan_object = scanStore.new(current_user.email)
 
         # Make sure whatever publications are selected pass validation
         form.publications.choices = [(pub, pub.title) for pub in form.publications.data]
@@ -479,9 +479,9 @@ def edit_scan(scan=None):
             form.file.data = FileStorage(f, filename)
 
         try:
-            url = scanStore.update(scan, form.file.data, form.data, form.attachments.data)
+            url = scanStore.update(scan_object, form.file.data, form.data, form.attachments.data)
             if form.file.data is not None:
-                taskQueue.create_ctm(scan.id)
+                taskQueue.create_ctm(scan_object.id)
 
             if form.published.data and form.validate():
                 scanStore.publish(url)
@@ -496,47 +496,47 @@ def edit_scan(scan=None):
                 form.file.data.close()
 
         if form_valid and not request.args.get('noredirect'):
-            return redirect(request.args.get('redirect') or url_for('scan', scan=scan))
+            return redirect(request.args.get('redirect') or url_for('scan', scan=scan_object))
 
     data = {
         'form': form.serialize(),
-        'scan': scan.serialize() if scan else None,
+        'scan': scan_object.serialize() if scan_object else None,
         'csrf_token': g.csrf_token
     }
 
-    return render_vue(data, title='Edit' if scan else 'Upload New', menu='library')
+    return render_vue(data, title='Edit' if scan_object else 'Upload New', menu='library')
 
 
 @app.route('/publications/create/', methods=['GET', 'POST'])
-@app.route('/publication/<publication:publication>/edit', methods=['GET', 'POST'])
+@app.route('/publication/<publication:pub_object>/edit', methods=['GET', 'POST'])
 @requires_contributor
-def edit_publication(publication=None):
-    form = PublicationUploadForm(obj=publication)
+def edit_publication(pub_object=None):
+    form = PublicationUploadForm(obj=pub_object)
 
-    if publication:
-        ensure_editable(publication)
+    if pub_object:
+        ensure_editable(pub_object)
 
     if form.validate_on_submit():
-        if not publication:
-            publication = Publication(
+        if not pub_object:
+            pub_object = Publication(
                 author_id=current_user.id,
                 url_slug=generate_slug(form.title.data)
             )
-            db.session.add(publication)
-        publication.title = form.title.data
-        publication.pub_year = form.pub_year.data
-        publication.authors = form.authors.data
-        publication.journal = form.journal.data
-        publication.link = form.link.data
-        publication.abstract = form.abstract.data
-        publication.published = True
+            db.session.add(pub_object)
+        pub_object.title = form.title.data
+        pub_object.pub_year = form.pub_year.data
+        pub_object.authors = form.authors.data
+        pub_object.journal = form.journal.data
+        pub_object.link = form.link.data
+        pub_object.abstract = form.abstract.data
+        pub_object.published = True
 
         for file in form.files.data:
             if file == '':
                 continue
             f = File.from_upload(file)
             db.session.add(f)
-            publication.files.append(
+            pub_object.files.append(
                 Attachment(
                     file=f,
                     name=file.filename
@@ -545,15 +545,15 @@ def edit_publication(publication=None):
 
         db.session.commit()
 
-        return redirect(url_for('edit_publication', publication=publication))
+        return redirect(url_for('edit_publication', publication=pub_object))
 
     data = {
-        'publication': publication.serialize() if publication else None,
+        'publication': pub_object.serialize() if pub_object else None,
         'form': form.serialize(),
         'csrf_token': g.csrf_token
     }
 
-    return render_vue(data, title='Edit' if publication else 'Create', menu='publications')
+    return render_vue(data, title='Edit' if pub_object else 'Create', menu='publications')
 
 
 @app.route('/remove-pub-file/<int:id>', methods=['DELETE'])
@@ -621,17 +621,17 @@ def manage_publications(page=1):
         action = request.form.get('action')
         publication_id = request.form.get('id')
         if publication_id:
-            publication = Publication.query.get(publication_id)
-            ensure_editable(publication)
+            pub_object = Publication.query.get(publication_id)
+            ensure_editable(pub_object)
 
             if action == 'delete':
-                db.session.delete(publication)
+                db.session.delete(pub_object)
                 db.session.commit()
             elif action == 'publish':
-                publication.published = True
+                pub_object.published = True
                 db.session.commit()
             elif action == 'unpublish':
-                publication.published = False
+                pub_object.published = False
                 db.session.commit()
         return redirect(request.full_path)
 
@@ -655,11 +655,11 @@ def manage_publications(page=1):
         )
     if pub_year:
         query = query.filter_by(pub_year=pub_year)
-    publications = query.order_by(Publication.pub_year.desc()).paginate(page, per_page)
+    pub_list = query.order_by(Publication.pub_year.desc()).paginate(page, per_page)
     data = {
-        'publications': [pub.serialize() for pub in publications.items if current_user.can_edit(pub)],
+        'publications': [pub.serialize() for pub in pub_list.items if current_user.can_edit(pub)],
         'page': page,
-        'total_pages': math.ceil(publications.total / per_page),
+        'total_pages': math.ceil(pub_list.total / per_page),
         'years': [y[0] for y in
                   db.session.query(Publication.pub_year).order_by(Publication.pub_year.desc()).distinct().all()],
         'q': search
@@ -667,11 +667,11 @@ def manage_publications(page=1):
     return render_vue(data, title='Manage Publications', menu='publications')
 
 
-@app.route('/publication/<publication:publication>/')
-def publication(publication):
-    if not publication.published and not (current_user.is_authenticated and current_user.can_edit(publication)):
+@app.route('/publication/<publication:pub_object>/')
+def publication(pub_object):
+    if not pub_object.published and not (current_user.is_authenticated and current_user.can_edit(pub_object)):
         raise NotFound()
-    return render_vue(publication.serialize(), title=publication.title, menu='publications')
+    return render_vue(pub_object.serialize(), title=pub_object.title, menu='publications')
 
 
 @app.route('/contribute/', methods=['GET', 'POST'])

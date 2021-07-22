@@ -85,7 +85,7 @@ class ScanUploadForm(FlaskForm):
         self.elements.choices = [(tag, tag) for tag in Tag.query.filter_by(category='elements').all()]
 
     def serialize(self):
-        data = {
+        serialized_data = {
             k: {
                 'data': (None if isinstance(self[k], FileField)
                          else ([datum.serialize() if isinstance(datum, db.Model)
@@ -100,9 +100,9 @@ class ScanUploadForm(FlaskForm):
         tag_tree = Tag.tree()
         for key in ('geologic_age', 'ontogenic_age', 'elements'):
             if key in tag_tree:
-                data[key]['choices'] = tag_tree[key]
+                serialized_data[key]['choices'] = tag_tree[key]
 
-        return data
+        return serialized_data
 
 
 class PublicationUploadForm(FlaskForm):

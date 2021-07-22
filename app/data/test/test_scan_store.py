@@ -81,7 +81,7 @@ def test_scan_store_create(store, image):
     file = ObjectView(dict(
         filename='my-file',
         stream='stream',
-        save=lambda file: None
+        save=lambda f: None
     ))
     data = {
         'scientific_name': 'Paul',
@@ -121,7 +121,7 @@ def test_scan_store_create_again(store):
     file = ObjectView(dict(
         filename='my-file',
         stream='stream',
-        save=lambda file: None
+        save=lambda f: None
     ))
     data = {
         'scientific_name': 'Paul',
@@ -231,7 +231,7 @@ def test_invalid_attachment(store, empty_zip):
     file = ObjectView(dict(
         filename='my-file',
         stream='stream',
-        save=lambda file: None
+        save=lambda f: None
     ))
     data = {
         'scientific_name': 'Paul',
