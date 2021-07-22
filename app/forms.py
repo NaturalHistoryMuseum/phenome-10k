@@ -2,8 +2,9 @@ import json
 import urllib.request
 
 from flask_wtf import FlaskForm
-from wtforms import widgets, StringField, PasswordField, BooleanField, SubmitField, HiddenField, SelectField, FileField, \
-    TextAreaField, MultipleFileField, SelectMultipleField
+from wtforms import (widgets, StringField, PasswordField, BooleanField,
+                     SubmitField, HiddenField, SelectField, FileField,
+                     TextAreaField, MultipleFileField, SelectMultipleField)
 from wtforms.validators import DataRequired, Email, ValidationError
 
 from app import db
@@ -86,19 +87,20 @@ class ScanUploadForm(FlaskForm):
     def serialize(self):
         data = {
             k: {
-                'data': None if isinstance(self[k], FileField) else [
-                    datum.serialize() if isinstance(datum, db.Model) else datum for datum in v] if isinstance(v,
-                                                                                                              list) else v,
+                'data': (None if isinstance(self[k], FileField)
+                         else ([datum.serialize() if isinstance(datum, db.Model)
+                                else datum for datum in v] if isinstance(v, list)
+                               else v)),
                 'errors': self[k].errors,
                 'choices': [choice[0].serialize() if isinstance(choice[0], db.Model) else choice for choice in
                             self[k].choices] if isinstance(self[k], SelectMultipleField) else None
             } for k, v in self.data.items()
         }
 
-        tagTree = Tag.tree()
+        tag_tree = Tag.tree()
         for key in ('geologic_age', 'ontogenic_age', 'elements'):
-            if key in tagTree:
-                data[key]['choices'] = tagTree[key]
+            if key in tag_tree:
+                data[key]['choices'] = tag_tree[key]
 
         return data
 

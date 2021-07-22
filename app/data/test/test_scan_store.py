@@ -293,7 +293,7 @@ def test_publish(store, zipFile, image):
     store.publish(uri)
     scan = store.get(uri)
 
-    assert scan.published == True
+    assert scan.published
 
 
 def test_unpublishable(store):

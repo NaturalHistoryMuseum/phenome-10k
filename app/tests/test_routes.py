@@ -1,5 +1,7 @@
 import json
 import re
+import io
+import time
 
 import pytest
 
@@ -114,7 +116,6 @@ def test_stl_upload(client, tmpdir, admin):
     app.config['UPLOAD_DIRECTORY'] = tmpdir
     app.config['MODEL_DIRECTORY'] = tmpdir
 
-    import io, time
     upload_file = (io.BytesIO(b'random data'), 'test_file.stl')
     data = {'file': upload_file, 'csrf_token': csrf_token(client)}
     response = client.post(
@@ -143,7 +144,6 @@ def test_zip_upload(client, tmpdir, admin):
     app.config['UPLOAD_DIRECTORY'] = tmpdir
     app.config['MODEL_DIRECTORY'] = tmpdir
 
-    import io, time
     from pathlib import Path
 
     horse = io.BytesIO(Path(__file__).parent.parent.parent.joinpath('fixtures/Horse.zip').read_bytes())
