@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="/static/contribute.css">
 
 <div class="Contribute">
-  {% if not current_user.is_authenticated or not current_user.isContributor() %}
+  {% if not current_user.is_authenticated or not current_user.is_contributor() %}
   <h1>Become a contributor to Phenome10K!</h1>
 
   <p>Phenome10K is a free resource for 3-D images of all types, including CT and surface scans. If you have 3-D images of biological or palaeontological specimens, please consider sharing your data via Phenome10K. You can link all images to associated publications, and we request all users to cite the appropriate primary publication if using any data from this database. Please obtain permission from the relevant institutions holding any imaged specimens before publishing them on Phenome10K.org. Unless otherwise noted, data on Phenome10K.org is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License. </p>

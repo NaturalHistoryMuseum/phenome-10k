@@ -22,7 +22,7 @@ mail = Mail(app)
 
 from .data.scan_store import ScanStore
 
-scanStore = ScanStore(db)
+scan_store = ScanStore(db)
 
 if not app.debug:
     if not os.path.exists('logs'):
@@ -38,7 +38,7 @@ if not app.debug:
     app.logger.info('Phenome10k startup')
 
 from app import models, routes, errors
-from .routes import taskQueue
+from .routes import task_queue
 
 
 @app.shell_context_processor
@@ -71,18 +71,18 @@ def set_admin_pw(password):
 
 from .tasks.server import TaskExecutor
 
-taskExecutor = TaskExecutor(models.Queue, scanStore)
+task_executor = TaskExecutor(models.Queue, scan_store)
 
 
 @app.cli.command()
 @click.argument('scan_slug')
 def create_ctm(scan_slug):
-    taskQueue.create_ctm(scan_slug)
+    task_queue.create_ctm(scan_slug)
 
 
 @app.cli.command()
 def task_runner():
-    taskExecutor.run()
+    task_executor.run()
 
 
 import sys
@@ -90,7 +90,7 @@ import sys
 
 @app.cli.command()
 def task():
-    res = taskExecutor.next()
+    res = task_executor.next()
     if res:
         print('task success')
     else:

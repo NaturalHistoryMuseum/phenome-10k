@@ -54,12 +54,12 @@ class ScanStore:
         zip_file.mime_type = 'application/zip'
 
         filename, file_ext = os.path.splitext(file.filename)
-        with tempfile.NamedTemporaryFile(suffix=file_ext) as uploadFile:
+        with tempfile.NamedTemporaryFile(suffix=file_ext) as upload_file:
             # app.logger.warn('save upload to temp')
-            file.save(uploadFile.name)
+            file.save(upload_file.name)
             with ZipFile(zip_file.get_absolute_path(), 'w', ZIP_DEFLATED) as zf:
                 # app.logger.warn('write temp file to zip')
-                zf.write(uploadFile.name, file.filename)
+                zf.write(upload_file.name, file.filename)
 
         # app.logger.warn('set zip size')
         zip_file.size = os.stat(zip_file.get_absolute_path()).st_size
@@ -193,19 +193,19 @@ class ScanStore:
 
             filename, file_ext = os.path.splitext(upload_file_name)
 
-            with tempfile.NamedTemporaryFile(suffix=file_ext) as uploadFile:
-                uploadFile.write(upload_file_data)
+            with tempfile.NamedTemporaryFile(suffix=file_ext) as upload_file:
+                upload_file.write(upload_file_data)
 
                 # Convert to bin if ascii
-                uploadFile.seek(0)
-                if uploadFile.read(5) == b'solid':
-                    Mesh.from_file(uploadFile.name).save(uploadFile.name)
+                upload_file.seek(0)
+                if upload_file.read(5) == b'solid':
+                    Mesh.from_file(upload_file.name).save(upload_file.name)
 
                 # Convert to ctm in uploads storage
                 ctm_file = models.File.from_name(filename + '.ctm', owner_id=scan.author_id)
                 ctm_file.mime_type = 'application/octet-stream'
 
-                ctmconv(uploadFile.name, ctm_file.get_absolute_path())
+                ctmconv(upload_file.name, ctm_file.get_absolute_path())
 
                 ctm_file.size = os.stat(ctm_file.get_absolute_path()).st_size
 

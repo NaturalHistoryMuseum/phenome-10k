@@ -18,7 +18,7 @@ def load_user(user_id):
 
 
 # Allow decoding phpasswords, but deprecate all but argon2
-cryptCtx = CryptContext(
+crypt_ctx = CryptContext(
     schemes=['argon2', 'phpass'],
     deprecated=['auto']
 )
@@ -43,13 +43,13 @@ class User(UserMixin, db.Model):
         return self.is_admin() or self.role == 'CONTRIBUTOR'
 
     def set_password(self, password):
-        self.password = cryptCtx.hash(password)
+        self.password = crypt_ctx.hash(password)
 
     def check_password(self, password):
-        return cryptCtx.verify(password, self.password)
+        return crypt_ctx.verify(password, self.password)
 
     def password_needs_update(self):
-        return cryptCtx.needs_update(self.password)
+        return crypt_ctx.needs_update(self.password)
 
     def check_and_migrate_password(self, password):
         if self.check_password(password):

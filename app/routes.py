@@ -15,7 +15,7 @@ from werkzeug.exceptions import NotFound, BadRequest, Forbidden
 from werkzeug.routing import ValidationError, BaseConverter, PathConverter
 from werkzeug.urls import url_parse
 
-from app import app, db, models, scanStore
+from app import app, db, models, scan_store
 from app import mail
 from app import rpc
 from app.forms import LoginForm, RegistrationForm, ScanUploadForm, PublicationUploadForm
@@ -25,8 +25,8 @@ from .data.slugs import generate_slug
 from .data.tmp_upload_store import TmpUploadStore
 from .tasks.client import TaskQueue
 
-uploadStore = TmpUploadStore(app.config['TMP_UPLOAD'])
-taskQueue = TaskQueue(models.Queue)
+upload_store = TmpUploadStore(app.config['TMP_UPLOAD'])
+task_queue = TaskQueue(models.Queue)
 
 
 def hide_scan_files(data):
@@ -243,12 +243,12 @@ def library(page=1):
 
         scan_conditions.append(text_search)
 
-    for searchTags in [ontogenic_age, geologic_age, elements]:
-        if len(searchTags) > 0:
+    for search_tags in [ontogenic_age, geologic_age, elements]:
+        if len(search_tags) > 0:
             scan_conditions.append(
                 Scan.tags.any(
-                    Tag.taxonomy.startswith(searchTags[0]) if len(searchTags) == 1 else db.or_(
-                        *[Tag.taxonomy.startswith(term) for term in searchTags])
+                    Tag.taxonomy.startswith(search_tags[0]) if len(search_tags) == 1 else db.or_(
+                        *[Tag.taxonomy.startswith(term) for term in search_tags])
                 )
             )
 
@@ -425,14 +425,14 @@ def upload_multi():
 @requires_contributor
 def create_tmp_upload_file():
     res = Response(status=201)
-    res.headers['Location'] = '/files/' + uploadStore.create()
+    res.headers['Location'] = '/files/' + upload_store.create()
     return res
 
 
 @app.route('/files/<file_id>', methods=['PATCH'])
 @requires_contributor
 def append_tmp_upload_file(file_id):
-    uploadStore.append(file_id, request.get_data())
+    upload_store.append(file_id, request.get_data())
     return Response(status=200)
 
 
@@ -461,7 +461,7 @@ def edit_scan(scan_object=None):
 
     if request.method == 'POST':
         if scan_object is None:
-            scan_object = scanStore.new(current_user.email)
+            scan_object = scan_store.new(current_user.email)
 
         # Make sure whatever publications are selected pass validation
         form.publications.choices = [(pub, pub.title) for pub in form.publications.data]
@@ -475,16 +475,16 @@ def edit_scan(scan_object=None):
             location = parts[0]
             filename = parts[1] if len(parts) > 1 else None
 
-            f = open(uploadStore.get_filepath(location), 'rb')
+            f = open(upload_store.get_filepath(location), 'rb')
             form.file.data = FileStorage(f, filename)
 
         try:
-            url = scanStore.update(scan_object, form.file.data, form.data, form.attachments.data)
+            url = scan_store.update(scan_object, form.file.data, form.data, form.attachments.data)
             if form.file.data is not None:
-                taskQueue.create_ctm(scan_object.id)
+                task_queue.create_ctm(scan_object.id)
 
             if form.published.data and form.validate():
-                scanStore.publish(url)
+                scan_store.publish(url)
 
         except ScanException as error:
             form_valid = False
