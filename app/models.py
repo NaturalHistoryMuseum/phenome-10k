@@ -1,4 +1,5 @@
 import os
+import time
 
 import magic
 from flask.helpers import url_for
@@ -130,7 +131,6 @@ class Scan(db.Model):
             obj.update({
                 'ctm': self.ctm and self.ctm.serialize(),
                 'source': self.source and self.source.serialize(),
-                'publications': [pub.serialize() for pub in self.publications],
                 'attachments': [a.serialize() for a in self.attachments],
                 'gbif_id': self.gbif_id,
                 'published': self.published,
@@ -141,7 +141,6 @@ class Scan(db.Model):
                 'description': self.description,
                 'created': self.date_created.isoformat(),
                 'author': self.author.name,
-
                 'tags': [tag.serialize() for tag in self.tags],
                 'publications': [publication.serialize() for publication in self.publications],
                 'stills': [still.serialize() for still in self.attachments]
@@ -203,7 +202,6 @@ class File(db.Model):
     @staticmethod
     def fromName(filename, storage_area=UPLOADS_DIR, mimeType=None, size=None, owner_id=None):
         """Create a File model from a string filename with optional size and mimetype"""
-        import time, os
 
         filedir = time.strftime('%Y/%m/%d')
         basename, ext = os.path.splitext(filename)
@@ -236,8 +234,7 @@ class File(db.Model):
     def getAbsolutePathFor(storage_area, location):
         """Returns the absolute path on the filesystem for a file"""
         storage_dir = app.config['UPLOAD_DIRECTORY'] if storage_area == File.UPLOADS_DIR else \
-            app.config['MODEL_DIRECTORY'] if storage_area == File.MODELS_DIR else \
-                None
+            app.config['MODEL_DIRECTORY'] if storage_area == File.MODELS_DIR else None
 
         if storage_dir is None:
             raise Exception('No filesystem path is configured for storage area named ' + storage_area)
@@ -250,9 +247,9 @@ class File(db.Model):
 
     def serialize(self, external=False):
         """Returns the url for downloading this file over http"""
-        return url_for('send_uploads', path=self, _external=external) if self.storage_area == File.UPLOADS_DIR else \
-            url_for('send_models', path=self, _external=external) if self.storage_area == File.MODELS_DIR else \
-                os.path.join('/', self.location)
+        return (url_for('send_uploads', path=self, _external=external) if self.storage_area == File.UPLOADS_DIR else
+                url_for('send_models', path=self, _external=external) if self.storage_area == File.MODELS_DIR else
+                os.path.join('/', self.location))
 
     def __repr__(self):
         return '<File {}>'.format(self.filename)
@@ -263,7 +260,8 @@ def receive_after_delete(mapper, connection, target):
     """Ensure the files get deleted from disk when the record is deleted"""
     try:
         os.remove(target.getAbsolutePath())
-    except:
+    except Exception:
+        # FIXME log the exception
         pass
 
 

@@ -107,9 +107,9 @@ class ScanStore:
         scan.description = data.get('description')
         scan.publications = data.get('publications')
 
-        scan.tags = data.get('geologic_age') \
-                    + data.get('ontogenic_age') \
-                    + data.get('elements')
+        scan.tags = (data.get('geologic_age')
+                     + data.get('ontogenic_age')
+                     + data.get('elements'))
 
         gbif_id = data.get('gbif_id')
 
