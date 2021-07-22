@@ -68,7 +68,8 @@ class ScanStore:
 
         return zip
 
-    def create(self, file, author_uri, data, attachments=[]):
+    def create(self, file, author_uri, data, attachments=None):
+        attachments = attachments or []
         scan = self.new(author_uri)
 
         return self.update(scan, file, data, attachments)
@@ -87,7 +88,8 @@ class ScanStore:
 
         return scan
 
-    def update(self, scan, file, data, attachments=[]):
+    def update(self, scan, file, data, attachments=None):
+        attachments = attachments or []
         author_id = scan.author_id
         # Save upload to temporary file
         if file:

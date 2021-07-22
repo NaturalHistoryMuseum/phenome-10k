@@ -2,8 +2,8 @@ from ..server import TaskExecutor
 
 
 class MockQueue:
-    def __init__(self, items=[]):
-        self.queue = items
+    def __init__(self, items=None):
+        self.queue = items or []
 
     def read(self):
         for item in self.queue:
