@@ -688,9 +688,7 @@ def contribute():
 
         profileLink = url_for('users', id=current_user.id, _external=True)
 
-        body += (
-                'To approve their request, use the following link:\n' + profileLink
-        )
+        body += ('To approve their request, use the following link:\n' + profileLink)
         html += '<a href="' + profileLink + '">Approve this request</a>'
 
         mail.send(Message(
