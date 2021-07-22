@@ -9,6 +9,6 @@ def rpc(url, method, params):
         'id': 0,
     }
     response = requests.post(url, json=payload).json()
-    if ('error' in response):
+    if 'error' in response:
         raise Exception(response['error']['message'])
     return response['result']

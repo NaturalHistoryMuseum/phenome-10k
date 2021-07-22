@@ -17,7 +17,7 @@ class MockScanStore:
     def create_ctm(self, slug):
         self.calls.append(slug)
 
-        if (slug == '3'):
+        if slug == '3':
             raise Exception("I don't like the number three.")
 
 

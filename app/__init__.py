@@ -58,7 +58,7 @@ def set_admin_pw(password):
 
     user = db.session.merge(user)
 
-    if (user.check_password(password)):
+    if user.check_password(password):
         db.session.commit()
         print('Password not changed')
         return

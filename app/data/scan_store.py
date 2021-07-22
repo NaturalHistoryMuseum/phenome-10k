@@ -42,7 +42,7 @@ class ScanStore:
             # app.logger.warn('zip file, validate contents')
             print(file.stream)
             zip_file = ZipFile(file.stream, 'r', ZIP_DEFLATED)
-            if (len(zip_file.infolist()) != 1):
+            if len(zip_file.infolist()) != 1:
                 # app.logger.error('wrong number of files in zip')
                 raise AmbiguousZip('ZIP uploads must contain exactly one file')
             # app.logger.warn('valid zip')
@@ -141,7 +141,7 @@ class ScanStore:
 
             file_model = models.File.from_binary(filename, file.stream, owner_id=author_id)
 
-            if (file_model.mime_type != 'image/png'):
+            if file_model.mime_type != 'image/png':
                 raise InvalidAttachment('Stills must be png files')
             else:
                 file.save(file_model.get_absolute_path())
@@ -165,7 +165,7 @@ class ScanStore:
         if not scan.attachments:
             errors.append('A still is required')
 
-        if (errors):
+        if errors:
             raise Unpublishable('; '.join(errors))
 
         scan.published = True

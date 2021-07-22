@@ -149,7 +149,7 @@ def send_uploads(path):
         except OSError:
             raise BadRequest()
 
-        if (width >= im.width):
+        if width >= im.width:
             return send_from_directory(app.config['UPLOAD_DIRECTORY'], path)
 
         try:
@@ -263,7 +263,7 @@ def library(page=1):
     # This is annoying... if we're sorting by name it's just sort,
     # but if we're sorting by tag we need to group it all.
     # Put it under the `groups` key so the view knows it needs to render differently
-    if (sort in ('geologic_age', 'ontogenic_age')):
+    if sort in ('geologic_age', 'ontogenic_age'):
         results = [(tag, tag.scans.filter(scan_conditions).all()) for tag in Tag.query.filter_by(category=sort).all()]
 
         data = {
@@ -350,7 +350,7 @@ def manage_uploads(page=1):
             )
         )
 
-    if (startswith):
+    if startswith:
         query = query.filter(Scan.scientific_name.startswith(startswith))
     scans = query.paginate(page, per_page)
     data = {
@@ -653,7 +653,7 @@ def manage_publications(page=1):
                 Publication.authors.ilike(search_query)
             )
         )
-    if (pub_year):
+    if pub_year:
         query = query.filter_by(pub_year=pub_year)
     publications = query.order_by(Publication.pub_year.desc()).paginate(page, per_page)
     data = {

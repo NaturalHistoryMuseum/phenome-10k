@@ -52,8 +52,8 @@ class User(UserMixin, db.Model):
         return cryptCtx.needs_update(self.password)
 
     def check_and_migrate_password(self, password):
-        if (self.check_password(password)):
-            if (self.password_needs_update()):
+        if self.check_password(password):
+            if self.password_needs_update():
                 self.set_password(password)
             return True
         return False
