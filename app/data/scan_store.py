@@ -41,8 +41,8 @@ class ScanStore:
         if file.filename.endswith('.zip'):
             # app.logger.warn('zip file, validate contents')
             print(file.stream)
-            zipFile = ZipFile(file.stream, 'r', ZIP_DEFLATED)
-            if (len(zipFile.infolist()) != 1):
+            zip_file = ZipFile(file.stream, 'r', ZIP_DEFLATED)
+            if (len(zip_file.infolist()) != 1):
                 # app.logger.error('wrong number of files in zip')
                 raise AmbiguousZip('ZIP uploads must contain exactly one file')
             # app.logger.warn('valid zip')
@@ -53,13 +53,13 @@ class ScanStore:
         zip = models.File.from_name(file.filename + '.zip', models.File.MODELS_DIR, owner_id=owner_id)
         zip.mime_type = 'application/zip'
 
-        filename, fileExt = os.path.splitext(file.filename)
-        with tempfile.NamedTemporaryFile(suffix=fileExt) as uploadFile:
+        filename, file_ext = os.path.splitext(file.filename)
+        with tempfile.NamedTemporaryFile(suffix=file_ext) as uploadFile:
             # app.logger.warn('save upload to temp')
             file.save(uploadFile.name)
-            with ZipFile(zip.get_absolute_path(), 'w', ZIP_DEFLATED) as zipFile:
+            with ZipFile(zip.get_absolute_path(), 'w', ZIP_DEFLATED) as zip_file:
                 # app.logger.warn('write temp file to zip')
-                zipFile.write(uploadFile.name, file.filename)
+                zip_file.write(uploadFile.name, file.filename)
 
         # app.logger.warn('set zip size')
         zip.size = os.stat(zip.get_absolute_path()).st_size
@@ -91,9 +91,9 @@ class ScanStore:
         author_id = scan.author_id
         # Save upload to temporary file
         if file:
-            zipFile = self.zip_upload(file, author_id)
-            scan.source = zipFile
-            self.db.session.add(zipFile)
+            zip_file = self.zip_upload(file, author_id)
+            scan.source = zip_file
+            self.db.session.add(zip_file)
 
         scan.scientific_name = data.get('scientific_name')
 
@@ -119,13 +119,13 @@ class ScanStore:
             scan.gbif_id = gbif_id
             tags = pull_tags(gbif_id)
 
-            tagIds = [tag.id for tag in tags]
-            existingTags = models.Taxonomy.query.filter(models.Taxonomy.id.in_(tagIds)).all()
-            existingTagIds = [tag.id for tag in existingTags]
-            scan.taxonomy = existingTags
+            tag_ids = [tag.id for tag in tags]
+            existing_tags = models.Taxonomy.query.filter(models.Taxonomy.id.in_(tag_ids)).all()
+            existing_tag_ids = [tag.id for tag in existing_tags]
+            scan.taxonomy = existing_tags
 
             for tag in tags:
-                if tag.id in existingTagIds:
+                if tag.id in existing_tag_ids:
                     continue
 
                 self.db.session.add(tag)
@@ -139,15 +139,15 @@ class ScanStore:
             label = file.filename
             filename = secure_filename(file.filename) + '.png'
 
-            fileModel = models.File.from_binary(filename, file.stream, owner_id=author_id)
+            file_model = models.File.from_binary(filename, file.stream, owner_id=author_id)
 
-            if (fileModel.mime_type != 'image/png'):
+            if (file_model.mime_type != 'image/png'):
                 raise InvalidAttachment('Stills must be png files')
             else:
-                file.save(fileModel.get_absolute_path())
+                file.save(file_model.get_absolute_path())
                 attachment = models.Attachment(
                     name=label,
-                    file=fileModel
+                    file=file_model
                 )
                 self.db.session.add(attachment)
                 scan.attachments.append(attachment)
@@ -185,14 +185,14 @@ class ScanStore:
         zip = scan.source
 
         with ZipFile(zip.get_absolute_path(), 'r', ZIP_DEFLATED) as zipFile:
-            uploadFileName = zipFile.infolist()[0].filename
+            upload_file_name = zipFile.infolist()[0].filename
 
-            uploadFileData = zipFile.read(uploadFileName)
+            upload_file_data = zipFile.read(upload_file_name)
 
-            filename, fileExt = os.path.splitext(uploadFileName)
+            filename, file_ext = os.path.splitext(upload_file_name)
 
-            with tempfile.NamedTemporaryFile(suffix=fileExt) as uploadFile:
-                uploadFile.write(uploadFileData)
+            with tempfile.NamedTemporaryFile(suffix=file_ext) as uploadFile:
+                uploadFile.write(upload_file_data)
 
                 # Convert to bin if ascii
                 uploadFile.seek(0)
@@ -200,13 +200,13 @@ class ScanStore:
                     Mesh.from_file(uploadFile.name).save(uploadFile.name)
 
                 # Convert to ctm in uploads storage
-                ctmFile = models.File.from_name(filename + '.ctm', owner_id=scan.author_id)
-                ctmFile.mime_type = 'application/octet-stream'
+                ctm_file = models.File.from_name(filename + '.ctm', owner_id=scan.author_id)
+                ctm_file.mime_type = 'application/octet-stream'
 
-                ctmconv(uploadFile.name, ctmFile.get_absolute_path())
+                ctmconv(uploadFile.name, ctm_file.get_absolute_path())
 
-                ctmFile.size = os.stat(ctmFile.get_absolute_path()).st_size
+                ctm_file.size = os.stat(ctm_file.get_absolute_path()).st_size
 
-                scan.ctm = ctmFile
-                self.db.session.add(ctmFile)
+                scan.ctm = ctm_file
+                self.db.session.add(ctm_file)
                 self.db.session.commit()
