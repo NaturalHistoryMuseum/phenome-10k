@@ -7,7 +7,7 @@ from ..scan_store import ScanStore, AmbiguousZip, NoAuthor, InvalidAttachment, U
 from ... import app, db, models
 
 
-class objectview(object):
+class ObjectView(object):
     def __init__(self, d):
         self.__dict__ = d
 
@@ -44,7 +44,7 @@ def store(database):
 
 
 @pytest.fixture
-def zipFile():
+def zip_file():
     f = open(os.path.dirname(__file__) + '/test.zip', 'rb')
 
     yield f
@@ -53,7 +53,7 @@ def zipFile():
 
 
 @pytest.fixture
-def emptyZip():
+def empty_zip():
     f = open(os.path.dirname(__file__) + '/empty.zip', 'rb')
 
     yield f
@@ -78,7 +78,7 @@ def horse():
 
 
 def test_scan_store_create(store, image):
-    file = objectview(dict(
+    file = ObjectView(dict(
         filename='my-file',
         stream='stream',
         save=lambda file: None
@@ -118,7 +118,7 @@ def test_scan_store_create(store, image):
 
 
 def test_scan_store_create_again(store):
-    file = objectview(dict(
+    file = ObjectView(dict(
         filename='my-file',
         stream='stream',
         save=lambda file: None
@@ -155,9 +155,9 @@ def test_scan_store_create_again(store):
     assert scan.url_slug == 'paul-2'
 
 
-def test_zip_upload(store, zipFile):
+def test_zip_upload(store, zip_file):
     file = FileStorage(
-        stream=zipFile,
+        stream=zip_file,
         filename='my-file.zip'
     )
     data = {
@@ -180,10 +180,10 @@ def test_zip_upload(store, zipFile):
     assert scan.source is not None
 
 
-def test_empty_zip_upload(store, emptyZip):
+def test_empty_zip_upload(store, empty_zip):
     print(os.path.dirname(__file__) + '/test.zip')
     file = FileStorage(
-        stream=emptyZip,
+        stream=empty_zip,
         filename='my-file.zip'
     )
     data = {
@@ -227,8 +227,8 @@ def test_no_author(store):
         store.create(file, 'paul', data)
 
 
-def test_invalid_attachment(store, emptyZip):
-    file = objectview(dict(
+def test_invalid_attachment(store, empty_zip):
+    file = ObjectView(dict(
         filename='my-file',
         stream='stream',
         save=lambda file: None
@@ -249,7 +249,7 @@ def test_invalid_attachment(store, emptyZip):
 
     attachments = [
         FileStorage(
-            stream=emptyZip,
+            stream=empty_zip,
             filename='zip.zip'
         )
     ]
@@ -263,9 +263,9 @@ def test_invalid_attachment(store, emptyZip):
         )
 
 
-def test_publish(store, zipFile, image):
+def test_publish(store, zip_file, image):
     file = FileStorage(
-        stream=zipFile,
+        stream=zip_file,
         filename='my-file.zip'
     )
     data = {

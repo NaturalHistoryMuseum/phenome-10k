@@ -475,7 +475,7 @@ def edit_scan(scan=None):
             location = parts[0]
             filename = parts[1] if len(parts) > 1 else None
 
-            f = open(uploadStore.getFilepath(location), 'rb')
+            f = open(uploadStore.get_filepath(location), 'rb')
             form.file.data = FileStorage(f, filename)
 
         try:

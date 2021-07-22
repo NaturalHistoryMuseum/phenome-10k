@@ -22,12 +22,12 @@ def db_models():
 
 
 def test_queue(db_models):
-    Queue = db_models.Queue
+    queue = db_models.Queue
 
-    Queue.add('method_name', 'arg1', 2)
-    Queue.add('method_name2', 'another arg')
+    queue.add('method_name', 'arg1', 2)
+    queue.add('method_name2', 'another arg')
 
-    iterator = Queue.read()
+    iterator = queue.read()
 
     assert iterator.__next__() == ('method_name', ['arg1', 2])
     assert iterator.__next__() == ('method_name2', ['another arg', ])
