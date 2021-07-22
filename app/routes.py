@@ -329,6 +329,7 @@ def manage_uploads(page=1):
     ScanUploadForm()
 
     per_page = 50
+    # FIXME offset is not used
     offset = (page - 1) * per_page
 
     startswith = request.args.get('char')
@@ -635,6 +636,7 @@ def manage_publications(page=1):
         return redirect(request.full_path)
 
     per_page = 50
+    # FIXME offset is not used
     offset = (page - 1) * per_page
 
     pub_year = request.args.get('pub_year')
