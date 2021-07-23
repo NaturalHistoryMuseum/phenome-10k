@@ -1,5 +1,6 @@
 import logging
 import os
+import sys
 from logging.handlers import RotatingFileHandler
 
 import click
@@ -37,7 +38,7 @@ if not app.debug:
     app.logger.setLevel(logging.INFO)
     app.logger.info('Phenome10k startup')
 
-from app import models, routes, errors
+from . import models, routes, errors
 from .routes import task_queue
 
 
@@ -83,9 +84,6 @@ def create_ctm(scan_slug):
 @app.cli.command()
 def task_runner():
     task_executor.run()
-
-
-import sys
 
 
 @app.cli.command()

@@ -5,9 +5,9 @@ from zipfile import ZipFile, ZIP_DEFLATED
 from stl.mesh import Mesh
 from werkzeug.utils import secure_filename
 
-from .ctmconv import ctmconv
-from .slugs import generate_slug
-from .. import models
+from app.data.ctmconv import ctmconv
+from app.data.slugs import generate_slug
+from app import models
 
 
 class ScanException(Exception):

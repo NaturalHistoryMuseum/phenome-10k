@@ -1,6 +1,6 @@
 from werkzeug.utils import secure_filename
 
-from .. import models
+from app import models
 
 
 def slug_available(slug):

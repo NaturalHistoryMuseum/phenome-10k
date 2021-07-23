@@ -15,15 +15,13 @@ from werkzeug.exceptions import NotFound, BadRequest, Forbidden
 from werkzeug.routing import ValidationError, BaseConverter, PathConverter
 from werkzeug.urls import url_parse
 
-from app import app, db, models, scan_store
-from app import mail
-from app import rpc
+from app import app, db, models, scan_store, rpc, mail
+from app.data.scan_store import ScanException
+from app.data.slugs import generate_slug
+from app.data.tmp_upload_store import TmpUploadStore
 from app.forms import LoginForm, RegistrationForm, ScanUploadForm, PublicationUploadForm
 from app.models import User, Scan, File, Publication, Tag, Taxonomy, Attachment, ScanAttachment, PublicationFile
-from .data.scan_store import ScanException
-from .data.slugs import generate_slug
-from .data.tmp_upload_store import TmpUploadStore
-from .tasks.client import TaskQueue
+from app.tasks.client import TaskQueue
 
 upload_store = TmpUploadStore(app.config['TMP_UPLOAD'])
 task_queue = TaskQueue(models.Queue)
