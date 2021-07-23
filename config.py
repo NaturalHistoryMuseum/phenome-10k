@@ -1,5 +1,6 @@
 import os
-from dotenv import load_dotenv, find_dotenv
+
+from dotenv import load_dotenv
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 # Parent directory takes precedence, which makes things
@@ -7,10 +8,11 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '../.env'))
 load_dotenv(os.path.join(basedir, '.env'))
 
+
 class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'G}<Ci&XWqSqA/mF7ZCWI7JJ.:QuuZF'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(basedir, 'app.db')
+    SQLALCHEMY_DATABASE_URI = (os.environ.get('DATABASE_URL') or
+                               'sqlite:///' + os.path.join(basedir, 'app.db'))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     RENDER_AS_BATCH = not os.environ.get('DATABASE_URL')
     MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER') or 'no-reply@phenome10k.org'
