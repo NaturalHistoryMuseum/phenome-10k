@@ -494,7 +494,7 @@ def edit_scan(scan_object=None):
                 form.file.data.close()
 
         if form_valid and not request.args.get('noredirect'):
-            return redirect(request.args.get('redirect') or url_for('scan', scan=scan_object))
+            return redirect(request.args.get('redirect') or url_for('scan', scan_object=scan_object))
 
     data = {
         'form': form.serialize(),
@@ -543,7 +543,7 @@ def edit_publication(pub_object=None):
 
         db.session.commit()
 
-        return redirect(url_for('edit_publication', publication=pub_object))
+        return redirect(url_for('edit_publication', pub_object=pub_object))
 
     data = {
         'publication': pub_object.serialize() if pub_object else None,
@@ -563,7 +563,7 @@ def delete_pub_file(attach_id):
 
     if attachment:
         ensure_editable(attachment)
-        return_to = url_for('edit_publication', publication=attachment.publication)
+        return_to = url_for('edit_publication', pub_object=attachment.publication)
         db.session.delete(attachment)
         db.session.commit()
 
@@ -684,7 +684,7 @@ def contribute():
             body += '"' + message + '"\n\n'
             html += '<blockquote>"' + message + '"</blockquote><br><br>'
 
-        profile_link = url_for('users', id=current_user.id, _external=True)
+        profile_link = url_for('users', user_id=current_user.id, _external=True)
 
         body += ('To approve their request, use the following link:\n' + profile_link)
         html += '<a href="' + profile_link + '">Approve this request</a>'
