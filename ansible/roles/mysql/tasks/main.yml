@@ -100,5 +100,5 @@
     cronvar:
       cron_file: db_backup
       name: MAILTO
-      value: " {{ sysadmin_email }}"
+      value: "{{ sysadmin_email }}"
     become: y

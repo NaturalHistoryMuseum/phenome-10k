@@ -2,7 +2,7 @@ p10k_home: /var/phenome-10k
 p10k_logs: /var/log/phenome10k
 p10k_src_dir: '{{ p10k_home }}/www'
 p10k_admin_email: a.goswami@nhm.ac.uk
-sysadmin_email: p.kiddle@nhm.ac.uk
+sysadmin_email: phenome10k@nhm.ac.uk
 app_root_dir: '{{ p10k_src_dir }}/app'
 static_files_dir: '{{ app_root_dir }}/static'
 virtualenv_location: '{{ p10k_home }}/production'
