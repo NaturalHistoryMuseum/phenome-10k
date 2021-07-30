@@ -16,7 +16,7 @@ hostname: phenome10k.org
 monit_hostname: monit.phenome10k.org
 virtual_ip: '157.140.2.106'
 mmonit_license: "{{ lookup('hashi_vault', 'secret=phenome10k/mmonit:license url=https://man-vault-2.nhm.ac.uk:8200')}}"
-postfix_relay_host: mailserver.nhm.ac.uk
+postfix_relay_host: mta-smtprelay-2.nhm.ac.uk
 postfix_sasl_auth_enable: false
 vrrp_password: "{{ lookup('hashi_vault', 'secret=phenome10k/vrrp:password url=https://man-vault-2.nhm.ac.uk:8200')}}"
 vrrp_interface: ens160
