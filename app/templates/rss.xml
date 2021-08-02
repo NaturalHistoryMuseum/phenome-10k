@@ -11,7 +11,7 @@
     {% for scan in scans %}
     <item>
       <title>{{ scan.scientific_name }}</title>
-      <link>{{ url_for('scan', scan=scan) }}</link>
+      <link>{{ url_for('scan', scan_object=scan_object) }}</link>
       <pubDate>{{ scan.date_created }}</pubDate>
       <guid isPermaLink="false">http://phenome10k.org/?p={{ scan.id }}</guid>
       <description>{{ scan.description }}</description>

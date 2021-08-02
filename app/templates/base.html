@@ -23,18 +23,18 @@
       <li><a class="Nav__item{{ ' Nav__item--selected' if menu == 'about' else '' }}" href="{{ url_for('about') }}">About</a></li>
       <li><a class="Nav__item{{ ' Nav__item--selected' if menu == 'library' else '' }}" href="{{ url_for('library') }}">Scans</a></li>
       <li><a class="Nav__item{{ ' Nav__item--selected' if menu == 'publications' else '' }}" href="{{ url_for('publications') }}">Publications</a></li>
-      {% if not current_user.is_anonymous and current_user.isAdmin() %}
+      {% if not current_user.is_anonymous and current_user.is_admin() %}
       <li><a class="Nav__item{{ ' Nav__item--selected' if menu == 'users' else '' }}" href="{{ url_for('users') }}">Users</a></li>
       {% endif %}
     </ul>
   </nav>
   {% if not current_user.is_anonymous %}
   <ul class="Base__subnav Nav__list">
-    {% if menu == 'library' and current_user.isContributor()  %}
+    {% if menu == 'library' and current_user.is_contributor()  %}
       <li><a href="{{ url_for('library', mine='') }}">View My Uploads</a></li>
       <li><a href="{{ url_for('manage_uploads') }}">Manage Uploads</a></li>
       <li><a href="{{ url_for('edit_scan') }}">Add New</a></li>
-    {% elif menu == 'publications' and current_user.isContributor()  %}
+    {% elif menu == 'publications' and current_user.is_contributor()  %}
       <li><a href="{{ url_for('publications') }}">View all pubs</a></li>
       <li><a href="{{ url_for('publications', mine='') }}">View my pubs</a></li>
       <li><a href="{{ url_for('manage_publications') }}">Manage Pubs</a></li>
