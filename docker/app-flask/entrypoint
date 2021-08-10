@@ -1,0 +1,6 @@
+#!/bin/sh
+
+flask db upgrade
+flask set-admin-pw pass
+
+exec "$@"

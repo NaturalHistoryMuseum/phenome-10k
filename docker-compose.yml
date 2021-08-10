@@ -1,0 +1,120 @@
+version: '3'
+
+services:
+  data:
+    image: mysql:8
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: plaEee2eer34@
+      MYSQL_DATABASE: phenome10k
+      MYSQL_USER: phenome10k
+      MYSQL_PASSWORD: Aei0_rr2rr2r2r2r
+    networks:
+      - phenome10k_net
+    ports:
+      - 3306:3306
+    volumes:
+      - ./docker/data/files:/var/files
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+
+  app-flask:
+    build:
+      context: .
+      dockerfile: docker/app-flask/Dockerfile
+    environment:
+      DATABASE_URL: mysql+pymysql://phenome10k:Aei0_rr2rr2r2r2r@data:3306/phenome10k
+      DATABASE_HOST: data
+      FLASK_APP: app
+      FLASK_ENV: development
+      RPC_HOST: http://app-node:8080
+    depends_on:
+      data:
+        condition: service_healthy
+      app-celery:
+        condition: service_started
+      app-node:
+        condition: service_started
+    networks:
+      - phenome10k_net
+    ports:
+      - 5000:5000
+    volumes:
+      - ./app:/var/phenome-10k/www/app
+      - app_data:/data
+
+  app-node:
+    build:
+      context: .
+      dockerfile: docker/app-node/Dockerfile
+    environment:
+      DATABASE_HOST: data
+    depends_on:
+      data:
+        condition: service_healthy
+    networks:
+      - phenome10k_net
+    ports:
+      - 8080:8080
+    volumes:
+      - ./node:/var/phenome-10k/www/node
+      - ./build:/var/phenome-10k/www/build
+      - app_data:/data
+
+  app-rabbitmq:
+    image: rabbitmq:management-alpine
+    networks:
+      - phenome10k_net
+    ports:
+      - 15672:15672
+      - 5672:5672
+    volumes:
+      - app_data:/data
+      - ./docker/app-rabbitmq/config:/etc/rabbitmq
+
+  app-redis:
+    image: redis:alpine
+    networks:
+      - phenome10k_net
+    volumes:
+      - app_data:/data
+
+  app-celery:
+    build:
+      context: .
+      dockerfile: docker/app-celery/Dockerfile
+    environment:
+      BROKER_URL: amqp://phenome10k:password@app-rabbitmq:5672
+      RESULT_BACKEND: redis://app-redis:6379/0
+    depends_on:
+      - app-rabbitmq
+      - app-redis
+    networks:
+      - phenome10k_net
+    volumes:
+      - app_data:/data
+      - ./task_queue:/var/phenome-10k/www/task_queue
+
+  lb:
+    build:
+      context: .
+      dockerfile: docker/lb/Dockerfile
+    depends_on:
+      - app-flask
+      - app-node
+      - app-celery
+    networks:
+      phenome10k_net:
+        ipv4_address: 10.0.10.10
+    ports:
+      - 80:80
+
+networks:
+  phenome10k_net:
+    ipam:
+      config:
+        - subnet: "10.0.10.1/24"
+
+volumes:
+  app_data:
+  lb_data:
