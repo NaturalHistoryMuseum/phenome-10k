@@ -1,6 +1,9 @@
 #!/bin/sh
 
-flask db upgrade
-flask set-admin-pw pass
+if [ "${RUN_INIT}" == "TRUE" ]
+then
+  flask db upgrade
+  flask set-admin-pw pass
+fi
 
 exec "$@"
