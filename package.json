@@ -77,7 +77,7 @@
   },
   "nodemonConfig": {
     "watch": [
-      "app/static/"
+      "static/"
     ],
     "ext": "json",
     "delay": 2000

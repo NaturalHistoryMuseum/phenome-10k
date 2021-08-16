@@ -2,7 +2,7 @@
 
 const SSR = require('vue-server-renderer');
 const serverBundle = require('./dist/vue-ssr-server-bundle.json');
-const clientManifest = require('../app/static/dist/vue-ssr-client-manifest.json');
+const clientManifest = require('../static/dist/vue-ssr-client-manifest.json');
 const renderer = SSR.createBundleRenderer(serverBundle, {
 	runInNewContext: false,
 	clientManifest

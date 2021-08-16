@@ -3,7 +3,7 @@ __pycache__
 venv
 node_modules
 *.pyc
-app/static/dist
+static/dist
 node/dist
 *.env
 .vagrant

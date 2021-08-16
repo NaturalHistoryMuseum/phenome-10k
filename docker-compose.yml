@@ -28,6 +28,7 @@ services:
       FLASK_APP: app
       FLASK_ENV: development
       RPC_HOST: http://app-node:8080
+      RUN_INIT: '${RUN_INIT}'
     depends_on:
       data:
         condition: service_healthy
@@ -41,6 +42,7 @@ services:
       - 5000:5000
     volumes:
       - ./app:/var/phenome-10k/www/app
+      - ./static:/var/phenome-10k/www/static
       - app_data:/data
 
   app-node:
@@ -59,6 +61,7 @@ services:
     volumes:
       - ./node:/var/phenome-10k/www/node
       - ./build:/var/phenome-10k/www/build
+      - ./static:/var/phenome-10k/www/static
       - app_data:/data
 
   app-rabbitmq:
