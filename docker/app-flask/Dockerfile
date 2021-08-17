@@ -1,7 +1,9 @@
 FROM python:3.8
 
-COPY ./requirements.txt /var/phenome-10k/www/requirements.txt
+RUN apt-get update -y && apt-get install mariadb-client -y
+
 COPY ./docker/app-flask/entrypoint /deploy/entrypoint
+COPY ./requirements.txt /var/phenome-10k/www/requirements.txt
 COPY ./app /var/phenome-10k/www/app
 COPY ./migrations /var/phenome-10k/www/migrations
 COPY ./config.py /var/phenome-10k/www/config.py

@@ -15,8 +15,6 @@ services:
       - 3306:3306
     volumes:
       - ./docker/data/files:/var/files
-    healthcheck:
-      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
 
   app-flask:
     build:
@@ -30,12 +28,9 @@ services:
       RPC_HOST: http://app-node:8080
       RUN_INIT: '${RUN_INIT}'
     depends_on:
-      data:
-        condition: service_healthy
-      app-celery:
-        condition: service_started
-      app-node:
-        condition: service_started
+      - data
+      - app-celery
+      - app-node
     networks:
       - phenome10k_net
     ports:
@@ -52,8 +47,7 @@ services:
     environment:
       DATABASE_HOST: data
     depends_on:
-      data:
-        condition: service_healthy
+      - data
     networks:
       - phenome10k_net
     ports:

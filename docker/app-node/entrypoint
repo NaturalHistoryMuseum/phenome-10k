@@ -8,11 +8,4 @@ done
 
 echo "MYSQL started."
 
-if [ "${RUN_INIT}" == "TRUE" ]
-then
-  echo "Running flask init"
-  flask db upgrade
-  flask set-admin-pw pass
-fi
-
 exec "$@"
