@@ -82,6 +82,7 @@ services:
       dockerfile: docker/app-celery/Dockerfile
     environment:
       BROKER_URL: amqp://phenome10k:password@app-rabbitmq:5672
+      BROKER_API: http://phenome10k:password@app-rabbitmq:15672/api/
       RESULT_BACKEND: redis://app-redis:6379/0
     depends_on:
       - app-rabbitmq

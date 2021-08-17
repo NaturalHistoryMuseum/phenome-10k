@@ -9,4 +9,4 @@ RUN pip install -r /deploy/requirements.txt
 WORKDIR /var/phenome-10k/www
 RUN pip list
 
-CMD ["celery", "--app", "task_queue.apium:app", "worker", "-l", "INFO"]
+CMD celery --app task_queue.apium:app flower --broker_api=$BROKER_API -l INFO
