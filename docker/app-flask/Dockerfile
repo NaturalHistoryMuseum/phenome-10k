@@ -1,12 +1,12 @@
 FROM python:3.8
 
-COPY ./requirements.txt /var/phenome10k/www/requirements.txt
+COPY ./requirements.txt /var/phenome-10k/www/requirements.txt
 COPY ./docker/app-flask/entrypoint /deploy/entrypoint
-COPY ./app /var/phenome10k/www/app
-COPY ./migrations /var/phenome10k/www/migrations
-COPY ./config.py /var/phenome10k/www/config.py
+COPY ./app /var/phenome-10k/www/app
+COPY ./migrations /var/phenome-10k/www/migrations
+COPY ./config.py /var/phenome-10k/www/config.py
 
-WORKDIR /var/phenome10k/www
+WORKDIR /var/phenome-10k/www
 
 RUN pip install -r requirements.txt
 
