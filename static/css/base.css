@@ -1,0 +1,124 @@
+@import url("https://fonts.googleapis.com/css2?family=Red+Hat+Text&family=Titillium+Web&display=swap");
+.Base {
+  display: grid;
+  grid-template-columns: 389px auto auto minmax(auto, 389px);
+  grid-template-rows: auto auto 1fr;
+  grid-template-areas: 'sidebar subnav  user    .' 'sidebar nav     auth    .' 'sidebar content content .'; }
+
+.Base__nav {
+  grid-area: nav;
+  justify-self: start; }
+
+.Nav {
+  font-family: "Red Hat Text", "Helvetica", Arial, sans-serif;
+  text-transform: uppercase;
+  display: flex; }
+
+.Nav__list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  margin: 0 -15px; }
+  .Nav__list > li {
+    padding: 0; }
+
+.Nav__item {
+  color: #595959;
+  display: block;
+  text-decoration: none;
+  padding: 10px 15px 20px; }
+  .Nav__item:hover {
+    text-decoration: underline;
+    background: rgba(194, 194, 194, 0.3);
+    color: #008558; }
+
+.Nav__item--selected {
+  font-weight: bold;
+  color: #008558; }
+
+.Base__subnav {
+  grid-area: subnav;
+  align-items: center;
+  font-size: 12px; }
+  .Base__subnav li a {
+    padding: 20px 15px;
+    text-transform: uppercase;
+    color: black;
+    white-space: nowrap; }
+    .Base__subnav li a:hover {
+      color: #008558; }
+  .Base__subnav li:not(:last-child)::after {
+    content: '|';
+    color: #c2c2c2; }
+
+.Base__auth {
+  grid-area: auth;
+  justify-self: end;
+  font-size: 12px;
+  margin: 10px 0 20px 20px; }
+  .Base__auth a:hover {
+    color: #008558; }
+
+.Base__decoration {
+  grid-area: 1 / 2 / 1 / 5;
+  background: #008558;
+  height: 1px;
+  align-self: end; }
+
+.Base__user {
+  grid-area: user;
+  justify-self: end;
+  padding: 20px 0 10px;
+  font-size: 12px;
+  color: #595959;
+  margin-left: 20px; }
+
+.Base__sidebar {
+  grid-area: sidebar; }
+
+.Content-Sidebar {
+  grid-column-start: 1;
+  grid-column-end: main-start;
+  display: grid;
+  grid-template-columns: 235px auto;
+  justify-items: end;
+  align-items: center;
+  font-family: "Red Hat Text", "Helvetica", Arial, sans-serif;
+  color: #595959;
+  font-size: 12px;
+  line-height: initial;
+  row-gap: 2px;
+  align-content: start;
+  /* Stop content clashing with logo for logged-out users: */
+  padding-top: 50px; }
+
+.Content-Sidebar > *,
+.Content-Sidebar__subgrid > * {
+  grid-column-start: 1; }
+
+.Content-Sidebar__subgrid {
+  display: contents; }
+
+.Sidebar {
+  background: linear-gradient(to right, transparent, transparent 228px, #595959 228px, #595959 229px, transparent 229px); }
+
+.Sidebar__logo {
+  position: fixed;
+  top: 0;
+  left: 100px;
+  pointer-events: none; }
+
+.Base__content {
+  grid-area: content;
+  grid-column-start: 1;
+  margin-bottom: 40px; }
+
+.Subgrid {
+  display: grid;
+  grid-template-columns: 228px 161px [main-start] auto;
+  align-content: start; }
+
+.Subgrid > * {
+  grid-column-start: main-start; }
+
+/*# sourceMappingURL=base.css.map */

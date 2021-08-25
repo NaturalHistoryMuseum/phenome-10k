@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: phenome10k
+Version: 1.0.0
+Summary: Hosting of 3D biological models for the academic and educational community.
+Home-page: https://github.com/NaturalHistoryMuseum/phenome-10k
+Author: Paul Kiddle, Ginger Butcher
+Author-email: phenome10k@nhm.ac.uk
+License: MIT
+Description: Hosting of 3D biological models for the academic and educational community.
+Platform: UNKNOWN

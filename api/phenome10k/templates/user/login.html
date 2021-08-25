@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1>Sign In</h1>
+  <form action="" method="post" class="p10k__form">
+    {{ form.hidden_tag() }}
+    {% if error %}
+      <span class="error">[{{ error }}]</span>
+    {% endif %}
+    <div class="p10k__form_row_stack">
+      {{ form.email.label }}<br>
+      {{ form.email() }}<br>
+      {% for error in form.email.errors %}
+        <span class="error">[{{ error }}]</span>
+      {% endfor %}
+    </div>
+    <div class="p10k__form_row_stack">
+      {{ form.password.label }}<br>
+      {{ form.password() }}<br>
+      {% for error in form.password.errors %}
+        <span class="error">[{{ error }}]</span>
+      {% endfor %}
+    </div>
+    <div class="p10k__form_row">{{ form.remember_me(class='mr') }} {{ form.remember_me.label }}</div>
+    <div>{{ form.submit(class='p10k__button') }}</div>
+    <div class="mt">New User? <a href="{{ url_for('user.register') }}">Register</a></div>
+  </form>
+{% endblock %}

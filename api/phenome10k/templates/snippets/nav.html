@@ -1,0 +1,39 @@
+{% macro nav_item(endpoint, page_title, use_blueprint=False) -%}
+  {% set matches = (request.blueprint == endpoint.split('.')[0]) if use_blueprint
+      else (request.endpoint == endpoint) %}
+  <li><a class="Nav__item{{ ' Nav__item--selected' if matches else '' }}"
+         href="{{ url_for(endpoint) }}">{{ page_title }}</a></li>
+{% endmacro -%}
+
+<nav class="Base__nav Nav">
+  <ul class="Nav__list">
+    {{ nav_item('home.index', 'Home') }}
+    {{ nav_item('home.about', 'About') }}
+    {{ nav_item('scans.library', 'Scans', True) }}
+    {{ nav_item('publications.library', 'Publications', True) }}
+    {% if not current_user.is_anonymous and current_user.is_admin() %}
+      {{ nav_item('admin.users', 'Users') }}
+    {% endif %}
+  </ul>
+</nav>
+{% if not current_user.is_anonymous %}
+  <ul class="Base__subnav Nav__list">
+    {% if request.blueprint == 'scans' and current_user.is_contributor() %}
+      <li><a href="{{ url_for('scans.library', mine='') }}">View My Uploads</a></li>
+      <li><a href="{{ url_for('scans.manage') }}">Manage Uploads</a></li>
+      {#      <li><a href="{{ url_for('edit_scan') }}">Add New</a></li>#}
+    {% elif request.blueprint == 'publications' and current_user.is_contributor() %}
+      <li><a href="{{ url_for('publications.library') }}">View all pubs</a></li>
+      <li><a href="{{ url_for('publications.library', mine='') }}">View my pubs</a></li>
+      <li><a href="{{ url_for('publications.manage') }}">Manage Pubs</a></li>
+      <li><a href="{{ url_for('publications.edit') }}">Add New</a></li>
+    {% endif %}
+    {% if request.blueprint == 'library' or request.blueprint == 'publications' %}
+      <li><a href="{{ url_for('user.contribute') }}">Contribute</a></li>
+    {% endif %}
+  </ul>
+  <div class="Base__user">
+    Signed in as <a><b>{{ current_user.name }}</b></a>
+  </div>
+  <div class="Base__decoration"></div>
+{% endif %}

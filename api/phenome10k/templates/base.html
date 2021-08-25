@@ -1,0 +1,48 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  {% if title %}
+    <title>{{ title }} | Phenome10k</title>
+  {% else %}
+    <title>Phenome10k</title>
+  {% endif %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/core.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+  {% block stylesheets %}
+    {% if local_sheets %}
+      {% for filepath in local_sheets %}
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/' + filepath) }}">
+      {% endfor %}
+    {% endif %}
+  {% endblock %}
+</head>
+
+<body class="Base">
+{% include 'snippets/nav.html' %}
+<div class="Base__auth">
+  {% if current_user.is_anonymous %}
+    <a href="{{ url_for('user.login') }}">Sign in</a>
+  {% else %}
+    <a href="{{ url_for('user.logout') }}">Sign Out</a>
+  {% endif %}
+</div>
+<div class="Base__sidebar Sidebar">
+  <img src="{{ url_for('static', filename='logo.png') }}" alt="" class="Sidebar__logo">
+  {% block sidebar %}{% endblock %}
+</div>
+<main class="Base__content Subgrid">
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      <ul>
+        {% for message in messages %}
+          <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{{ content | safe }}{% endblock %}
+</main>
+</body>
+</html>

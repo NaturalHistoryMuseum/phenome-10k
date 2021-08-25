@@ -1,0 +1,25 @@
+.About a {
+  color: #4374b7;
+  text-decoration: none; }
+  .About a:hover {
+    text-decoration: underline; }
+.About h1 {
+  margin-bottom: 20px; }
+.About hr {
+  border: none;
+  border-bottom: 1px solid #c2c2c2;
+  margin: 20px 0; }
+
+.About__intro {
+  color: #008558;
+  margin-top: 80px;
+  margin-bottom: 40px;
+  font-weight: bold; }
+
+.About__images {
+  display: flex;
+  justify-content: center; }
+  .About__images > * {
+    padding: 2px; }
+
+/*# sourceMappingURL=about.css.map */

@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% set local_sheets=['contribute.css'] %}
+
+{% block content %}
+
+  <div class="Contribute">
+    {% if not current_user.is_authenticated or not current_user.is_contributor() %}
+      <h1>Become a contributor to Phenome10K!</h1>
+
+      <p>Phenome10K is a free resource for 3-D images of all types, including CT and surface scans. If you have 3-D
+         images of biological or palaeontological specimens, please consider sharing your data via Phenome10K. You can
+         link all images to associated publications, and we request all users to cite the appropriate primary
+         publication if using any data from this database. Please obtain permission from the relevant institutions
+         holding any imaged specimens before publishing them on Phenome10K.org. Unless otherwise noted, data on
+         Phenome10K.org is licensed under a Creative Commons Attribution-NonCommercial 4.0 International License. </p>
+      <p>While anybody can register as a user, allowing them to download any available files, contributors must be
+         approved by the site administrator in order to maintain quality and ensure that only appropriate files are
+         added. To request registration as a contributor, please fill in the following information and click submit to
+         send an email requesting approval.</p>
+
+      <form enctype="multipart/form-data" method="post" class="Contribute__form">
+        {% if current_user.is_authenticated %}
+          <label for="message" class="Contribute__form-row">
+            Message (optional):
+            <textarea name="message" id="message" rows="8" cols="60" class="Contribute__form-row"></textarea>
+          </label>
+          <button class="Contribute__form-row">Request contributor status</button>
+        {% else %}
+          You must <a href="{{ url_for('user.login', next=url_for('user.contribute')) }}">sign in</a> or
+          <a href="{{ url_for('user.register', next=url_for('user.contribute')) }}">register</a> before requesting to become a
+          contributor.
+        {% endif %}
+      </form>
+    {% endif %}
+
+    <h1>Instructions for Contributors</h1>
+    <p>You must sign in to access contributor options. Once you have signed in, the scans and publications pages will
+       automatically update with the appropriate options. As a contributor, you can add, edit and manage 3-D image files
+       and publications. If you are uploading images that are associated with a publication, it is often faster to add
+       details of the publication first, so that it appears as an option when you add or edit an image file.</p>
+    <h2>Adding Images</h2>
+    <p>In order to add, edit or manage images, click on SCANS. This will produce the same view as for a non-contributing
+       user, but with five additional links at the top ofthe page: VIEW ALL UPLOADS, VIEW MY UPLOADS, MANAGE UPLOADS,
+       ADD NEW, and INSTRUCTIONS<br>
+       You will only be able to manage uploads that you have added, but you can select VIEW ALL UPLOADS in order to
+       conduct your own searches of the full scan library.</p>
+    <p>To add a new image, click on ADD NEW.</p>
+    <ol>
+      <li>You can either drag a stl file into the drop menu or use browse to search for the file. Images larger than
+          100MB will take longer to upload and may not appear properly when loaded. It is best to reduce file sizes to
+          below 100MB if possible.
+      </li>
+      <li>Select a minimum of one and up to six still images of different views of the stl file. This will be used as
+          the image in the scan library and search, necessitating selection of at least one still. Manipulate the 3-D
+          image to the desired position and then click capture. Repeat for up to six images
+      </li>
+      <li>Add scientific name for specimen (usually genus and species)</li>
+      <li>Add additional details. Alternative names could include common names or synonyms. Location should be museum or
+          lab where the original specimen is located. Specimen ID should identify the exact specimen in the image, as
+          listed in any relevant publications.
+      </li>
+      <li>Assign any age or general tags that are not covered by the categories on the left side. Age tags could include
+          more specific geologic or ontogenetic details (e.g., stage or formation). General tags should be used for
+          higher-level taxonomic names other than those in the Taxonomy categories (e.g. Marsupialia, Squamata,
+          Felidae). Make sure to click the + button after typing general tags to add them. If additional tags are used
+          commonly, they will be added into the relevant categories in future updates to the site.
+      </li>
+      <li>Add any additional details of the specimen or scan to the description box, for example the specific age of a
+          specimen (e.g., CT-scan of a day 35 postnatal specimen). The sample text (This is a scan of…) will disappear
+          once any textis added.
+      </li>
+      <li>If the uploaded image contributed to a publication in a scientific journal, assignit to the relevant
+          publication. Publications must have been previously addedusing the publications page. You can search among the
+          publications that you have added or those added by others. Click the tick box to associate a publication to
+          the image file. Multiple publications can be associated with an image.
+      </li>
+      <li>Tick any relevant boxes in the Taxonomy, Geologic Age, Elements, and Ontogenetic Age categories.</li>
+      <li>Click on Confirm to save. The default is for new files to remain hidden from public view until “Publish” is
+          selected by the owner or administrator under the Manage Uploads menu.
+      </li>
+    </ol>
+    <h2>Manage Uploads</h2>
+    <p>Clicking on manage uploads produces a list of files that you have uploaded. New files will be hidden by default.
+       Clicking on “Publish” makes a file viewable by the public. Published files can be hidden by clicking on “Hide”.
+       Clicking on Edit returns you to the Add New page, with all of the information populated as previously entered.
+       You can change any aspect of the page other than the original stl file. To change the stl file, delete the file
+       and create a new one. You can delete files via the Manage Uploads page, but this is discouraged unless there is
+       an error in the image or copyright issues. Consider hiding a file rather than deleting if there is a concern
+       regarding public access.</p>
+    <h2>Adding New Publications</h2>
+    <p>To add new publications, click on PUBLICATIONS.</p>
+    <p>If you are signed in as a contributor, five links will appear, similar to those available for images: VIEW ALL
+       PUBS, VIEW MY PUBS, MANAGE PUBS, ADD NEW, INSTRUCTIONS.</p>
+    <p>To add a new publication, click ADD NEW. Enter title, year of publication, all authors, full journal name,
+       volume, and pages, following any standard format.</p>
+    <p>Paste the paper abstract into the box, and add a URL link if possible. If an open access pdf is available, upload
+       it using the browse option. Click PUBLISH to save. This will return you to the MANAGE PUBS page, where you can
+       click on PUBLISH to make publications viewable to the public.</p>
+    <p>You must select PUBLISH in order for a publication to be visible in the pubs list for adding and editing images.
+       As with images, you can hide, edit, and delete publications in the MANAGE PUBS page. You can select subsets of
+       publications by year by clicking on the links on the left bar.</p>
+    <p>Thank you for contributing to Phenome10K and please contact us if you have any queries: <a
+        href="mailto:a.goswami@nhm.ac.uk">Anjali Goswami</a></p>
+  </div>
+
+{% endblock %}

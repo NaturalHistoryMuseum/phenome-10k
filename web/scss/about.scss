@@ -1,0 +1,41 @@
+@import 'palette';
+
+.About {
+  & a {
+    color: $palette-secondary;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  & h1 {
+    margin-bottom: 20px;
+  }
+
+  & hr {
+    border: none;
+    border-bottom: 1px solid $palette-light-grey-lines;
+    margin: 20px 0;
+  }
+}
+
+.About__intro {
+  color: $palette-primary;
+  margin-top: 80px;
+  margin-bottom: 40px;
+  font-weight: bold;
+}
+
+.About__images {
+  display: flex;
+  justify-content: center;
+
+  & > * {
+    padding: 2px;
+  }
+}
+
+
+
