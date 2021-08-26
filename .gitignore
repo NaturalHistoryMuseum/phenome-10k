@@ -13,3 +13,5 @@ htmlcov/
 coverage
 
 .idea/
+
+web/scss/.sass-cache/

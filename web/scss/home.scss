@@ -21,11 +21,10 @@ a {
 
 .Home {
   margin-top: 73px;
-  display: inline-flex;
-  justify-content: space-between;
+  display: grid;
+  grid-gap: 1em;
   width: 100%;
   max-width: 830px;
-  flex-wrap: wrap;
 }
 
 .Home__text {
