@@ -1,4 +1,5 @@
 from sqlalchemy.sql import func
+from sqlalchemy.ext.associationproxy import association_proxy
 
 from phenome10k.extensions import db
 
@@ -16,6 +17,8 @@ class Publication(db.Model):
     journal = db.Column(db.String(250))
     link = db.Column(db.String(250))
     abstract = db.Column(db.Text)
+
+    files = association_proxy('publication_file_ref', 'attachment')
 
     def serialize(self):
         return {
@@ -40,8 +43,6 @@ class Publication(db.Model):
                 } for scan in self.scans
             ]
         }
-
-    files = db.relationship('Attachment', secondary='publication_file', cascade='all')
 
     @staticmethod
     def find_by_slug(slug):

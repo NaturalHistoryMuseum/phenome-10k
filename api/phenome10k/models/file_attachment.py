@@ -7,6 +7,7 @@ from flask.helpers import url_for
 from flask_login import current_user
 from sqlalchemy import event
 from sqlalchemy.sql import func
+from sqlalchemy.ext.associationproxy import association_proxy
 from werkzeug.utils import secure_filename
 
 from phenome10k.extensions import db
@@ -126,6 +127,7 @@ class Attachment(db.Model):
         'File',
         cascade='all'
     )
+    publication = association_proxy('publication_file_ref', 'publication')
 
     def serialize(self):
         return {

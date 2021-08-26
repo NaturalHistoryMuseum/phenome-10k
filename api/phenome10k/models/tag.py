@@ -1,4 +1,5 @@
 from phenome10k.extensions import db
+from sqlalchemy.ext.associationproxy import association_proxy
 
 
 class Tag(db.Model):
@@ -7,7 +8,8 @@ class Tag(db.Model):
     name = db.Column(db.String(250), nullable=False)
     taxonomy = db.Column(db.String(250), unique=True)
     parent_id = db.Column(db.Integer, db.ForeignKey('tag.id'))
-    scans = db.relationship('Scan', secondary='scan_tag', lazy='dynamic')
+
+    scans = association_proxy('scan_tag_ref', 'scan')
 
     @property
     def children(self):
