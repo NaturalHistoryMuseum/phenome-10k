@@ -40,5 +40,5 @@
 export default {
   name: 'Results',
   props: ['results']
-}
+};
 </script>

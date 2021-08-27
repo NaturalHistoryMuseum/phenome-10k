@@ -13,9 +13,11 @@
         <p>
           <template v-for="(tag, ix) in scan.tags">
             <router-link :key="tag.id"
-                        :to="{ name: 'library', query: { [tag.category]: tag.taxonomy } }"
-                        class="Scan__link">{{ tag.name }}</router-link><!--
-         --><template v-if="scan.tags[ix+1]">, </template>
+                         :to="{ name: 'library', query: { [tag.category]: tag.taxonomy } }"
+                         class="Scan__link">{{ tag.name }}
+            </router-link><!--
+         -->
+            <template v-if="scan.tags[ix+1]">,</template>
           </template>
         </p>
 
@@ -48,7 +50,11 @@
             <dl class="Scan__datalist">
               <div>
                 <dt>Title:</dt>
-                <dd><router-link class="Scan__link" :to="{ name: 'publication', params: { id: publication.url_slug } }">{{ publication.title }}</router-link></dd>
+                <dd>
+                  <router-link class="Scan__link" :to="{ name: 'publication', params: { id: publication.url_slug } }">
+                    {{ publication.title }}
+                  </router-link>
+                </dd>
               </div>
               <div>
                 <dt>Year:</dt>
@@ -78,7 +84,7 @@
 
         <Files title="Stills" :download="scan.url_slug + '/stills'">
           <div class="Scan__file" v-for="still in scan.stills" :key="still.id">
-            <input type="image" :src="still.file + '?w=80'" @click="viewStill=still" :alt="still.name"/>
+            <input type="image" :src="still.file + '?w=80'" @click="viewStill=still" :alt="still.name" />
             <div class="Scan__file-info">
               {{ still.name }}<br>
               {{ size(still.size) }}
@@ -88,7 +94,8 @@
 
         <Files title="3D / Web GL" :download="scan.source">
           <div class="Scan__file">
-            <input v-if="scan.thumbnail" type="image" :src="scan.thumbnail + '?w=80'" @click="viewStill=null" alt="Original file" />
+            <input v-if="scan.thumbnail" type="image" :src="scan.thumbnail + '?w=80'" @click="viewStill=null"
+                   alt="Original file" />
             <div class="Scan__file-info">
               (Scan)
             </div>
@@ -98,7 +105,9 @@
         <template v-for="publication in scan.publications.filter(pub => pub.published)">
           <Files v-for="file in publication.files" :key="file.id" title="PDF" :download="file.file">
             <div class="Scan__file-pdf">
-              <a :href="file.file" class="Scan__file-pdf-text" :title="`Download PDF`" download>{{ publication.title }}</a>
+              <a :href="file.file" class="Scan__file-pdf-text" :title="`Download PDF`" download>{{
+                  publication.title
+                                                                                                }}</a>
             </div>
             <div class="Scan__file-info">
               {{ file && file.name }}<br>
@@ -144,21 +153,22 @@
 .Scan__datalist {
   margin: 0;
 
-  dt, dd {
-    display: inline;
-  }
+dt, dd {
+  display: inline;
+}
 
-  dd {
-    margin-left: 0.5em;
-  }
+dd {
+  margin-left: 0.5em;
+}
 
-  dt {
-    font-weight: bold;
-  }
+dt {
+  font-weight: bold;
+}
+
 }
 
 .Scan__link {
-    color: #999;
+  color: #999;
 }
 
 .Scan__publication-details {
@@ -196,7 +206,7 @@
   font-size: smaller;
   height: 60px;
   width: 80px;
-  background: linear-gradient(to bottom,#333, #666);
+  background: linear-gradient(to bottom, #333, #666);
 }
 
 .Scan__file-pdf-text {
@@ -231,14 +241,14 @@
 
 <script>
 import CtmViewer from '../CtmViewer';
-import Files from './Files'
+import Files from './Files';
 
 export default {
   components: {
     CtmViewer,
     Files
   },
-  data(){
+  data() {
     return {
       viewStill: null
     };
@@ -249,17 +259,17 @@ export default {
     },
     title() {
       return this.scan.scientific_name ?
-        this.scan.scientific_name[0].toUpperCase() + this.scan.scientific_name.substr(1) :
-        'Unnamed Upload'
+          this.scan.scientific_name[0].toUpperCase() + this.scan.scientific_name.substr(1) :
+          'Unnamed Upload';
     },
-    ctm(){
+    ctm() {
       return decodeURIComponent(this.scan.ctm);
     }
   },
-  methods:{
+  methods: {
     size(bytes) {
-      return Math.floor(bytes/1000) + "k"
+      return Math.floor(bytes / 1000) + 'k';
     }
   }
-}
+};
 </script>

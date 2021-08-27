@@ -4,43 +4,52 @@
     <Search class="ManageUploads__search" v-model="q" name="q" />
     <div class="ManageUploads__sidebar">
       <router-link :class="getLetterClass()" :to="{ name:'manage-uploads' }">All</router-link>
-      <router-link :class="getLetterClass(char)" v-for="char of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'" :to="{ name:'manage-uploads', query: { char } }" :key="char">{{ char }}</router-link>
+      <router-link :class="getLetterClass(char)" v-for="char of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'"
+                   :to="{ name:'manage-uploads', query: { char } }" :key="char">{{ char }}
+      </router-link>
     </div>
     <table class="ManageUploads__grid">
       <thead class="ManageUploads__grid-head">
-        <tr>
-          <th>Upload Date</th>
-          <th class="ManageUploads__name-header">Name of Specimen</th>
-          <th class="ManageUploads__name-header">Name of Uploader</th>
-        </tr>
+      <tr>
+        <th>Upload Date</th>
+        <th class="ManageUploads__name-header">Name of Specimen</th>
+        <th class="ManageUploads__name-header">Name of Uploader</th>
+      </tr>
       </thead>
       <tbody>
-        <tr v-for="scan in $route.meta.data.scans" :key="scan.id">
-          <td class="ManageUploads__upload-date">{{ getDateCreated(scan) }}</td>
-          <td>
-            <router-link class="ManageUploads__scan-link" :to="{ name: 'scan', params: { id: scan.url_slug || scan.id } }">{{ scan.scientific_name || '(unnamed specimen)' }}</router-link>
-            <dl class="ManageUploads__details">
-              <template v-for="({ name, values }, ix) in getScanData(scan)"><!--
-            --><template v-if="ix > 0">, </template>
-                <dt :key="name">{{ name }}</dt>: <dd :key="name + '-val'">{{ values.join(', ') }}</dd><!--
+      <tr v-for="scan in $route.meta.data.scans" :key="scan.id">
+        <td class="ManageUploads__upload-date">{{ getDateCreated(scan) }}</td>
+        <td>
+          <router-link class="ManageUploads__scan-link"
+                       :to="{ name: 'scan', params: { id: scan.url_slug || scan.id } }">
+            {{ scan.scientific_name || '(unnamed specimen)' }}
+          </router-link>
+          <dl class="ManageUploads__details">
+            <template v-for="({ name, values }, ix) in getScanData(scan)"><!--
+            -->
+              <template v-if="ix > 0">,</template>
+              <dt :key="name">{{ name }}</dt>
+                                                                          :
+              <dd :key="name + '-val'">{{ values.join(', ') }}</dd><!--
           --></template>
-            </dl>
-          </td>
-          <td>
-            {{ scan.author }}
-          </td>
-          <td>
-            <form method="post" class="ManageUploads__actions">
-              <input name="csrf_token" type="hidden" :value="$route.meta.data.csrf_token">
-              <button
+          </dl>
+        </td>
+        <td>
+          {{ scan.author }}
+        </td>
+        <td>
+          <form method="post" class="ManageUploads__actions">
+            <input name="csrf_token" type="hidden" :value="$route.meta.data.csrf_token">
+            <button
                 :formaction="$router.resolve({ name: 'edit-scan', params: { id: scan.id }, query: { redirect: $route.fullPath } }).href"
                 :name="scan.published ? null : 'published'" value="On"
-                >{{ scan.published ? 'Unpublish' : 'Publish' }}</button>
-              <router-link :to="{ name: 'edit-scan' , params: { id: scan.id } }">Edit</router-link>
-              <button name="delete" :value="scan.id" @click="confirmDelete">Delete</button>
-            </form>
-          </td>
-        </tr>
+            >{{ scan.published ? 'Unpublish' : 'Publish' }}
+            </button>
+            <router-link :to="{ name: 'edit-scan' , params: { id: scan.id } }">Edit</router-link>
+            <button name="delete" :value="scan.id" @click="confirmDelete">Delete</button>
+          </form>
+        </td>
+      </tr>
       </tbody>
     </table>
     <Pagination :page="page"
@@ -173,13 +182,16 @@ td.ManageUploads__upload-date {
   padding: 0 5px;
   font-family: Helvetica, Arial, sans-serif;
 
-  &:hover {
-    text-decoration: underline;
-  }
+&
+:hover {
+  text-decoration: underline;
+}
 
-  &:not(:last-child) {
-    border-right: 1px solid #666;
-  }
+&
+:not(:last-child) {
+  border-right: 1px solid #666;
+}
+
 }
 
 .ManageUploads__footer {
@@ -204,14 +216,14 @@ export default {
     Pagination,
     Search
   },
-  data(){
+  data() {
     return {
       q: this.$route.meta.data.q
-    }
+    };
   },
   computed: {
     page() {
-      return this.$route.meta.data.page
+      return this.$route.meta.data.page;
     },
     totalPages() {
       return this.$route.meta.data.total_pages;
@@ -222,30 +234,30 @@ export default {
      * Ask the user to confirm whether they want to delete the record, prevent form sub if not
      * @param e {Event} The form submit event
      */
-    confirmDelete(e){
-      if(!confirm('This action will permenently delete the source file and all attachments.')) {
+    confirmDelete(e) {
+      if (!confirm('This action will permenently delete the source file and all attachments.')) {
         e.preventDefault();
       }
     },
     /**
      * Generate human readable creation date for a scan
      */
-    getDateCreated(scan){
+    getDateCreated(scan) {
       const date = new Date(scan.created);
-      const pad = n => String(n).padStart(2, '0')
+      const pad = n => String(n).padStart(2, '0');
 
-      return `${pad(date.getDay())}.${pad(date.getMonth()+1)}.${date.getFullYear()}`;
+      return `${ pad(date.getDay()) }.${ pad(date.getMonth() + 1) }.${ date.getFullYear() }`;
     },
     /**
      * Generate an array of objects containing scan data item
      */
-    getScanData(scan){
+    getScanData(scan) {
       const data = [];
       if (scan.specimen_id) {
         data.push({
           name: 'Specimen ID',
           values: [scan.specimen_id]
-        })
+        });
       }
 
       const elements = scan.tags.filter(tag => tag.category === 'elements');
@@ -253,7 +265,7 @@ export default {
         data.push({
           name: 'Elements',
           values: elements.map(el => el.name)
-        })
+        });
       }
 
       return data;
@@ -268,5 +280,5 @@ export default {
       };
     }
   }
-}
+};
 </script>

@@ -46,7 +46,7 @@ export default {
   data() {
     return {
       open: false
-    }
+    };
   },
   methods: {
     enter(element) {
@@ -94,5 +94,5 @@ export default {
       });
     }
   }
-}
+};
 </script>

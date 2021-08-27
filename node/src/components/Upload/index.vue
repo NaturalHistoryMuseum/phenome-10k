@@ -1,16 +1,20 @@
 <template>
   <div class="Upload Content__subgrid">
-    <h1 class="Upload__title">{{ scan ? "Edit: " + scan.scientific_name : "Upload New" }}</h1>
+    <h1 class="Upload__title">{{ scan ? 'Edit: ' + scan.scientific_name : 'Upload New' }}</h1>
     <form class="Upload__upload" :action="formAction" method="post" enctype="multipart/form-data">
       <input type="hidden" name="csrf_token" :value="csrf">
       <Errors v-if="error" :errors="[error]" />
       <Errors v-if="errors" :errors="errors" />
       <h2 class="Upload__section-title Upload__section-head">Browse and preview STL file</h2>
       <CtmViewer v-if="scan && scan.ctm" ref="canvas" :src="scan.ctm" height=400px width=500px />
-      <Upload3D v-else @change="upload" :progress="progress" :status="status || (scan && scan.source && 'Uploaded' )" :errors="form.file.errors"></Upload3D>
+      <Upload3D v-else @change="upload" :progress="progress" :status="status || (scan && scan.source && 'Uploaded' )"
+                :errors="form.file.errors"></Upload3D>
     </form>
     <div class="Upload__stills">
-      <span class="Upload__section-title Upload__section-head">Take Stills</span> - Move image into appropriate position and click the button below (Minimum of 1 snapshot image, maximum of 6 images).
+      <span class="Upload__section-title Upload__section-head">Take Stills</span> - Move image into appropriate position
+                                                                                  and click the button below (Minimum of
+                                                                                  1 snapshot image, maximum of 6
+                                                                                  images).
 
       <div class="Upload__still-capture-name">
         <label>Label: <input class="TextInput__input" v-model="stillName"></label>
@@ -27,7 +31,8 @@
     <form class="Upload__details" :action="formAction" method="post" @submit.prevent="submit" novalidate>
       <input type="hidden" name="csrf_token" :value="csrf">
       <div class="Upload__column">
-        <TextInput name="scientific_name" :data="form.scientific_name" @keyup="e => searchGbif(e.target.value)" autocomplete="off">
+        <TextInput name="scientific_name" :data="form.scientific_name" @keyup="e => searchGbif(e.target.value)"
+                   autocomplete="off">
           <h2 class="Upload__section-title Upload__section-head">Scientific Name</h2>
         </TextInput>
         <div v-if="gbifData.length < 1" class="Upload__gbif-selected">No associated GBIF record</div>
@@ -38,23 +43,32 @@
         <ul v-else class="Upload__gbif-list">
           <li v-for="entry in gbifData" :key="entry.id">
             <label>
-              <input type="radio" name="gbif_id" :value="entry.id" v-model="gbifSelected" @click="selectGbifSpecies(entry)">
+              <input type="radio" name="gbif_id" :value="entry.id" v-model="gbifSelected"
+                     @click="selectGbifSpecies(entry)">
               <i>{{ entry.name }}</i> {{ entry.details }}
             </label>
           </li>
         </ul>
         <fieldset>
-          <legend><span class="Upload__section-title Upload__section-head">Specimen</span> - Please enter relevant specimen information</legend>
+          <legend><span class="Upload__section-title Upload__section-head">Specimen</span> - Please enter relevant
+                                                                                           specimen information
+          </legend>
           <TextInput class="Upload__form-label" name="alt_name" :data="form.alt_name">Alt. Name</TextInput>
-          <TextInput class="Upload__form-label" name="specimen_location" :data="form.specimen_location">Specimen Location</TextInput>
+          <TextInput class="Upload__form-label" name="specimen_location" :data="form.specimen_location">Specimen
+                                                                                                        Location
+          </TextInput>
           <TextInput class="Upload__form-label" name="specimen_id" :data="form.specimen_id">Specimen ID</TextInput>
-          <TextInput class="Upload__form-label" name="specimen_url" :data="form.specimen_url">Additional Media</TextInput>
+          <TextInput class="Upload__form-label" name="specimen_url" :data="form.specimen_url">Additional Media
+          </TextInput>
         </fieldset>
         <TextInput type="textarea" name="description" :data="form.description">
           <h2 class="Upload__section-title Upload__section-head">Description</h2>
         </TextInput>
         <fieldset>
-          <legend class="Upload__section-head"><span class="Upload__section-title Upload__section-head">Publications</span> - Assign any relevant publications to the scan</legend>
+          <legend class="Upload__section-head"><span
+              class="Upload__section-title Upload__section-head">Publications</span> - Assign any relevant publications
+                                                                                     to the scan
+          </legend>
           <div class="Upload__tabs">
             <button type="button" @click="myPubs=true" :class="pubsTabClass(myPubs)">My Pubs</button>
             <button type="button" @click="myPubs=false" :class="pubsTabClass(!myPubs)">All Pubs</button>
@@ -62,18 +76,21 @@
           <div class="SelectViewer Upload__tabs-content">
             <div class="ListSearch">
               <div class="ListSearch__search Search">
-                <input type="text" name="pub_query" class="Search__input"  @keyup="pubSearch" :placeholder="myPubs ? 'Search My Publications' : 'Search Publications'" autocomplete="off"/>
+                <input type="text" name="pub_query" class="Search__input" @keyup="pubSearch"
+                       :placeholder="myPubs ? 'Search My Publications' : 'Search Publications'" autocomplete="off" />
               </div>
               <ul class="Upload__listbox">
                 <li v-for="pub in pubSearchResults" :key="pub.id">
-                  <input class="Upload__checkbox" type="checkbox" :value="pub.id" :id="'pub' + pub.id" v-model="selectedPubIds">
+                  <input class="Upload__checkbox" type="checkbox" :value="pub.id" :id="'pub' + pub.id"
+                         v-model="selectedPubIds">
                   <label class="Upload__result" :for="'pub' + pub.id">{{ pub.title }}</label>
                 </li>
               </ul>
             </div>
             <ul class="Upload__listbox">
               <li v-for="{id, title} in selectedPubs" :key="id">
-                <input class="Upload__checkbox" name="publications" type="checkbox" :value="id" :id="'sel-pub' + id" v-model="selectedPubIds">
+                <input class="Upload__checkbox" name="publications" type="checkbox" :value="id" :id="'sel-pub' + id"
+                       v-model="selectedPubIds">
                 <label class="Upload__result" :for="'sel-pub' + id">{{ title }}</label>
               </li>
             </ul>
@@ -83,7 +100,10 @@
       </div>
       <div class="Upload__column">
         <div class="Upload__section-head">
-          <span class="Upload__section-title Upload__section-head">Categories</span> - Assign the relevant tags to this entry. At least one catagory in each of Geologic Age, Elements and Ontogenetic Age is required.
+          <span class="Upload__section-title Upload__section-head">Categories</span> - Assign the relevant tags to this
+                                                                                     entry. At least one catagory in
+                                                                                     each of Geologic Age, Elements and
+                                                                                     Ontogenetic Age is required.
         </div>
 
         <fieldset>
@@ -91,7 +111,9 @@
           <div class="Upload__listbox">
             <Tree :items="form.geologic_age.choices" #node="option" childKey="children" class="Upload__tree">
               <li>
-                <input type="checkbox" class="Upload__checkbox" name="geologic_age" :value="option.id" :id="'geo-age' + option.id" :checked="(form.geologic_age.data || [] ).some(tag => option.id===tag.id)">
+                <input type="checkbox" class="Upload__checkbox" name="geologic_age" :value="option.id"
+                       :id="'geo-age' + option.id"
+                       :checked="(form.geologic_age.data || [] ).some(tag => option.id===tag.id)">
                 <label :for="'geo-age' + option.id">{{ option.name }}</label>
                 <component :is="option.children" />
               </li>
@@ -104,7 +126,9 @@
           <legend class="Upload__form-label">Ontogenetic Age</legend>
           <ul class="Upload__listbox">
             <li v-for="option in form.ontogenic_age.choices" :key="option.id">
-              <input type="checkbox" class="Upload__checkbox" name="ontogenic_age" :value="option.id" :id="'onto-age' + option.id" :checked="(form.ontogenic_age.data || [] ).some(tag => option.id===tag.id)">
+              <input type="checkbox" class="Upload__checkbox" name="ontogenic_age" :value="option.id"
+                     :id="'onto-age' + option.id"
+                     :checked="(form.ontogenic_age.data || [] ).some(tag => option.id===tag.id)">
               <label :for="'onto-age' + option.id">{{ option.name }}</label>
             </li>
           </ul>
@@ -116,7 +140,9 @@
           <div class="Upload__listbox">
             <Tree :items="form.elements.choices" #node="option" childKey="children" class="Upload__tree">
               <li>
-                <input type="checkbox"  class="Upload__checkbox" name="elements" :value="option.id" :id="'elements' + option.id" :checked="(form.elements.data || [] ).some(tag => option.id===tag.id)">
+                <input type="checkbox" class="Upload__checkbox" name="elements" :value="option.id"
+                       :id="'elements' + option.id"
+                       :checked="(form.elements.data || [] ).some(tag => option.id===tag.id)">
                 <label :for="'elements' + option.id">{{ option.name }}</label>
                 <component :is="option.children" />
               </li>
@@ -140,13 +166,13 @@
 import Tree from '../tree.js';
 import CtmViewer from '../CtmViewer';
 import Upload3D from './Upload3D';
-import { Button, TextInput, Errors, Delete } from '../forms';
+import { Button, Delete, Errors, TextInput } from '../forms';
 
 async function jsonOrText(source) {
   try {
     return source.json ? await source.json() : JSON.parse(source);
-  } catch(e) {
-    if(e instanceof SyntaxError) {
+  } catch (e) {
+    if (e instanceof SyntaxError) {
       console.warn(e);
       return source.text ? await source.text() : source;
     }
@@ -155,70 +181,70 @@ async function jsonOrText(source) {
   }
 }
 
-function* blobIterator(blob, chunkSize=500000){
-  for(let i=0; i<blob.size; i+=chunkSize) {
-    console.log(i, blob.size, i/blob.size)
+function* blobIterator(blob, chunkSize = 500000) {
+  for (let i = 0; i < blob.size; i += chunkSize) {
+    console.log(i, blob.size, i / blob.size);
     yield [
-    	blob.slice(i, i+chunkSize),
-	100*i/blob.size
+      blob.slice(i, i + chunkSize),
+      100 * i / blob.size
     ];
   }
 }
 
 const xhrUpload = async (form, progress) => {
-    const formData = new FormData(form);
+  const formData = new FormData(form);
 
-    const file = formData.get('file');
-    const uploadRequest = await fetch('/files/', { method: 'POST' });
-    if(!uploadRequest.ok) {
-      throw new Error('POST to /files/ failed')
+  const file = formData.get('file');
+  const uploadRequest = await fetch('/files/', { method: 'POST' });
+  if (!uploadRequest.ok) {
+    throw new Error('POST to /files/ failed');
+  }
+  const uploadEndpoint = uploadRequest.headers.get('Location');
+
+  for (const [blob, pc] of blobIterator(file)) {
+    const res = await fetch(uploadEndpoint, { method: 'PATCH', body: blob });
+    if (!res.ok) {
+      throw new Error('Patch failed');
     }
-    const uploadEndpoint = uploadRequest.headers.get('Location')
+    progress(Math.round(pc));
+  }
 
-    for(const [blob, pc] of blobIterator(file)) {
-      const res = await fetch(uploadEndpoint, { method: 'PATCH', body: blob });
-      if(!res.ok) {
-        throw new Error('Patch failed')
+  const uploadId = uploadEndpoint.split('/').pop();
+
+  formData.set('file', uploadId + '/' + file.name);
+
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', form.action + '?noredirect=1');
+  xhr.setRequestHeader('Accept', 'application/json');
+  const ready = new Promise((res, rej) => {
+    xhr.onload = async () => {
+
+      if (xhr.status >= 400) {
+        const responseData = await jsonOrText(xhr.responseText);
+        rej(responseData);
+        return;
       }
-      progress(Math.round(pc));
+
+      res(xhr);
+    };
+    xhr.onerror = (progressEvent) => rej('The upload failed due to a network issue.');
+  });
+
+  xhr.upload.onprogress = function (event) {
+    if (event.lengthComputable) {
+      progress(Math.round((event.loaded / event.total) * 100));
     }
+  };
 
-    const uploadId = uploadEndpoint.split('/').pop();
+  xhr.send(formData);
 
-    formData.set('file', uploadId + '/' + file.name);
-
-    const xhr = new XMLHttpRequest()
-    xhr.open('POST', form.action + '?noredirect=1')
-    xhr.setRequestHeader('Accept', 'application/json')
-    const ready = new Promise((res, rej) => {
-        xhr.onload = async () => {
-
-          if (xhr.status >= 400) {
-            const responseData = await jsonOrText(xhr.responseText);
-            rej(responseData);
-            return;
-          }
-
-          res(xhr)
-        };
-        xhr.onerror = (progressEvent) => rej('The upload failed due to a network issue.')
-    });
-
-    xhr.upload.onprogress = function (event) {
-        if (event.lengthComputable) {
-            progress(Math.round((event.loaded / event.total) * 100))
-        }
-    }
-
-    xhr.send(formData);
-
-    return ready;
-}
+  return ready;
+};
 
 export default {
   name: 'Upload',
   props: [
-    "error",
+    'error',
   ],
   data() {
     const data = this.$route.meta.data;
@@ -236,7 +262,7 @@ export default {
       progress: null,     // Upload progress of the model file
       status: null,       // Upload status of the model file
       processing: false,  // Whether or not the upload is being processed
-      gbifData    ,       // List of GBIF search results
+      gbifData,       // List of GBIF search results
       gbifSelected,       // Selected GBIF result
       stillName: '',      // Contents of the Still Name text input
       data,               // Data returned from the database
@@ -250,22 +276,22 @@ export default {
       errors: []
     };
   },
-  mounted(){
+  mounted() {
     if (this.scan) {
-      this.searchGbif(this.scan.scientific_name)
+      this.searchGbif(this.scan.scientific_name);
 
-      if(this.scan.source && !this.scan.ctm) {
-        this.processUpload()
+      if (this.scan.source && !this.scan.ctm) {
+        this.processUpload();
       }
     }
   },
-  watch:{
-    '$route.meta'(meta){
-      this.form = meta.data.form
-      this.scan = meta.data.scan
+  watch: {
+    '$route.meta'(meta) {
+      this.form = meta.data.form;
+      this.scan = meta.data.scan;
     },
     /* When we switch the publications tab, empty the list of search results until the user types */
-    myPubs(){
+    myPubs() {
       this.pubSearchResults = [];
     }
   },
@@ -273,29 +299,29 @@ export default {
     /**
      * List of selected pub
      */
-    selectedPubs(){
-      return this.selectedPubIds.map(id => this.publications[id])
+    selectedPubs() {
+      return this.selectedPubIds.map(id => this.publications[id]);
     },
     stills() {
       return this.scan ? this.scan.stills : [];
     },
-    formAction(){
+    formAction() {
       return this.scan ? this.$router.resolve({ name: 'edit-scan', params: this.scan }).href : '';
     }
   },
   methods: {
     async searchGbif(term) {
-      if(!term) return;
+      if (!term) return;
 
       term = encodeURIComponent(term);
-      const res = await fetch(`//api.gbif.org/v1/species/suggest?q=${term}&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&rank=SPECIES`);
+      const res = await fetch(`//api.gbif.org/v1/species/suggest?q=${ term }&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&rank=SPECIES`);
       const results = await res.json();
       this.gbifData = results.map(
-        entry => ({
-          id: entry.key,
-          name: entry.canonicalName,
-          details: `${entry.scientificName.replace(entry.canonicalName, '')} (${ entry.kingdom })`
-        })
+          entry => ({
+            id: entry.key,
+            name: entry.canonicalName,
+            details: `${ entry.scientificName.replace(entry.canonicalName, '') } (${ entry.kingdom })`
+          })
       );
     },
     /**
@@ -304,48 +330,48 @@ export default {
     selectGbifSpecies(species) {
       this.form.scientific_name.data = species.name;
     },
-    async submit({ target }){
-        const data = new FormData(target);
-        const res =  await fetch(target.action, {
-            method: 'POST',
-            headers: { accept: 'application/json' },
-            body: data
-        });
+    async submit({ target }) {
+      const data = new FormData(target);
+      const res = await fetch(target.action, {
+        method: 'POST',
+        headers: { accept: 'application/json' },
+        body: data
+      });
 
-        if(res.status >= 400) {
-          const reponseData = await jsonOrText(res);
-          this.errors = Array.isArray(responseData) ? responseData : [responseData];
-        }
+      if (res.status >= 400) {
+        const reponseData = await jsonOrText(res);
+        this.errors = Array.isArray(responseData) ? responseData : [responseData];
+      }
 
-        const json = await res.json();
-        this.form = json.form;
+      const json = await res.json();
+      this.form = json.form;
 
-        const url = res.url.replace(new URL(res.url).origin, '');
-        this.$router.push(url);
+      const url = res.url.replace(new URL(res.url).origin, '');
+      this.$router.push(url);
 
-        this.$nextTick(
+      this.$nextTick(
           () => {
             const err = document.querySelector('.Errors:not(:empty)');
-            if(err) {
-              err.scrollIntoView({behavior: "smooth", block: "center", inline: "center"});
+            if (err) {
+              err.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
             } else {
-              window.scrollTo(0 ,0);
+              window.scrollTo(0, 0);
             }
           }
-        );
+      );
     },
     /**
      * Delete a still by its attachment id
      */
-    async removeStill(id){
-      const res =  await fetch(`/stills/${id}/`, {
+    async removeStill(id) {
+      const res = await fetch(`/stills/${ id }/`, {
         method: 'DELETE',
         headers: { accept: 'application/json' }
       });
       const json = await res.json();
       this.scan = json.scan;
     },
-    async captureStill(){
+    async captureStill() {
       this.form.stills.errors = [];
 
       if (!this.stillName) {
@@ -365,39 +391,43 @@ export default {
       const data = new FormData();
       data.append('csrf_token', this.csrf);
       data.append('attachments', still, this.stillName);
-      const res = await fetch(this.formAction, { method: 'POST', headers: { 'accept': 'application/json' }, body: data });
+      const res = await fetch(this.formAction, {
+        method: 'POST',
+        headers: { 'accept': 'application/json' },
+        body: data
+      });
       const json = await res.json();
       this.scan = json;
       this.stillName = '';
     },
-    async upload(form){
+    async upload(form) {
       try {
         const { responseText, responseURL } = await xhrUpload(form, p => {
           this.progress = p;
-          if(p === 100) {
+          if (p === 100) {
             this.status = 'Compressing...';
           }
         });
         const { scan: { id } } = JSON.parse(responseText);
         const res = await this.processUpload(id);
         const scan = await res.json();
-        if(scan) {
+        if (scan) {
           this.scan = scan;
         } else {
           this.$router.push(responseURL);
         }
-      } catch(e) {
+      } catch (e) {
         this.progress = null;
         this.form.file.errors = [e];
       }
     },
-    async processUpload(id = this.scan.id){
+    async processUpload(id = this.scan.id) {
       this.processing = true;
       this.progress = 100;
       this.status = 'Creating CTM file...';
 
-      while(!this.scan || !this.scan.ctm) {
-        await new Promise(resolve=>setTimeout(resolve, 3000))
+      while (!this.scan || !this.scan.ctm) {
+        await new Promise(resolve => setTimeout(resolve, 3000));
 
         const result = await fetch('/' + id, {
           headers: {
@@ -405,13 +435,13 @@ export default {
           }
         });
 
-        if(result.status >= 400) {
+        if (result.status >= 400) {
           this.progress = null;
           this.status = null;
           this.form.file.errors = [await result.text()];
         } else {
           const scan = await result.json();
-          if(scan) {
+          if (scan) {
             this.scan = scan;
           }
         }
@@ -422,38 +452,38 @@ export default {
       return result;
     },
     async pubSearch(event) {
-        const query = encodeURIComponent(event.target.value);
-        const mine = this.myPubs ? '&mine' : '';
-        const res = await fetch(`/publications?title=${query}${mine}`, { headers: { accept: 'application/json' } });
-        this.pubSearchResults = (await res.json()).publications;
-        // Add to the big list of all publications in case we want to reference it later
-        for (const pub of this.pubSearchResults) {
-          if (!(pub.id in this.publications)) {
-            this.$set(this.publications, pub.id, pub);
-          }
+      const query = encodeURIComponent(event.target.value);
+      const mine = this.myPubs ? '&mine' : '';
+      const res = await fetch(`/publications?title=${ query }${ mine }`, { headers: { accept: 'application/json' } });
+      this.pubSearchResults = (await res.json()).publications;
+      // Add to the big list of all publications in case we want to reference it later
+      for (const pub of this.pubSearchResults) {
+        if (!(pub.id in this.publications)) {
+          this.$set(this.publications, pub.id, pub);
         }
+      }
     },
     /**
      * Return the class names for the publication search tabs
      * @param active {bool} True if the tab is currently active
      */
-    pubsTabClass(active){
+    pubsTabClass(active) {
       return {
         'Upload__tab': true,
         'Upload__tab--active': active
-      }
+      };
     }
   },
   components: {
-      TextInput,
-      Errors,
-      Upload3D,
-      CtmViewer,
-      Tree,
-      Button,
-      Delete
+    TextInput,
+    Errors,
+    Upload3D,
+    CtmViewer,
+    Tree,
+    Button,
+    Delete
   }
-}
+};
 </script>
 
 <style>
@@ -506,7 +536,7 @@ export default {
 
 .Upload__section-title::before {
   counter-increment: section;
-  content: counter(section) ". " ;
+  content: counter(section) ". ";
 }
 
 .Upload__form-label {
@@ -518,9 +548,9 @@ export default {
 }
 
 .Upload fieldset {
-    border: none;
-    padding: 0;
-    margin: 0;
+  border: none;
+  padding: 0;
+  margin: 0;
 }
 
 .Upload__stills {
@@ -543,7 +573,7 @@ export default {
 }
 
 .Upload__still-image {
-    max-width: 100%;
+  max-width: 100%;
 }
 
 .Upload__still-name {
@@ -553,33 +583,33 @@ export default {
 }
 
 .Search {
-    border: 1px solid #666;
-    width: 100%;
-    display: flex;
+  border: 1px solid #666;
+  width: 100%;
+  display: flex;
 }
 
 .Search__input {
-    border: 0;
-    flex-grow: 1;
-    padding: 5px;
-    font-family: 'Supria Sans W01 Regular', Helvetica, Arial, sans-serif;
-    font-size: 12px;
-    color: #666;
+  border: 0;
+  flex-grow: 1;
+  padding: 5px;
+  font-family: 'Supria Sans W01 Regular', Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  color: #666;
 }
 
 .ListSearch__search {
-    border-bottom: none;
+  border-bottom: none;
 }
 
 .Upload__listbox {
-    border: 1px solid #666;
-    min-height: 100px;
-    padding: 10px;
-    list-style: none;
-    margin: 0;
-    font-family: 'Supria Sans W01 Regular', Arial, Helvetica, sans-serif;
-    color: #666;
-    font-size: 12px;
+  border: 1px solid #666;
+  min-height: 100px;
+  padding: 10px;
+  list-style: none;
+  margin: 0;
+  font-family: 'Supria Sans W01 Regular', Arial, Helvetica, sans-serif;
+  color: #666;
+  font-size: 12px;
 }
 
 .Upload__checkbox:not(:last-child) {
@@ -609,13 +639,13 @@ export default {
 }
 
 .SelectViewer {
-    display: flex;
-    margin: -7.5px;
+  display: flex;
+  margin: -7.5px;
 }
 
 .SelectViewer > * {
-    flex-basis: 50%;
-    margin: 7.5px;
+  flex-basis: 50%;
+  margin: 7.5px;
 }
 
 .Upload__tab {

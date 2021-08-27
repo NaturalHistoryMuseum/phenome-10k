@@ -19,11 +19,13 @@
       Journal, Volume and Page
       <div class="EditPublication__required">*</div>
     </TextInput>
-    <TextInput type="textarea" rows="12" name="abstract" :data="form.abstract" class="EditPublication__field" labelClass="EditPublication__label">
+    <TextInput type="textarea" rows="12" name="abstract" :data="form.abstract" class="EditPublication__field"
+               labelClass="EditPublication__label">
       Abstract
       <div class="EditPublication__required">*</div>
     </TextInput>
-    <TextInput name="link" placeholder="http://" :data="form.link" class="EditPublication__field" labelClass="EditPublication__label">
+    <TextInput name="link" placeholder="http://" :data="form.link" class="EditPublication__field"
+               labelClass="EditPublication__label">
       URL Link
     </TextInput>
     <h2 class="EditPublication__section-title">Upload PDFs</h2>
@@ -36,7 +38,9 @@
     <label class="EditPublication__file-input">
       <input type="file" multiple accept=".pdf" name="files" ref="fileInput" @change="selectFiles" />
       <div class="EditPublication__file-input-button">Browse</div>
-      <div class="EditPublication__file-input-text">{{ selectedFiles.length === 1 ? selectedFiles[0].name : `${selectedFiles.length || 'No'} files selected.` }}</div>
+      <div class="EditPublication__file-input-text">
+        {{ selectedFiles.length === 1 ? selectedFiles[0].name : `${ selectedFiles.length || 'No' } files selected.` }}
+      </div>
     </label>
     <Errors :errors="form.files.errors" />
     <div class="EditPublication__controls">
@@ -60,7 +64,7 @@
 
 .EditPublication__section-title::before {
   counter-increment: section;
-  content: counter(section) ". " ;
+  content: counter(section) ". ";
 }
 
 .EditPublication__label {
@@ -135,7 +139,7 @@
 </style>
 
 <script>
-import { TextInput, Errors, Button, Delete } from './forms';
+import { Button, Delete, Errors, TextInput } from './forms';
 
 export default {
   components: {
@@ -144,7 +148,7 @@ export default {
     Button,
     Delete
   },
-  data(){
+  data() {
     return {
       selectedFiles: [],
       csrf_token: this.$route.meta.data.csrf_token,
@@ -172,8 +176,8 @@ export default {
     /**
      * Delete a file by its attachment id
      */
-    async removeFile(id){
-      const res =  await fetch(`/remove-pub-file/${id}`, {
+    async removeFile(id) {
+      const res = await fetch(`/remove-pub-file/${ id }`, {
         method: 'DELETE',
         headers: { accept: 'application/json' }
       });
@@ -184,8 +188,8 @@ export default {
   /**
    * Fetch the selected files on mount in case input is pre-populated (e.g. page refresh)
    */
-  mounted(){
-    this.selectedFiles()
+  mounted() {
+    this.selectedFiles();
   }
-}
+};
 </script>

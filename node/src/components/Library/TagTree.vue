@@ -2,7 +2,8 @@
   <Tree :items="tags" #node="tag" childKey="children" class="TagTree">
     <li class="TagTree__list-item">
       <span class="Library__sidebar-row">
-        <router-link  :class="getFilterClass(tag.category, tag.taxonomy)" :to="getFilterLink(tag.category, tag.taxonomy)">{{ tag.name }}</router-link>
+        <router-link :class="getFilterClass(tag.category, tag.taxonomy)"
+                     :to="getFilterLink(tag.category, tag.taxonomy)">{{ tag.name }}</router-link>
       </span>
       <component :is="tag.children" />
     </li>
@@ -37,11 +38,11 @@ export default {
     getFilterLink(category, tag) {
       const query = Object.assign({}, this.$route.query);
 
-      const values = new Set([].concat(query[category] || []))
+      const values = new Set([].concat(query[category] || []));
 
-      if(values.has(tag)) {
+      if (values.has(tag)) {
         values.delete(tag);
-      }else{
+      } else {
         values.add(tag);
       }
 
@@ -53,10 +54,10 @@ export default {
       const current = this.$route.query[category];
       const categories = new Set(Array.isArray(current) ? current : [current]);
       return {
-        'Library__filter-active' : categories.has(tag),
+        'Library__filter-active': categories.has(tag),
         'TagTree__link': true
-      }
+      };
     }
   }
-}
+};
 </script>

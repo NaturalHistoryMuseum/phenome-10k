@@ -4,35 +4,41 @@
     <Search class="ManagePublications__search" name="q" v-model="q" />
     <div class="ManagePublications__sidebar">
       <router-link :class="getYearClass()" :to="{ name:'manage-publications' }">All</router-link>
-      <router-link :class="getYearClass(pub_year)" v-for="pub_year of $route.meta.data.years" :to="{ name:'manage-publications', query: { pub_year } }" :key="pub_year">{{ pub_year }}</router-link>
+      <router-link :class="getYearClass(pub_year)" v-for="pub_year of $route.meta.data.years"
+                   :to="{ name:'manage-publications', query: { pub_year } }" :key="pub_year">{{ pub_year }}
+      </router-link>
     </div>
     <table class="ManagePublications__grid">
       <thead class="ManagePublications__grid-head">
-        <tr>
-          <th class="ManagePublications__year-header">Year</th>
-          <th class="ManagePublications__name-header">Name of Publication</th>
-        </tr>
+      <tr>
+        <th class="ManagePublications__year-header">Year</th>
+        <th class="ManagePublications__name-header">Name of Publication</th>
+      </tr>
       </thead>
       <tbody>
-        <tr v-for="publication in $route.meta.data.publications" :key="publication.id">
-          <td class="ManagePublications__year">{{ publication.pub_year }}</td>
-          <td>
-            <router-link class="ManagePublications__publication-link" :to="{ name: 'publication', params: { id: publication.url_slug || publication.id } }">{{ publication.title }}</router-link>
-            <div class="ManagePublications__authors">{{ publication.authors }}</div>
-          </td>
-          <td class="ManagePublications__actions-col">
-            <form method="post" class="ManagePublications__actions">
-              <input type="hidden" name="id" :value="publication.id">
-              <button name="action" :value="publication.published ? 'unpublish' : 'publish'"
-                >{{ publication.published ? 'Unpublish' : 'Publish' }}</button>
-              <router-link :to="{ name: 'edit-publication' , params: { id: publication.id } }">Edit</router-link>
-              <button name="action" value="delete" @click="confirmDelete">Delete</button>
-            </form>
-            <div class="ManagePublications__files">
-              No. of Files: <span class="ManagePublications__files-count">{{ publication.scans.length }}</span>
-            </div>
-          </td>
-        </tr>
+      <tr v-for="publication in $route.meta.data.publications" :key="publication.id">
+        <td class="ManagePublications__year">{{ publication.pub_year }}</td>
+        <td>
+          <router-link class="ManagePublications__publication-link"
+                       :to="{ name: 'publication', params: { id: publication.url_slug || publication.id } }">
+            {{ publication.title }}
+          </router-link>
+          <div class="ManagePublications__authors">{{ publication.authors }}</div>
+        </td>
+        <td class="ManagePublications__actions-col">
+          <form method="post" class="ManagePublications__actions">
+            <input type="hidden" name="id" :value="publication.id">
+            <button name="action" :value="publication.published ? 'unpublish' : 'publish'"
+            >{{ publication.published ? 'Unpublish' : 'Publish' }}
+            </button>
+            <router-link :to="{ name: 'edit-publication' , params: { id: publication.id } }">Edit</router-link>
+            <button name="action" value="delete" @click="confirmDelete">Delete</button>
+          </form>
+          <div class="ManagePublications__files">
+            No. of Files: <span class="ManagePublications__files-count">{{ publication.scans.length }}</span>
+          </div>
+        </td>
+      </tr>
       </tbody>
     </table>
     <Pagination :page="page"
@@ -160,13 +166,16 @@ td.ManagePublications__year {
   padding: 0 5px;
   font-family: "HelveticaNeueW01-55Roma", Helvetica, Arial, sans-serif;
 
-  &:hover {
-    text-decoration: underline;
-  }
+&
+:hover {
+  text-decoration: underline;
+}
 
-  &:not(:last-child) {
-    border-right: 1px solid #666;
-  }
+&
+:not(:last-child) {
+  border-right: 1px solid #666;
+}
+
 }
 
 .ManagePublications__actions-col {
@@ -207,14 +216,14 @@ export default {
     Pagination,
     Search
   },
-  data(){
+  data() {
     return {
       q: this.$route.meta.data.q
-    }
+    };
   },
   computed: {
     page() {
-      return this.$route.meta.data.page
+      return this.$route.meta.data.page;
     },
     totalPages() {
       return this.$route.meta.data.total_pages;
@@ -225,8 +234,8 @@ export default {
      * Ask the user to confirm whether they want to delete the record, prevent form sub if not
      * @param e {Event} The form submit event
      */
-    confirmDelete(e){
-      if(!confirm('This action will permenently delete the record and all attachments.')) {
+    confirmDelete(e) {
+      if (!confirm('This action will permenently delete the record and all attachments.')) {
         e.preventDefault();
       }
     },
@@ -240,5 +249,5 @@ export default {
       };
     }
   }
-}
+};
 </script>

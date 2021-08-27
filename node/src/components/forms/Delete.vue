@@ -1,9 +1,12 @@
 <template functional>
-  <button class="Delete" v-bind="props" v-on="listeners"><slot /> ❌</button>
+  <button class="Delete" v-bind="props" v-on="listeners">
+    <slot />
+    ❌
+  </button>
 </template>
 
 <style>
-.Delete{
+.Delete {
   appearance: none;
   border: none;
   background: none;
@@ -15,8 +18,10 @@
   margin: 0 0 5px;
   padding: 0;
 
-  &:hover {
-    text-decoration: underline;
-  }
+&
+:hover {
+  text-decoration: underline;
+}
+
 }
 </style>

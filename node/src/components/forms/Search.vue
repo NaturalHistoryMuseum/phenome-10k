@@ -1,6 +1,9 @@
 <template>
   <form class="Search">
-    <label><slot>Search:</slot><input class="Search__input" type="search" :name="name" :value="value" @input="input" /></label><Button class="Search__button">🔎&#xFE0E;</Button>
+    <label>
+      <slot>Search:</slot>
+      <input class="Search__input" type="search" :name="name" :value="value" @input="input" /></label>
+    <Button class="Search__button">🔎&#xFE0E;</Button>
   </form>
 </template>
 
@@ -13,11 +16,11 @@ export default {
   },
   props: ['value', 'name'],
   methods: {
-    input($event){
+    input($event) {
       this.$emit('input', $event.target.value);
     }
   }
-}
+};
 </script>
 
 <style>
@@ -37,9 +40,9 @@ export default {
 .Search__button {
   display: inline-block;
   text-shadow: 1px 1px 0.25px #FFF,
-                -1px -1px 0.25px #FFF,
-                1px -1px 0.25px #FFF,
-                -1px 1px 0.25px #FFF;
+  -1px -1px 0.25px #FFF,
+  1px -1px 0.25px #FFF,
+  -1px 1px 0.25px #FFF;
   border-radius: 0 15px 15px 0;
   width: 50px;
   padding: 0;

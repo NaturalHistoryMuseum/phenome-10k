@@ -11,22 +11,25 @@
       </SideSection>
 
       <SideSection title="Ontogenetic Age" :count="selectedTagCount('ontogenic_age')">
-        <TagTree :tags="tags.ontogenic_age"/>
+        <TagTree :tags="tags.ontogenic_age" />
       </SideSection>
 
       <SideSection title="Elements" :count="selectedTagCount('elements')">
-        <TagTree :tags="tags.elements"/>
+        <TagTree :tags="tags.elements" />
       </SideSection>
 
       <SideSection title="Taxonomy" :count="selectedTagCount('taxonomy')" childClass="Library__sidebar-row">
         <Tree :items="tags.taxonomy" #node="taxonomy" childKey="children" class="Library__taxon-tree">
           <li :class="getTaxonFilterClass('Library__taxon', taxonomy.id)">
-            <button v-if="taxonomy.hasChildren" class="Library__tax-expand" @click="$set(open, taxonomy.id, !open[taxonomy.id])">
+            <button v-if="taxonomy.hasChildren" class="Library__tax-expand"
+                    @click="$set(open, taxonomy.id, !open[taxonomy.id])">
               <img :src="'/static/' + (open[taxonomy.id] ? 'minus' : 'plus') + '.png'">
             </button>
-            <router-link :class="getTaxonFilterClass('Library__filter', taxonomy.id)" :to="getTaxonFilterLink(taxonomy.id)">{{ taxonomy.name }}</router-link>
+            <router-link :class="getTaxonFilterClass('Library__filter', taxonomy.id)"
+                         :to="getTaxonFilterLink(taxonomy.id)">{{ taxonomy.name }}
+            </router-link>
             <!--SlideOpen :key="taxonomy.id"-->
-              <component v-if="open[taxonomy.id]" :is="taxonomy.children" />
+            <component v-if="open[taxonomy.id]" :is="taxonomy.children" />
             <!--/SlideOpen-->
           </li>
         </Tree>
@@ -34,37 +37,41 @@
     </div>
     <div class="Body__content">
       <div class="Library__filter-controls">
-      <Search class="Library__search" name="q" v-model="q" />
-      <div class="Library__sort" v-if="data.showMine">
-        Viewing:
-        <ul class="Library__sort-list">
-          <li :class="getMineLinkClass(false)"><router-link :to="getMineLink(false)">All</router-link></li>
-          <li :class="getMineLinkClass(true)"><router-link :to="getMineLink(true)">Mine</router-link></li>
-        </ul>
+        <Search class="Library__search" name="q" v-model="q" />
+        <div class="Library__sort" v-if="data.showMine">
+          Viewing:
+          <ul class="Library__sort-list">
+            <li :class="getMineLinkClass(false)">
+              <router-link :to="getMineLink(false)">All</router-link>
+            </li>
+            <li :class="getMineLinkClass(true)">
+              <router-link :to="getMineLink(true)">Mine</router-link>
+            </li>
+          </ul>
+        </div>
       </div>
-    </div>
 
-    <div v-if="groups">
-      <Group v-for="group in populatedGroups" :key="group.name" :name="group.group" :items="group.items" />
-    </div>
-    <Results v-else :results="results" />
-    <Pagination :page="data.page"
-            :total="data.total_pages"
-            :to="page => ({
+      <div v-if="groups">
+        <Group v-for="group in populatedGroups" :key="group.name" :name="group.group" :items="group.items" />
+      </div>
+      <Results v-else :results="results" />
+      <Pagination :page="data.page"
+                  :total="data.total_pages"
+                  :to="page => ({
                 name: 'library-paged',
                 params: { page },
                 query: this.$route.query
               })"
-            class="Publications__footer" />
+                  class="Publications__footer" />
     </div>
   </div>
 </template>
 
 <script>
 import Tree from '../tree.js';
-import Results from './Results'
-import TagTree from './TagTree'
-import SideSection from './SideSection'
+import Results from './Results';
+import TagTree from './TagTree';
+import SideSection from './SideSection';
 import SlideOpen from './SlideOpen.vue';
 import Search from '../forms/Search';
 import Pagination from '../Pagination';
@@ -78,7 +85,7 @@ const Group = {
       h(Results, { props: { results: this.items } })
     ]);
   }
-}
+};
 
 export default {
   name: 'Library',
@@ -92,30 +99,30 @@ export default {
     Search,
     Pagination
   },
-  data(){
+  data() {
     return {
       open: {},
       menu: {
         geologicAge: false
       },
       q: this.$route.meta.data.q
-    }
+    };
   },
   computed: {
     data() {
       return this.$route.meta.data;
     },
-    groups(){
+    groups() {
       return this.data.groups;
     },
-    results(){
+    results() {
       return this.data.scans;
     },
-    tags(){
+    tags() {
       return this.data.tags;
     },
-    populatedGroups(){
-      return this.groups.filter(group => group.items.length)
+    populatedGroups() {
+      return this.groups.filter(group => group.items.length);
     },
     showClearLink() {
       return ['geologic_age', 'ontogenic_age', 'elements', 'taxonomy'].some(this.selectedTagCount);
@@ -125,7 +132,7 @@ export default {
       query.geologic_age = query.ontogenic_age = query.elements = query.taxonomy = [];
       return {
         query
-      }
+      };
     }
   },
   methods: {
@@ -136,7 +143,7 @@ export default {
     getMineLink(mine) {
       const query = Object.assign({}, this.$route.query);
       // We only care about the presence of the `mine` parameter, not its value
-      if(mine) {
+      if (mine) {
         query.mine = null;
       } else {
         delete query.mine;
@@ -144,7 +151,7 @@ export default {
 
       return {
         query
-      }
+      };
     },
     /**
      * Get the css class for the "View Mine"/"View All" links
@@ -155,17 +162,17 @@ export default {
 
       return {
         [cls]: true,
-        [`${cls}--active`]: mine === ('mine' in this.$route.query)
-      }
+        [`${ cls }--active`]: mine === ('mine' in this.$route.query)
+      };
     },
     getSortLink(sort) {
       const query = Object.assign({}, this.$route.query);
       query.sort = sort;
       return {
         query
-      }
+      };
     },
-    selectedTagCount(tag){
+    selectedTagCount(tag) {
       const t = this.$route.query[tag];
       return t ? (Array.isArray(t) ? t.length : 1) : 0;
     },
@@ -174,17 +181,17 @@ export default {
 
       return {
         [cls]: true,
-        [`${cls}--active`]: (this.$route.query.sort || 'name') === field
-      }
+        [`${ cls }--active`]: (this.$route.query.sort || 'name') === field
+      };
     },
     getTaxonFilterLink(tag) {
       const query = Object.assign({}, this.$route.query);
 
-      const values = new Set([].concat(query.taxonomy || []).map(str => parseInt(str, 10)))
+      const values = new Set([].concat(query.taxonomy || []).map(str => parseInt(str, 10)));
 
-      if(values.has(tag)) {
+      if (values.has(tag)) {
         values.delete(tag);
-      }else{
+      } else {
         values.add(tag);
       }
 
@@ -197,11 +204,11 @@ export default {
       const categories = new Set([].concat(current).map(str => parseInt(str, 10)));
       return {
         [cls]: true,
-        [`${cls}--active`]: categories.has(tag)
+        [`${ cls }--active`]: categories.has(tag)
       };
     }
   }
-}
+};
 </script>
 
 <style>
@@ -225,7 +232,7 @@ export default {
 
 .Library__taxon {
   background-image: linear-gradient(to right, transparent 0px, gray 1px, transparent 1px),
-                    linear-gradient(to bottom, transparent 6px, gray 7px, transparent 7px);
+  linear-gradient(to bottom, transparent 6px, gray 7px, transparent 7px);
   background-repeat: no-repeat;
   background-size: 7px auto, 7px auto, auto;
   padding-left: 9px;
@@ -233,10 +240,9 @@ export default {
 }
 
 .Library__taxon--active {
-    background-image:
-      linear-gradient(to right, transparent 0px, gray 1px, transparent 1px),
-      linear-gradient(to bottom, transparent 6px, gray 7px, transparent 7px),
-      linear-gradient(to bottom, #0963, #0963 15px, transparent 15px);
+  background-image: linear-gradient(to right, transparent 0px, gray 1px, transparent 1px),
+  linear-gradient(to bottom, transparent 6px, gray 7px, transparent 7px),
+  linear-gradient(to bottom, #0963, #0963 15px, transparent 15px);
 }
 
 .Library__taxon:last-child {
@@ -256,7 +262,7 @@ export default {
   grid-column-start: 2;
 }
 
-.Library__sort-list{
+.Library__sort-list {
   display: inline-flex;
   list-style: none;
   padding: 0;
@@ -301,9 +307,9 @@ export default {
 }
 
 .Library__sidebar-row {
-   display: grid;
-   grid-template-columns: 222px 20px auto;
-   margin: 5px 0;
+  display: grid;
+  grid-template-columns: 222px 20px auto;
+  margin: 5px 0;
 }
 
 .Library__sidebar-row :first-child {

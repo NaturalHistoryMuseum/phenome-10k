@@ -4,28 +4,30 @@
     <Search class="Publications__search" name="q" v-model="q" />
     <table class="Publications__grid">
       <thead class="Publications__grid-head">
-        <tr>
-          <th>Year</th>
-          <th class="Publications__name-header">Name of Publication</th>
-        </tr>
+      <tr>
+        <th>Year</th>
+        <th class="Publications__name-header">Name of Publication</th>
+      </tr>
       </thead>
       <tbody>
-        <tr v-for="(pub, ix) in publications" :key="pub.id">
-          <td class="Publications__year">
-            {{ !publications[ix-1] || publications[ix-1].pub_year !== pub.pub_year ? pub.pub_year : '' }}
-          </td>
-          <td>
-            <router-link class="Publications__link" :to="{ name: 'publication', params: { id: pub.url_slug || pub.id } }">{{ pub.title }}</router-link>
-            <div class="Publications__details">
-              <div class="Publications__authors">
-                {{ pub.authors }}
-              </div>
-              <div class="Publications__files">
-                No. of Files: <span class="Publications__files-count">{{ pub.scans.length }}</span>
-              </div>
+      <tr v-for="(pub, ix) in publications" :key="pub.id">
+        <td class="Publications__year">
+          {{ !publications[ix - 1] || publications[ix - 1].pub_year !== pub.pub_year ? pub.pub_year : '' }}
+        </td>
+        <td>
+          <router-link class="Publications__link" :to="{ name: 'publication', params: { id: pub.url_slug || pub.id } }">
+            {{ pub.title }}
+          </router-link>
+          <div class="Publications__details">
+            <div class="Publications__authors">
+              {{ pub.authors }}
             </div>
-          </td>
-        </tr>
+            <div class="Publications__files">
+              No. of Files: <span class="Publications__files-count">{{ pub.scans.length }}</span>
+            </div>
+          </div>
+        </td>
+      </tr>
       </tbody>
     </table>
     <Pagination :page="$route.meta.data.page"
@@ -154,10 +156,10 @@ export default {
     Pagination,
     Search
   },
-  data(){
+  data() {
     return {
       q: this.$route.meta.data.q
-    }
+    };
   },
   computed: {
     page() {
@@ -166,9 +168,9 @@ export default {
     totalPages() {
       return this.$route.meta.data.total_pages;
     },
-    publications(){
+    publications() {
       return this.$route.meta.data.publications;
     }
   }
-}
+};
 </script>

@@ -40,5 +40,5 @@
 <script>
 export default {
   props: ['title', 'download']
-}
+};
 </script>

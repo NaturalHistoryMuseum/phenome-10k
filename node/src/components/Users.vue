@@ -45,7 +45,7 @@
 export default {
   data() {
     return {
-      users       : this.$route.meta.data.users,
+      users: this.$route.meta.data.users,
       changedRoles: []
     };
   },

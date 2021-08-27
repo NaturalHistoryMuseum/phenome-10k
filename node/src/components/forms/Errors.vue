@@ -54,29 +54,29 @@ export default {
   data: () => {
     return {
       dismissed: false
-    }
+    };
   },
   methods: {
-    dismiss(){
+    dismiss() {
       this.dismissed = true;
     }
   },
   computed: {
-    modal(){
+    modal() {
       return this.errors.some(e => typeof e === 'string' && e[0] === '<');
     },
-    classes(){
+    classes() {
       return {
         'Errors': true,
         'Errors--modal': this.modal,
         'Errors--list': !this.modal,
-      }
+      };
     }
   },
   watch: {
-    errors(){
+    errors() {
       this.dismissed = false;
     }
   }
-}
+};
 </script>

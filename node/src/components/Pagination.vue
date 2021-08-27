@@ -3,13 +3,15 @@
     <div>Page {{ page }} of {{ total || 1 }}</div>
     <div v-if="total > 1">
       <template v-if="page > 2">
-        <router-link v-bind="link(1)">1</router-link> …
+        <router-link v-bind="link(1)">1</router-link>
+        …
       </template>
       <router-link v-bind="link(page - 1)" v-if="page > 1">{{ page - 1 }}</router-link>
       <router-link v-bind="link(page)">{{ page }}</router-link>
       <router-link v-bind="link(page + 1)" v-if="page < total">{{ page + 1 }}</router-link>
       <template v-if="page < total - 1">
-        … <router-link v-bind="link(total)">{{ total }}</router-link>
+        …
+        <router-link v-bind="link(total)">{{ total }}</router-link>
       </template>
     </div>
   </div>
@@ -44,11 +46,11 @@ export default {
       return {
         to: this.to(page),
         class: {
-          "Pagination__page": true,
-          "Pagination__page--active": this.page === page
+          'Pagination__page': true,
+          'Pagination__page--active': this.page === page
         }
-      }
+      };
     }
   }
-}
+};
 </script>

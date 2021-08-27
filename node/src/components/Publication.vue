@@ -3,7 +3,7 @@
     <h1 class="Publication__title">{{ publication.title }}</h1>
 
     <div class="Publication__content">
-      <i>{{ publication.published ? '' :'Not published' }}</i>
+      <i>{{ publication.published ? '' : 'Not published' }}</i>
       <dl class="Publication__details">
         <div>
           <dt>Year:</dt>
@@ -23,9 +23,9 @@
             <template v-for="(scan, ix) in publication.scans">
               <template v-if="ix > 0">,</template>
               <router-link :key="scan.id"
-                          :to="{ name: 'scan', params: { id: scan.url_slug || scan.id } }"
-                          v-text="scan.scientific_name"
-                          class="Publication__link" />
+                           :to="{ name: 'scan', params: { id: scan.url_slug || scan.id } }"
+                           v-text="scan.scientific_name"
+                           class="Publication__link" />
             </template>
           </dd>
         </div>
@@ -49,12 +49,12 @@
 
 <script>
 export default {
-  computed:{
-    publication(){
+  computed: {
+    publication() {
       return this.$route.meta.data;
     }
   }
-}
+};
 </script>
 
 <style>
