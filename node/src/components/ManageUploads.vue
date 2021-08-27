@@ -1,5 +1,5 @@
 <template>
-  <div class="ManageUploads Subgrid">
+  <div class="ManageUploads Content__subgrid">
     <h1 class="ManageUploads__title">Manage Uploads</h1>
     <Search class="ManageUploads__search" v-model="q" name="q" />
     <div class="ManageUploads__sidebar">

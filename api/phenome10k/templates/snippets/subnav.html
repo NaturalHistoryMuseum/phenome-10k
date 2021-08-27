@@ -1,0 +1,23 @@
+{% macro nav_item(endpoint, page_title, kwargs={}) -%}
+  <li><a class="nav__item{{ ' nav__item--selected' if request.endpoint == endpoint and request.args.to_dict() == kwargs else '' }}"
+         href="{{ url_for(endpoint, **kwargs) }}">{{ page_title }}</a></li>
+{% endmacro -%}
+
+<nav class="Header__subnav">
+  <ul class="nav__list">
+    {% if request.blueprint == 'scans' and current_user.is_contributor() %}
+      {{ nav_item('scans.library', 'View all uploads') }}
+      {{ nav_item('scans.library', 'View my uploads', {'mine': ''}) }}
+      {{ nav_item('scans.manage', 'Manage uploads') }}
+      {{ nav_item('scans.edit', 'Add new') }}
+    {% elif request.blueprint == 'publications' and current_user.is_contributor() %}
+      {{ nav_item('publications.library', 'View all pubs') }}
+      {{ nav_item('publications.library', 'View my pubs', {'mine': ''}) }}
+      {{ nav_item('publications.manage', 'Manage pubs') }}
+      {{ nav_item('publications.edit', 'Add new') }}
+    {% endif %}
+    {% if request.blueprint == 'library' or request.blueprint == 'publications' %}
+      <li><a href="{{ url_for('user.contribute') }}">Contribute</a></li>
+    {% endif %}
+  </ul>
+</nav>

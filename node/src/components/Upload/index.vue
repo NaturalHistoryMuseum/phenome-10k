@@ -1,5 +1,5 @@
 <template>
-  <div class="Upload Subgrid">
+  <div class="Upload Content__subgrid">
     <h1 class="Upload__title">{{ scan ? "Edit: " + scan.scientific_name : "Upload New" }}</h1>
     <form class="Upload__upload" :action="formAction" method="post" enctype="multipart/form-data">
       <input type="hidden" name="csrf_token" :value="csrf">

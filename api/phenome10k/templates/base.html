@@ -19,20 +19,33 @@
   {% endblock %}
 </head>
 
-<body class="Base">
-{% include 'snippets/nav.html' %}
-<div class="Base__auth">
-  {% if current_user.is_anonymous %}
-    <a href="{{ url_for('user.login') }}">Sign in</a>
-  {% else %}
-    <a href="{{ url_for('user.logout') }}">Sign Out</a>
+<body class="Grid">
+<div class="Grid__header">
+  {% if not current_user.is_anonymous %}
+    {% include 'snippets/subnav.html' %}
+    <div class="Header__user">
+      Signed in as <a><b>{{ current_user.name }}</b></a>
+    </div>
   {% endif %}
+  <span class="Header__divider"></span>
+  {% include 'snippets/nav.html' %}
+  <div class="Header__auth">
+    {% if current_user.is_anonymous %}
+      <a href="{{ url_for('user.login') }}">Sign in</a>
+    {% else %}
+      <a href="{{ url_for('user.logout') }}">Sign Out</a>
+    {% endif %}
+  </div>
 </div>
-<div class="Base__sidebar Sidebar">
+
+<div class="Grid__sidebar">
   <img src="{{ url_for('static', filename='logo.png') }}" alt="" class="Sidebar__logo">
-  {% block sidebar %}{% endblock %}
+  <div class="Sidebar__body">
+    {% block sidebar %}{% endblock %}
+  </div>
 </div>
-<main class="Base__content Subgrid">
+
+<main class="Grid__body">
   {% with messages = get_flashed_messages() %}
     {% if messages %}
       <ul>

@@ -1,8 +1,8 @@
 <template>
-  <div class="Scan Subgrid">
+  <div class="Scan Content__subgrid">
     <img v-if="viewStill" :src="viewStill.file" />
     <CtmViewer v-else :src="ctm" />
-    <div class="Content-Sidebar">
+    <div class="Content__sidebar">
       <router-link :to="{ name: 'library' }" class="Scan__back">« Back</router-link>
     </div>
     <h1>{{ title }}</h1>

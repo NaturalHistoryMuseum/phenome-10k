@@ -3,81 +3,86 @@
 {% set local_sheets=['about.css'] %}
 
 {% block content %}
-  <article class="About">
-    <div class="About__intro">
+  <div class="Body__content">
+    <article class="About">
+      <div class="About__intro">
+        <p>
+          An organism’s morphology provides valuable information on its development, ecology, and evolution.
+          Morphological traits provide a bridge between studies of palaeoecological and palaeobiological change
+          and studies of the genetic and developmental factors that intrinsically shape morphological variation,
+          the raw material for natural selection, which must also influence large-scale patterns of evolutionary
+          change. Thus, accurate reconstructions of the patterns and processes underlying evolution require an
+          approach that can fully represent an organism’s phenome, the sum total of their observable traits.</p>
+        <p>
+          Fortunately, advances in imaging and data analysis now allow for study of phenomic evolution across
+          large clades. However, the barrier to many studies is the acquisition of phenomic data. Phenome10K
+          seeks to advance the field of phenomics by providing free 3-D image data to the academic and
+          educational (non-commercial) community. &nbsp;All types of 3-D images are supported, including surface
+          scans, CT-scans, and MRIs, and all images and metadata are linked to their primary and secondary
+          publications, where appropriate. &nbsp;Images can be downloaded as STL files, with accompanying 2-D
+          views and pdfs of metadata and publications, for ease of use and assurance that appropriate data and
+          citations are obtained by all users. &nbsp;Join the phenomics community by using and contributing to
+          Phenome10k.org!</p>
+      </div>
+
+      <div class="About__images">
+        <img src="/static/screenshot_3bac140e3aebfe3e2ff6dabe13691001-e1416316108662.png"
+             alt="Thumbnail for a model of Sminthopsis macroura">
+        <img src="/static/screenshot_53586d6945f3410bb2cb4e3d6fc6742a-e1416316121608.png" alt="Thumbnail for a model">
+        <img src="/static/screenshot_2694695005e6498efda6b3252148a6c2-e1416316134870.png"
+             alt="Thumbnail for a model of Macropus eugenii">
+      </div>
+
       <p>
-        An organism’s morphology provides valuable information on its development, ecology, and evolution.
-        Morphological traits provide a bridge between studies of palaeoecological and palaeobiological change
-        and studies of the genetic and developmental factors that intrinsically shape morphological variation,
-        the raw material for natural selection, which must also influence large-scale patterns of evolutionary
-        change. Thus, accurate reconstructions of the patterns and processes underlying evolution require an
-        approach that can fully represent an organism’s phenome, the sum total of their observable traits.</p>
+        Unless otherwise noted, data on Phenome10K.org is licensed under a <a
+          href="https://creativecommons.org/licenses/by-nc/4.0/" rel="license">Creative Commons
+                                                                               Attribution-NonCommercial
+                                                                               4.0 International License</a>
+      </p>
+
+      <p>No registration is needed to view the scans, but you must create an account in order to download any
+         files. Appropriate referencing should include museum catalog numbers and the home institution of the
+         respective specimen, as well as both this site and the original publication where the data were
+         presented. Users should inform the appropriate home institution when studies are published using
+         specimen image data sourced from this site, and they should further send pdfs of publications to the
+         respective institutions to allow tracking of specimen usage.</p>
+
+      <p>Please use the following citation for this site:</p>
+
+      <p class="citation">A. Goswami. 2015. Phenome10K: a free online repository for 3-D scans of biological and
+                          palaeontological
+                          specimens. www.phenome10k.org.</p>
+
       <p>
-        Fortunately, advances in imaging and data analysis now allow for study of phenomic evolution across
-        large clades. However, the barrier to many studies is the acquisition of phenomic data. Phenome10K
-        seeks to advance the field of phenomics by providing free 3-D image data to the academic and
-        educational (non-commercial) community. &nbsp;All types of 3-D images are supported, including surface
-        scans, CT-scans, and MRIs, and all images and metadata are linked to their primary and secondary
-        publications, where appropriate. &nbsp;Images can be downloaded as STL files, with accompanying 2-D
-        views and pdfs of metadata and publications, for ease of use and assurance that appropriate data and
-        citations are obtained by all users. &nbsp;Join the phenomics community by using and contributing to
-        Phenome10k.org!</p>
-    </div>
+        You can also register as a contributor, which will allow you to upload your own image files and
+        publications, to make sure that your work is cited whenever your data are reused. By contributing data,
+        you will promote the study of phenomics and international scientific research community, as well as
+        expanding the impact of your own research.
+      </p>
 
-    <div class="About__images">
-      <img src="/static/screenshot_3bac140e3aebfe3e2ff6dabe13691001-e1416316108662.png" alt="Thumbnail for a model of Sminthopsis macroura">
-      <img src="/static/screenshot_53586d6945f3410bb2cb4e3d6fc6742a-e1416316121608.png" alt="Thumbnail for a model">
-      <img src="/static/screenshot_2694695005e6498efda6b3252148a6c2-e1416316134870.png" alt="Thumbnail for a model of Macropus eugenii">
-    </div>
+      <hr>
 
-    <p>
-      Unless otherwise noted, data on Phenome10K.org is licensed under a <a
-        href="https://creativecommons.org/licenses/by-nc/4.0/" rel="license">Creative Commons Attribution-NonCommercial
-                                                                             4.0 International License</a>
-    </p>
+      <h1>About</h1>
 
-    <p>No registration is needed to view the scans, but you must create an account in order to download any
-       files. Appropriate referencing should include museum catalog numbers and the home institution of the
-       respective specimen, as well as both this site and the original publication where the data were
-       presented. Users should inform the appropriate home institution when studies are published using
-       specimen image data sourced from this site, and they should further send pdfs of publications to the
-       respective institutions to allow tracking of specimen usage.</p>
+      <img src="/static/Anjali-holding-astrapothere-jaw-in-Peru-small.jpg"
+           alt="Professor Goswami in Peru, holding an astropothere jaw bone">
 
-    <p>Please use the following citation for this site:</p>
+      <p>
+        Phenome10k.org was created by Prof. Anjali Goswami, Research Leader in Life Sciences at the
+        <a href="https://www.nhm.ac.uk">Natural History Museum</a> and Honorary Professor of Palaeobiology at
+        <a href="https://www.ucl.ac.uk">University College London</a>, jointly appointed in the
+        <a href="https://www.ucl.ac.uk/gee">Department of Genetics, Evolution &amp; Environment</a> and the
+        <a href="https://www.ucl.ac.uk/earth-sciences">Department of Earth Sciences</a>. Her research interests
+        are in vertebrate evolution and development, especially using morphometric methods to incorporate data
+        from embryos to fossils to test genetic and developmental hypotheses of modularity and morphological
+        diversity. &nbsp;To learn more about her research, visit her lab website,
+        <a href="https://www.goswamilab.com">goswamilab.com</a>.</p>
 
-    <p class="citation">A. Goswami. 2015. Phenome10K: a free online repository for 3-D scans of biological and palaeontological
-       specimens. www.phenome10k.org.</p>
-
-    <p>
-      You can also register as a contributor, which will allow you to upload your own image files and
-      publications, to make sure that your work is cited whenever your data are reused. By contributing data,
-      you will promote the study of phenomics and international scientific research community, as well as
-      expanding the impact of your own research.
-    </p>
-
-    <hr>
-
-    <h1>About</h1>
-
-    <img src="/static/Anjali-holding-astrapothere-jaw-in-Peru-small.jpg" alt="Professor Goswami in Peru, holding an astropothere jaw bone">
-
-    <p>
-      Phenome10k.org was created by Prof. Anjali Goswami, Research Leader in Life Sciences at the
-      <a href="https://www.nhm.ac.uk">Natural History Museum</a> and Honorary Professor of Palaeobiology at
-      <a href="https://www.ucl.ac.uk">University College London</a>, jointly appointed in the
-      <a href="https://www.ucl.ac.uk/gee">Department of Genetics, Evolution &amp; Environment</a> and the
-      <a href="https://www.ucl.ac.uk/earth-sciences">Department of Earth Sciences</a>. Her research interests
-      are in vertebrate evolution and development, especially using morphometric methods to incorporate data
-      from embryos to fossils to test genetic and developmental hypotheses of modularity and morphological
-      diversity. &nbsp;To learn more about her research, visit her lab website,
-      <a href="https://www.goswamilab.com">goswamilab.com</a>.</p>
-
-    <p>Phenome10k.org was designed and built using funds from Natural Environment Research Council grants
-       NE/J012432/1 to Prof. Anjali Goswami and NE/H022937/1 to
-      <a href="https://www.ucl.ac.uk/anthropology/people/academic_staff/c_soligo">Dr. Christophe Soligo</a>
-       (UCL-Anthropology) and Dr. Anjali Goswami, and is maintained by funds from European Research Council
-       grant 167769 to Prof. Anjali Goswami.</p>
-  </article>
-
-
+      <p>Phenome10k.org was designed and built using funds from Natural Environment Research Council grants
+         NE/J012432/1 to Prof. Anjali Goswami and NE/H022937/1 to
+        <a href="https://www.ucl.ac.uk/anthropology/people/academic_staff/c_soligo">Dr. Christophe Soligo</a>
+         (UCL-Anthropology) and Dr. Anjali Goswami, and is maintained by funds from European Research Council
+         grant 167769 to Prof. Anjali Goswami.</p>
+    </article>
+  </div>
 {% endblock %}

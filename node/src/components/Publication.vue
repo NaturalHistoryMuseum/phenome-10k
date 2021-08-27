@@ -1,5 +1,5 @@
 <template>
-  <div class="Publication Subgrid">
+  <div class="Publication Content__subgrid">
     <h1 class="Publication__title">{{ publication.title }}</h1>
 
     <div class="Publication__content">

@@ -1,24 +1,6 @@
 <template>
-  <div class="Library Subgrid">
-    <div class="Library__filter-controls">
-      <Search class="Library__search" name="q" v-model="q" />
-      <!--div class="Library__sort">
-        Sort by:
-        <ul class="Library__sort-list">
-          <li :class="getSortLinkClass('name')"><router-link :to="getSortLink('name')">Name</router-link></li>
-          <li :class="getSortLinkClass('geologic_age')"><router-link :to="getSortLink('geologic_age')">Geologic Age</router-link></li>
-          <li :class="getSortLinkClass('ontogenic_age')"><router-link :to="getSortLink('ontogenic_age')">Ontogenetic Age</router-link></li>
-        </ul>
-      </div-->
-      <div class="Library__sort" v-if="data.showMine">
-        Viewing:
-        <ul class="Library__sort-list">
-          <li :class="getMineLinkClass(false)"><router-link :to="getMineLink(false)">All</router-link></li>
-          <li :class="getMineLinkClass(true)"><router-link :to="getMineLink(true)">Mine</router-link></li>
-        </ul>
-      </div>
-    </div>
-    <div class="Content-Sidebar" style="display: block">
+  <div class="Library">
+    <div class="Body__sidesection">
       <div class="Library__sidebar-row">
         <h3 class="Library__filter-header">Filter by:</h3>
         <router-link v-if="showClearLink" :to="clearLink" class="Library__sidebar-clear">Clear All</router-link>
@@ -50,6 +32,18 @@
         </Tree>
       </SideSection>
     </div>
+    <div class="Body__content">
+      <div class="Library__filter-controls">
+      <Search class="Library__search" name="q" v-model="q" />
+      <div class="Library__sort" v-if="data.showMine">
+        Viewing:
+        <ul class="Library__sort-list">
+          <li :class="getMineLinkClass(false)"><router-link :to="getMineLink(false)">All</router-link></li>
+          <li :class="getMineLinkClass(true)"><router-link :to="getMineLink(true)">Mine</router-link></li>
+        </ul>
+      </div>
+    </div>
+
     <div v-if="groups">
       <Group v-for="group in populatedGroups" :key="group.name" :name="group.group" :items="group.items" />
     </div>
@@ -62,6 +56,7 @@
                 query: this.$route.query
               })"
             class="Publications__footer" />
+    </div>
   </div>
 </template>
 

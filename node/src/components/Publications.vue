@@ -1,5 +1,5 @@
 <template>
-  <div class="Publications Subgrid">
+  <div class="Publications Content__subgrid">
     <h1 class="Publications__title">Publications</h1>
     <Search class="Publications__search" name="q" v-model="q" />
     <table class="Publications__grid">
