@@ -92,6 +92,7 @@ class ScanStore:
         scan.specimen_url = data.get('specimen_url')
         scan.description = data.get('description')
         scan.publications = data.get('publications')
+        scan.published = data.get('published')
 
         scan.tags = (data.get('geologic_age')
                      + data.get('ontogenic_age')

@@ -1,0 +1,59 @@
+@import 'scss/palette';
+@import 'scss/fonts';
+@import 'scss/vars';
+
+
+.table {
+  grid-column: 2 / content-end;
+  border-collapse: collapse;
+  height: max-content;
+
+  thead {
+    font-weight: bold;
+    color: $palette-grey-1;
+    text-transform: uppercase;
+    font-size: $small-font-size;
+  }
+
+  & tr:not(:last-child) {
+    border-bottom: 1px solid #ebebeb;
+  }
+
+  & td {
+    padding: 10px 0;
+    vertical-align: top;
+  }
+
+  & .link {
+    color: $palette-primary;
+    font-size: 1.3em;
+    @include font-heading;
+    display: block;
+
+    &::first-letter {
+      text-transform: uppercase;
+    }
+  }
+
+}
+
+@mixin marginCol {
+  & tbody tr > *:first-child {
+    text-align: center;
+    vertical-align: top;
+    font-size: $small-font-size;
+    font-weight: bold;
+    color: $palette-grey-2;
+    width: $sidebar-margin-right;
+  }
+  & thead th:not(:first-child) {
+    text-align: left;
+  }
+}
+
+
+@mixin stripes {
+  & tr:nth-child(even) {
+    background: change-color($palette-grey-5, $alpha: 0.2);
+  }
+}

@@ -3,14 +3,11 @@ FROM python:3.8
 RUN apt-get update -y && apt-get install mariadb-client -y
 
 COPY ./docker/app-flask/entrypoint /deploy/entrypoint
-COPY ./requirements.txt /var/phenome-10k/www/requirements.txt
-COPY ./app /var/phenome-10k/www/app
-COPY ./migrations /var/phenome-10k/www/migrations
-COPY ./config.py /var/phenome-10k/www/config.py
+COPY ./api /var/phenome-10k/www/api
 
-WORKDIR /var/phenome-10k/www
+WORKDIR /var/phenome-10k/www/api
 
-RUN pip install -r requirements.txt
+RUN python setup.py develop
 
 # run any initialisation or pre-run checks
 ENTRYPOINT ["/bin/bash", "/deploy/entrypoint"]

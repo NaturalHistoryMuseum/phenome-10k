@@ -20,7 +20,6 @@ a {
 }
 
 .Home {
-  margin-top: 73px;
   display: grid;
   grid-gap: 1em;
   width: 100%;
@@ -43,7 +42,7 @@ a {
   text-transform: uppercase;
   text-align: center;
   text-decoration: none;
-  color: $palette-dark-grey-text;
+  color: $palette-grey-1;
 }
 
 .Home__button:hover {

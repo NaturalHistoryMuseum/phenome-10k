@@ -19,6 +19,7 @@ class Publication(db.Model):
     abstract = db.Column(db.Text)
 
     files = association_proxy('publication_file_ref', 'attachment')
+    scans = association_proxy('scan_publication_ref', 'scan')
 
     def serialize(self):
         return {

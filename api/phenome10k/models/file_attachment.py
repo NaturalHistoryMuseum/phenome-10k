@@ -100,8 +100,8 @@ class File(db.Model):
 
     def serialize(self, external=False):
         """Returns the url for downloading this file over http"""
-        return (url_for('send_uploads', path=self, _external=external) if self.storage_area == File.UPLOADS_DIR else
-                url_for('send_models', path=self, _external=external) if self.storage_area == File.MODELS_DIR else
+        return (url_for('files.send_uploads', path=self, _external=external) if self.storage_area == File.UPLOADS_DIR else
+                url_for('files.send_models', path=self, _external=external) if self.storage_area == File.MODELS_DIR else
                 os.path.join('/', self.location))
 
     def __repr__(self):

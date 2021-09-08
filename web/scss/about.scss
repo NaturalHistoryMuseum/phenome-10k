@@ -2,7 +2,6 @@
 
 .About {
   & a {
-    color: $palette-secondary;
     text-decoration: none;
 
     &:hover {
@@ -10,27 +9,18 @@
     }
   }
 
-  & h1 {
-    margin-bottom: 20px;
-  }
-
-  & hr {
+  & section {
     border: none;
-    border-bottom: 1px solid $palette-light-grey-lines;
-    margin: 20px 0;
+    border-bottom: 1px solid $palette-grey-5;
+    margin: 0;
+    padding: 20px 0;
   }
-}
-
-.About__intro {
-  color: $palette-primary;
-  margin-top: 80px;
-  margin-bottom: 40px;
-  font-weight: bold;
 }
 
 .About__images {
   display: flex;
   justify-content: center;
+  margin: 40px 0 10px;
 
   & > * {
     padding: 2px;

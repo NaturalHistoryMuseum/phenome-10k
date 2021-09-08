@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, make_response
+from flask import Blueprint, render_template, make_response, redirect
 
 from ..models import Scan
 
@@ -22,3 +22,4 @@ def feed():
     resp = make_response(render_template('rss.xml', scans=scans))
     resp.headers['Content-type'] = 'application/rss+xml'
     return resp
+

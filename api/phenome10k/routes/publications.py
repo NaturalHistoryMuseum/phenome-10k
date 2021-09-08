@@ -52,7 +52,8 @@ def library(page=1):
         'publications': [pub.serialize() for pub in pubs.items],
         'page': page,
         'total_pages': math.ceil(pubs.total / per_page),
-        'q': search
+        'q': search,
+        'showMine': current_user.is_authenticated and current_user.is_contributor()
     }
 
     return render_vue(data, title='Publications')

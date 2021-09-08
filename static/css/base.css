@@ -2,8 +2,8 @@
 .Grid {
   display: grid;
   grid-template-areas: 'sidebar header .' 'sidebar .      .';
-  grid-template-rows: [header-start] auto [header-end body-start] 1fr [body-end];
-  grid-template-columns: [sidebar-start] 350px [sidebar-end primary-start] 1fr [primary-end vspace-start] 20px [vspace-end]; }
+  grid-template-rows: [header-start] 150px [header-end body-start] 1fr [body-end];
+  grid-template-columns: [sidebar-start] 389px [sidebar-end primary-start] minmax(auto, 1089px) [primary-end vspace-start] auto [vspace-end]; }
   .Grid .Grid__sidebar {
     grid-area: sidebar;
     display: grid;
@@ -40,7 +40,7 @@
   justify-self: end;
   text-align: right;
   font-size: 12px;
-  color: #595959;
+  color: #4C4C4C;
   padding-bottom: 10px;
   display: grid; }
   .Header__user > * {
@@ -58,7 +58,7 @@
   .Header__nav .nav__item {
     padding-bottom: 15px;
     padding-top: 10px;
-    color: #595959; }
+    color: #4C4C4C; }
     .Header__nav .nav__item:hover {
       text-decoration: underline;
       background: rgba(194, 194, 194, 0.3);
@@ -103,20 +103,26 @@
   grid-row: body-start / body-end;
   grid-column: sidebar-start / primary-end;
   display: grid;
-  grid-template-areas: '.            content' 'sidesection  content';
-  grid-template-columns: 228px 1fr;
-  grid-template-rows: 50px auto; }
+  grid-template-areas: '.     .     title      ' 'side1 side2 top-filters' 'side1 side2 content    ' 'side1 side2 pagination ';
+  grid-template-columns: [sidesection-start] 229px 161px [sidesection-end content-start] 1fr [content-end];
+  grid-template-rows: [headers-start] auto auto [headers-end content-start] minmax(0, 1fr) [content-end] auto [page-end];
+  grid-gap: 20px 0; }
 
 .Body__sidesection {
-  grid-area: sidesection;
+  grid-column: sidesection-start / sidesection-end;
+  grid-row: 2 / page-end;
   font-size: 12px; }
 
 .Body__content {
-  grid-area: content;
-  display: grid;
-  grid-template-columns: 120px [main-start] auto;
-  align-content: start; }
-  .Body__content > * {
-    grid-column-start: main-start; }
+  grid-area: content; }
+
+.Body__title {
+  grid-area: title; }
+
+.Body__filters {
+  grid-area: top-filters; }
+
+.Body__pagination {
+  grid-area: pagination; }
 
 /*# sourceMappingURL=base.css.map */

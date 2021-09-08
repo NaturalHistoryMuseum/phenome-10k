@@ -1,5 +1,6 @@
 @import 'fonts';
 @import 'palette';
+@import 'vars';
 
 // GRID ==============================================================
 
@@ -7,22 +8,22 @@
   display: grid;
   grid-template-areas: 'sidebar header .'
                        'sidebar .      .';
-  grid-template-rows: [header-start] auto [header-end body-start] 1fr [body-end];
-  grid-template-columns: [sidebar-start] 350px [sidebar-end primary-start] 1fr [primary-end vspace-start] 20px [vspace-end];
+  grid-template-rows: [header-start] $logo-height [header-end body-start] 1fr [body-end];
+  grid-template-columns: [sidebar-start] $sidebar-width [sidebar-end primary-start] minmax(auto, 1089px) [primary-end vspace-start] auto [vspace-end];
 
   & .Grid__sidebar {
     grid-area: sidebar;
     display: grid;
-    grid-template-rows: [logo-start] 150px [logo-end body-start] 1fr [body-end];
+    grid-template-rows: [logo-start] $logo-height [logo-end body-start] 1fr [body-end];
     grid-template-areas: 'logo'
                        'body';
     background: linear-gradient(
         to right,
         transparent,
-        transparent 228px,
-        $palette-dark-grey-lines 228px,
-        $palette-dark-grey-lines 229px,
-        transparent 229px
+        transparent $line-position,
+        $palette-grey-4 $line-position,
+        $palette-grey-4 ($line-position+1),
+        transparent ($line-position+1)
     );
   }
 }
@@ -75,7 +76,7 @@ $middle-padding: 10px;
 
   & li:not(:last-child)::after {
     content: '|';
-    color: $palette-light-grey-lines;
+    color: $palette-grey-5;
   }
 }
 
@@ -84,7 +85,7 @@ $middle-padding: 10px;
   @include Header__row1;
   @include Header__col2;
   font-size: $small-font-size;
-  color: $palette-light-grey-text;
+  color: $palette-grey-2;
   padding-bottom: $middle-padding;
   display: grid;
 
@@ -107,11 +108,11 @@ $middle-padding: 10px;
   & .nav__item {
     padding-bottom: $edge-padding;
     padding-top: $middle-padding;
-    color: $palette-light-grey-text;
+    color: $palette-grey-2;
 
     &:hover {
       text-decoration: underline;
-      background: change-color($palette-light-grey-lines, $alpha: 0.3);
+      background: change-color($palette-grey-5, $alpha: 0.3);
       transition: background-color 0.2s;
     }
   }
@@ -172,25 +173,6 @@ $nav-item-padding: 15px;
   left: 100px;
 }
 
-//.Content__sidebar {
-//  // just the area next to the main content
-//  display: grid;
-//  grid-template-columns: 235px auto;
-//  justify-items: end;
-//  align-items: center;
-//  @include font-body;
-//  color: $palette-light-grey-text;
-//  font-size: $small-font-size;
-//  line-height: initial;
-//  row-gap: 2px;
-//  align-content: start;
-//  /* Stop content clashing with logo for logged-out users: */
-//  padding-top: 50px;
-//
-//  & > * {
-//    grid-column-start: 1;
-//  }
-//}
 
 // END SIDEBAR =======================================================
 
@@ -200,24 +182,33 @@ $nav-item-padding: 15px;
   grid-row: body-start / body-end;
   grid-column: sidebar-start / primary-end;
   display: grid;
-  grid-template-areas: '.            content'
-                       'sidesection  content';
-  grid-template-columns: 228px 1fr;
-  grid-template-rows: 50px auto;
+  grid-template-areas: '.     .     title      '
+                       'side1 side2 top-filters'
+                       'side1 side2 content    '
+                       'side1 side2 pagination ';
+  grid-template-columns: [sidesection-start] ($line-position + 1) $sidebar-margin-right [sidesection-end content-start] 1fr [content-end];
+  grid-template-rows: [headers-start] auto auto [headers-end content-start] minmax(0, 1fr) [content-end] auto [page-end];
+  grid-gap: 20px 0;
 }
 
 .Body__sidesection {
-  grid-area: sidesection;
+  grid-column: sidesection-start / sidesection-end;
+  grid-row: 2 / page-end;
   font-size: $small-font-size;
 }
 
 .Body__content {
   grid-area: content;
-  display: grid;
-  grid-template-columns: 120px [main-start] auto;
-  align-content: start;
+}
 
-  & > * {
-    grid-column-start: main-start;
-  }
+.Body__title {
+  grid-area: title;
+}
+
+.Body__filters {
+  grid-area: top-filters;
+}
+
+.Body__pagination {
+  grid-area: pagination;
 }

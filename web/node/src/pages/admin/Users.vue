@@ -1,0 +1,99 @@
+<template>
+  <div :class="$style.main">
+    <div class="Body__content">
+      <h1>Manage Users</h1>
+      {{ $route.meta.data.error }}
+      <div :class="$style.table">
+        <div :class="[$style.tableRow, $style.tableHeader]">
+          <div>Name</div>
+          <div>Email</div>
+          <div>Registered</div>
+          <div>Role</div>
+          <div>Country</div>
+          <div>User type</div>
+        </div>
+        <div v-for="user in users" :key="user.id" :class="$style.tableRow">
+          <div>{{ user.name }}</div>
+          <div>{{ user.email }}</div>
+          <div>{{ date(user.date_registered) }}</div>
+          <div>
+            <form method="POST" class="p10k__form">
+              <div>
+                <select name="role" v-model="user.role" @change="changedRoles.push(user.id)">
+                  <option>USER</option>
+                  <option>CONTRIBUTOR</option>
+                  <option>ADMIN</option>
+                </select>
+              </div>
+              <div>
+                <button name="id" :value="user.id" v-if="changedRoles.includes(user.id)">Save</button>
+              </div>
+            </form>
+          </div>
+          <div><img v-if="user.country_code" :src="`https://www.countryflags.io/${user.country_code}/flat/48.png`"
+                    :alt="user.country_code"></div>
+          <div>{{ user.user_type }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      users: this.$route.meta.data.users,
+      changedRoles: []
+    };
+  },
+  methods: {
+    date(strDate) {
+      return new Date(strDate).toLocaleDateString();
+    }
+  }
+};
+</script>
+
+<style module lang="scss">
+@import 'scss/palette';
+@import 'scss/fonts';
+
+.main {
+  display: contents;
+}
+
+.table {
+  display: grid;
+  grid-template-columns: [name] 1fr [email] 1fr [registered] auto [role] auto [flag] auto [usertype] auto;
+  grid-gap: 10px;
+  margin-top: 20px;
+}
+
+.tableRow {
+  display: contents;
+
+  &.tableHeader {
+    font-weight: bold;
+    color: $palette-grey-1;
+    text-transform: uppercase;
+    font-size: $small-font-size;
+  }
+
+  & > * {
+    padding: 2px;
+
+    &:nth-child(1), &:nth-child(2){
+      // wrap the long strings (name and email)
+      word-break: break-all;
+    }
+
+    &:nth-child(5) {
+      // center the flag
+      justify-self: center;
+    }
+  }
+
+
+}
+</style>

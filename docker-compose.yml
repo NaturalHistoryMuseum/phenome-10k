@@ -23,7 +23,7 @@ services:
     environment:
       DATABASE_URL: mysql+pymysql://phenome10k:Aei0_rr2rr2r2r2r@data:3306/phenome10k
       DATABASE_HOST: data
-      FLASK_APP: app
+      FLASK_APP: phenome10k
       FLASK_ENV: development
       RPC_HOST: http://app-node:8080
       RUN_INIT: '${RUN_INIT}'
@@ -36,7 +36,7 @@ services:
     ports:
       - 5000:5000
     volumes:
-      - ./app:/var/phenome-10k/www/app
+      - ./api:/var/phenome-10k/www/api
       - ./static:/var/phenome-10k/www/static
       - app_data:/data
 
@@ -53,8 +53,9 @@ services:
     ports:
       - 8080:8080
     volumes:
-      - ./node:/var/phenome-10k/www/node
-      - ./build:/var/phenome-10k/www/build
+      - ./web/node:/var/phenome-10k/www/web/node
+      - ./web/build:/var/phenome-10k/www/web/build
+      - ./web/scss:/var/phenome-10k/www/web/scss
       - ./static:/var/phenome-10k/www/static
       - app_data:/data
 

@@ -1,5 +1,6 @@
 from sqlalchemy.sql import func
 from sqlalchemy.ext.associationproxy import association_proxy
+from .links import ScanTag
 
 from phenome10k.extensions import db
 
@@ -26,22 +27,22 @@ class Scan(db.Model):
 
     publications = association_proxy('scan_publication_ref', 'publication')
     attachments = association_proxy('scan_attachment_ref', 'attachment')
-    tags = association_proxy('scan_tag_ref', 'tag')
+    tags = association_proxy('scan_tag_ref', 'tag', creator=lambda t: ScanTag(tag=t))
     taxonomy = association_proxy('scan_taxonomy_ref', 'taxonomy')
 
     errors = []
 
     @property
     def geologic_age(self):
-        return self.tags.filter_by(category='geologic_age').all()
+        return [t for t in self.tags if t.category == 'geologic_age']
 
     @property
     def ontogenic_age(self):
-        return self.tags.filter_by(category='ontogenic_age').all()
+        return [t for t in self.tags if t.category == 'ontogenic_age']
 
     @property
     def elements(self):
-        return self.tags.filter_by(category='elements').all()
+        return [t for t in self.tags if t.category == 'elements']
 
     @property
     def thumbnail(self):
@@ -50,7 +51,7 @@ class Scan(db.Model):
     def serialize(self, full=True):
         obj = {
             'id': self.id,
-            'url_slug': '/' + (self.url_slug if self.url_slug else str(self.id)),
+            'url_slug': (self.url_slug if self.url_slug else str(self.id)),
             'thumbnail': self.thumbnail and self.thumbnail.file.serialize(),
             'scientific_name': self.scientific_name
         }

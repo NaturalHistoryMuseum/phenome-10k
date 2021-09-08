@@ -39,12 +39,14 @@ h1 {
   color: $palette-primary;
   font-weight: normal;
   font-size: 2em;
-  margin: 40px 0 33px;
+  line-height: 1.3em;
+  margin: 0;
 }
 
 h2 {
   @include font-heading;
   font-size: 1.5em;
+  color: $palette-grey-1;
 }
 
 .error {
@@ -74,7 +76,7 @@ $margin-size: 1em;
 
 // ADDITIONAL STYLING FOR CONSISTENCY ================================
 
-button, .p10k__button {
+.p10k__button {
   font-weight: bold;
   background: $palette-primary;
   color: white;

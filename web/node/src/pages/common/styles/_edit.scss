@@ -1,0 +1,59 @@
+@import 'scss/palette';
+@import 'scss/fonts';
+
+$gaps: 20px;
+
+.main {
+  display: contents;
+}
+
+.title {
+  grid-row: headers;
+  grid-column: content;
+}
+
+.sectionGrid {
+  display: grid;
+  grid-gap: ($gaps / 2) $gaps;
+  counter-reset: section;
+}
+
+.section {
+  padding: $gaps / 2 0 $gaps;
+  border-bottom: 1px solid $palette-grey-6;
+}
+
+.sectionHead {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.sectionTitle {
+  color: $palette-primary;
+  font-size: $body-font-size;
+  font-weight: bold;
+  text-transform: uppercase;
+  min-width: max-content;
+  margin: 0;
+
+  &::before {
+    counter-increment: section;
+    content: counter(section) '. ';
+  }
+}
+
+.sectionSubTitle {
+  font-size: $small-font-size;
+}
+
+.field {
+  display: block;
+  margin: 15px 0 5px;
+  color: $palette-grey-2;
+}
+
+button {
+  @include font-heading;
+}
