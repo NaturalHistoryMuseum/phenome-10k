@@ -5,7 +5,7 @@ node_modules
 *.pyc
 static/dist
 node/dist
-*.env
+./*.env
 .vagrant
 ansible/playbook.retry
 .coverage

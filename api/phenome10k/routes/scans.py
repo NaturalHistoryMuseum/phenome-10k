@@ -14,8 +14,8 @@ from ._utils import render_content, rpc_call, make_aliases
 from ..data.scan_store import ScanException
 from ..extensions import db, scan_store, upload_store
 from ..forms import ScanUploadForm
-from ..models import Publication
-from ..models import Scan, Tag, Taxonomy
+from ..models import Publication, Scan, Tag, Taxonomy
+from ..tasks import create_ctm
 
 bp = Blueprint('scans', __name__, url_prefix='/scans')
 aliases = [Blueprint('library', 'library', url_prefix='/library')]
@@ -219,7 +219,7 @@ def edit(scan_object=None):
             url = scan_store.update(scan_object, form.file.data, form.data, form.attachments.data)
             if form.file.data is not None:
                 # TODO
-                task_queue.create_ctm(scan_object.id)
+                create_ctm.delay(scan_object.id)
 
             if form.published.data and form.validate():
                 scan_store.publish(url)

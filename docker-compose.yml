@@ -12,7 +12,7 @@ services:
     networks:
       - phenome10k_net
     ports:
-      - 3306:3306
+      - "3306:3306"
     volumes:
       - ./docker/data/files:/var/files
 
@@ -21,12 +21,13 @@ services:
       context: .
       dockerfile: docker/app-flask/Dockerfile
     environment:
-      DATABASE_URL: mysql+pymysql://phenome10k:Aei0_rr2rr2r2r2r@data:3306/phenome10k
       DATABASE_HOST: data
       FLASK_APP: phenome10k
       FLASK_ENV: development
       RPC_HOST: http://app-node:8080
       RUN_INIT: '${RUN_INIT}'
+    env_file:
+      - docker/.env
     depends_on:
       - data
       - app-celery
@@ -34,7 +35,7 @@ services:
     networks:
       - phenome10k_net
     ports:
-      - 5000:5000
+      - "5000:5000"
     volumes:
       - ./api:/var/phenome-10k/www/api
       - ./static:/var/phenome-10k/www/static
@@ -51,7 +52,7 @@ services:
     networks:
       - phenome10k_net
     ports:
-      - 8080:8080
+      - "8080:8080"
     volumes:
       - ./web/node:/var/phenome-10k/www/web/node
       - ./web/build:/var/phenome-10k/www/web/build
@@ -64,8 +65,8 @@ services:
     networks:
       - phenome10k_net
     ports:
-      - 15672:15672
-      - 5672:5672
+      - "15672:15672"
+      - "5672:5672"
     volumes:
       - app_data:/data
       - ./docker/app-rabbitmq/config:/etc/rabbitmq
@@ -74,6 +75,8 @@ services:
     image: redis:alpine
     networks:
       - phenome10k_net
+    ports:
+      - "6379:6379"
     volumes:
       - app_data:/data
 
@@ -81,10 +84,8 @@ services:
     build:
       context: .
       dockerfile: docker/app-celery/Dockerfile
-    environment:
-      BROKER_URL: amqp://phenome10k:password@app-rabbitmq:5672
-      BROKER_API: http://phenome10k:password@app-rabbitmq:15672/api/
-      RESULT_BACKEND: redis://app-redis:6379/0
+    env_file:
+      - docker/.env
     depends_on:
       - app-rabbitmq
       - app-redis
@@ -92,7 +93,23 @@ services:
       - phenome10k_net
     volumes:
       - app_data:/data
-      - ./task_queue:/var/phenome-10k/www/task_queue
+      - ./api:/var/phenome-10k/www/api
+
+  app-flower:
+    build:
+      context: .
+      dockerfile: docker/app-flower/Dockerfile
+    environment:
+      BROKER_API: http://phenome10k:password@app-rabbitmq:15672/api/
+    env_file:
+      - docker/.env
+    depends_on:
+      - app-celery
+    networks:
+      - phenome10k_net
+    volumes:
+      - app_data:/data
+      - ./api:/var/phenome-10k/www/api
 
   lb:
     build:
@@ -106,7 +123,7 @@ services:
       phenome10k_net:
         ipv4_address: 10.0.10.10
     ports:
-      - 80:80
+      - "80:80"
 
 networks:
   phenome10k_net:

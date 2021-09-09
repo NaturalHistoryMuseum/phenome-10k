@@ -24,10 +24,12 @@ class Config(object):
     THUMB_DIRECTORY = os.environ.get('THUMB_DIRECTORY') or os.path.abspath('thumbnails')
     TMP_UPLOAD = os.environ.get('TMP_UPLOAD') or '/tmp/upload-'
     RPC_HOST = os.environ.get('RPC_HOST') or 'http://localhost:8080'
+    CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672')
+    CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULTS_BACKEND', 'redis://localhost:6379/0')
 
 
 def get_celery_config():
     return dict(
-        broker=os.environ.get('CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672'),
-        backend=os.environ.get('CELERY_RESULTS_BACKEND', 'redis://localhost:6379/0')
+        broker_url=Config.CELERY_BROKER_URL,
+        result_backend=Config.CELERY_RESULT_BACKEND
     )
