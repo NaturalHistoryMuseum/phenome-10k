@@ -29,7 +29,7 @@
             <template v-for="(scan, ix) in publication.scans">
               <template v-if="ix > 0">,</template>
               <router-link :key="scan.id"
-                           :to="{ name: 'scans_view', params: { id: scan.url_slug || scan.id } }"
+                           :to="{ name: 'scan_view', params: { id: scan.url_slug || scan.id } }"
                            v-text="scan.scientific_name.trim()"
                            :class="$style.link" />
             </template>

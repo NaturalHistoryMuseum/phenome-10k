@@ -1,8 +1,10 @@
 <template>
   <div :class="$style.main">
-    <div class="Body__content">
-      <h1>Manage Users</h1>
+    <h1 class="Body__title">Manage Users</h1>
+    <div class="Body__filters">
       {{ routeData.error }}
+    </div>
+    <div class="Body__content">
       <div :class="$style.table">
         <div :class="[$style.tableRow, $style.tableHeader]">
           <div>Name</div>
@@ -30,7 +32,7 @@
               </div>
             </form>
           </div>
-          <div><img v-if="user.country_code" :src="`https://www.countryflags.io/${user.country_code}/flat/48.png`"
+          <div :class="$style.flag"><img v-if="user.country_code" :src="`https://www.countryflags.io/${user.country_code}/flat/48.png`"
                     :alt="user.country_code"></div>
           <div>{{ user.user_type }}</div>
         </div>
@@ -69,8 +71,12 @@ export default {
 .table {
   display: grid;
   grid-template-columns: [name] 1fr [email] 1fr [registered] auto [role] auto [flag] auto [usertype] auto;
+  grid-template-rows: auto;
+  grid-auto-rows: 1fr;
   grid-gap: 10px;
+  align-items: center;
   margin-top: 20px;
+  font-size: $small-font-size;
 }
 
 .tableRow {
@@ -97,6 +103,13 @@ export default {
     }
   }
 
+  & select, & option {
+    @include font-body;
+    font-size: $small-font-size;
+  }
+}
 
+.flag {
+  line-height: 1;
 }
 </style>
