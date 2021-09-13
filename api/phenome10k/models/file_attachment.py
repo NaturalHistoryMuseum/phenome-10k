@@ -5,12 +5,10 @@ import magic
 from flask import current_app
 from flask.helpers import url_for
 from flask_login import current_user
+from phenome10k.extensions import db
 from sqlalchemy import event
 from sqlalchemy.sql import func
-from sqlalchemy.ext.associationproxy import association_proxy
 from werkzeug.utils import secure_filename
-
-from phenome10k.extensions import db
 
 
 class File(db.Model):
@@ -100,9 +98,10 @@ class File(db.Model):
 
     def serialize(self, external=False):
         """Returns the url for downloading this file over http"""
-        return (url_for('files.send_uploads', path=self, _external=external) if self.storage_area == File.UPLOADS_DIR else
-                url_for('files.send_models', path=self, _external=external) if self.storage_area == File.MODELS_DIR else
-                os.path.join('/', self.location))
+        return (
+            url_for('files.send_uploads', path=self, _external=external) if self.storage_area == File.UPLOADS_DIR else
+            url_for('files.send_models', path=self, _external=external) if self.storage_area == File.MODELS_DIR else
+            os.path.join('/', self.location))
 
     def __repr__(self):
         return '<File {}>'.format(self.filename)
@@ -127,7 +126,6 @@ class Attachment(db.Model):
         'File',
         cascade='all'
     )
-    publication = association_proxy('publication_file_ref', 'publication')
 
     def serialize(self):
         return {

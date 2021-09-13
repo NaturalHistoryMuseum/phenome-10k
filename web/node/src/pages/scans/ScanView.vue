@@ -5,7 +5,9 @@
       <span v-if="!scan.published" :class="$style.unpublished">(Not published)</span>
     </div>
 
-    <router-link :to="{ name: 'scans_library' }" :class="$style.back">« Back</router-link>
+    <div :class="$style.sideLinks">
+      <router-link :to="{ name: 'scans_library' }">« Back</router-link>
+    </div>
 
     <div class="Body__content">
       <div :class="$style.viewer">
@@ -133,8 +135,10 @@
 <script>
 import CtmViewer from './components/CtmViewer';
 import Files from './components/Files';
+import Page from '../common/base/Page';
 
 export default {
+  extends: Page,
   components: {
     CtmViewer,
     Files
@@ -146,7 +150,7 @@ export default {
   },
   computed: {
     scan() {
-      return this.$route.meta.data;
+      return this.routeData;
     },
     title() {
       return this.scan.scientific_name ?
@@ -161,7 +165,7 @@ export default {
     size(bytes) {
       return Math.floor(bytes / 1000) + 'k';
     }
-  }
+  },
 };
 </script>
 

@@ -1,8 +1,7 @@
 from flask_login import UserMixin
 from passlib.context import CryptContext
-from sqlalchemy.sql import func
-
 from phenome10k.extensions import db, login
+from sqlalchemy.sql import func
 
 
 @login.user_loader

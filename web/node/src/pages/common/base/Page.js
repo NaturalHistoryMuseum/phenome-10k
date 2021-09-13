@@ -13,14 +13,14 @@ export default {
         };
     },
     computed: {
-        data() {
+        routeData() {
             return this.$route.meta.data;
         },
         page() {
-            return this.$route.meta.data.page;
+            return this.routeData.page;
         },
         totalPages() {
-            return this.$route.meta.data.total_pages;
+            return this.routeData.total_pages;
         },
     },
     methods: {}

@@ -23,7 +23,7 @@ aliases = [Blueprint('library', 'library', url_prefix='/library')]
 # library and scans are just aliases
 make_aliases(bp, *aliases)
 
-# there's some overlap with scans and scan, but they're not aliases
+# scan and scans are not aliases
 single_scan = Blueprint('scan', 'scan', url_prefix='/<scan:scan_object>')
 
 bps = [bp, *aliases, single_scan]  # convenient for import
@@ -163,7 +163,6 @@ def manage(page=1):
     return render_vue(data, title='Manage Uploads')
 
 
-@bp.route('/<scan:scan_object>')
 @single_scan.route('/')
 def view(scan_object):
     if not scan_object.published and not (current_user.is_authenticated and current_user.can_edit(scan_object)):
@@ -173,8 +172,7 @@ def view(scan_object):
     return render_vue(data, title=scan_object.scientific_name)
 
 
-@bp.route('/create', methods=['GET', 'POST'])
-@bp.route('/<scan:scan_object>/edit', methods=['GET', 'POST'])
+@bp.route('/create', endpoint='create', methods=['GET', 'POST'])
 @single_scan.route('/edit', methods=['GET', 'POST'])
 @requires_contributor
 def edit(scan_object=None):
@@ -234,7 +232,7 @@ def edit(scan_object=None):
                 form.file.data.close()
 
         if form_valid and not request.args.get('noredirect'):
-            return redirect(request.args.get('redirect') or url_for('scans.view', scan_object=scan_object))
+            return redirect(request.args.get('redirect') or url_for('scan.view', scan_object=scan_object))
 
     data = {
         'form': form.serialize(),
@@ -245,7 +243,6 @@ def edit(scan_object=None):
     return render_vue(data, title='Edit' if scan_object else 'Upload New')
 
 
-@bp.route('/<scan:scan_object>/stills')
 @single_scan.route('/stills')
 @login_required
 def stills(scan_object):

@@ -1,6 +1,6 @@
 <template>
   <ul :class="classes" v-if="!modal">
-    <li v-for="error in errors" :key="error">
+    <li v-for="error in errors" :key="error.message || error">
       {{ error.message || error }}
     </li>
   </ul>

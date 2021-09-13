@@ -17,11 +17,14 @@
   font-size: $small-font-size;
 }
 
-.back {
+.sideLinks {
   grid-area: 1 / 2;
   align-self: center;
   justify-self: center;
   margin-top: 0.5em;
+  display: grid;
+  text-align: right;
+  grid-gap: 1em;
 }
 
 .datalist {

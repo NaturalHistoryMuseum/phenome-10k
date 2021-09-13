@@ -101,7 +101,7 @@ class ScanStore:
         gbif_id = data.get('gbif_id')
 
         if gbif_id and gbif_id != scan.gbif_id:
-            from app.gbif import pull_tags
+            from .gbif import pull_tags
 
             scan.gbif_id = gbif_id
             tags = pull_tags(gbif_id)

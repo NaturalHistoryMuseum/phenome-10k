@@ -2,7 +2,7 @@
   <div :class="$style.main">
     <div class="Body__content">
       <h1>Manage Users</h1>
-      {{ $route.meta.data.error }}
+      {{ routeData.error }}
       <div :class="$style.table">
         <div :class="[$style.tableRow, $style.tableHeader]">
           <div>Name</div>
@@ -40,7 +40,10 @@
 </template>
 
 <script>
+import Page from '../common/base/Page';
+
 export default {
+  extends: Page,
   data() {
     return {
       users: this.$route.meta.data.users,

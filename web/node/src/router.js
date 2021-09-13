@@ -33,20 +33,10 @@ export default () => {
             },
             {
                 path: '/scans/create',
-                alias: '/library/create',
-                component: () => import('./pages/scans/ScansEdit'),
-                name: 'scans_create'
+                component: () => import('./pages/scans/ScanEdit'),
+                name: 'scan_create'
             },
-            {
-                path: '/scans/:id',
-                component: () => import('./pages/scans/ScansView'),
-                name: 'scans_view'
-            },
-            {
-                path: '/scans/:id/edit',
-                component: () => import('./pages/scans/ScansEdit'),
-                name: 'scans_edit'
-            },
+
             {
                 path: '/publications',
                 alias: '/publication',
@@ -93,6 +83,17 @@ export default () => {
                 path: '/users',
                 component: () => import('./pages/admin/Users'),
                 name: 'users'
+            },
+            // these MUST go at the bottom so other routes take precedence
+            {
+                path: '/:id',
+                component: () => import('./pages/scans/ScanView'),
+                name: 'scan_view'
+            },
+            {
+                path: '/:id/edit',
+                component: () => import('./pages/scans/ScanEdit'),
+                name: 'scan_edit'
             },
         ]
     });

@@ -5,7 +5,9 @@
       <span v-if="!publication.published" :class="$style.unpublished">(Not published)</span>
     </div>
 
-    <router-link :to="{ name: 'publications_library' }" :class="$style.back">« Back</router-link>
+    <div :class="$style.sideLinks">
+      <router-link :to="{ name: 'publications_library' }">« Back</router-link>
+    </div>
 
     <div class="Body__content">
       <dl :class="$style.datalist">
@@ -55,11 +57,14 @@
 </template>
 
 <script>
+import Page from '../common/base/Page';
+
 export default {
   name: 'PublicationsView',
+  extends: Page,
   computed: {
     publication() {
-      return this.$route.meta.data;
+      return this.routeData;
     }
   }
 };

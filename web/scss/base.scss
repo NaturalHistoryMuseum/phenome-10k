@@ -9,7 +9,7 @@
   grid-template-areas: 'sidebar header .'
                        'sidebar .      .';
   grid-template-rows: [header-start] $logo-height [header-end body-start] 1fr [body-end];
-  grid-template-columns: [sidebar-start] $sidebar-width [sidebar-end primary-start] minmax(auto, 1089px) [primary-end vspace-start] auto [vspace-end];
+  grid-template-columns: [sidebar-start] $sidebar-width [sidebar-end primary-start] minmax(auto, 1089px) [primary-end vspace-start] minmax(50px, auto) [vspace-end];
 
   & .Grid__sidebar {
     grid-area: sidebar;

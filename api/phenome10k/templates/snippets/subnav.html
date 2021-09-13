@@ -9,12 +9,12 @@
       {{ nav_item('scans.library', 'View all uploads') }}
       {{ nav_item('scans.library', 'View my uploads', {'mine': ''}) }}
       {{ nav_item('scans.manage', 'Manage uploads') }}
-      {{ nav_item('scans.edit', 'Add new') }}
+      {{ nav_item('scans.create', 'Add new') }}
     {% elif request.blueprint == 'publications' and current_user.is_contributor() %}
       {{ nav_item('publications.library', 'View all pubs') }}
       {{ nav_item('publications.library', 'View my pubs', {'mine': ''}) }}
       {{ nav_item('publications.manage', 'Manage pubs') }}
-      {{ nav_item('publications.edit', 'Add new') }}
+      {{ nav_item('publications.create', 'Add new') }}
     {% endif %}
     {% if request.blueprint == 'library' or request.blueprint == 'publications' %}
       {{ nav_item('user.contribute', 'Contribute') }}

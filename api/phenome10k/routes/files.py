@@ -128,7 +128,7 @@ def delete_still(still_id):
 
     if attachment:
         ensure_editable(attachment)
-        return_to = url_for('scans.edit', scan_object=attachment.scan)
+        return_to = url_for('scan.edit', scan_object=attachment.scan)
         db.session.delete(attachment)
         db.session.commit()
 

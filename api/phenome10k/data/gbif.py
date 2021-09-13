@@ -1,7 +1,7 @@
 import json
 import urllib.request
 
-from app.models import Taxonomy
+from phenome10k.models import Taxonomy
 
 
 def fetch_json(url):

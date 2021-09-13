@@ -4,7 +4,7 @@
     <div class="Body__filters">
       <div :class="$style.filterControls">
         <Search :class="$style.search" name="q" v-model="q" />
-        <div :class="$style.sort" v-if="data.showMine">
+        <div :class="$style.sort" v-if="routeData.showMine">
           Viewing:
           <ul :class="$style.sortList">
             <li :class="getMineLinkClass(false)">
@@ -69,7 +69,7 @@ export default {
   },
   computed: {
     publications() {
-      return this.$route.meta.data.publications;
+      return this.routeData.publications;
     }
   }
 };

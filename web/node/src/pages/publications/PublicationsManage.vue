@@ -66,13 +66,13 @@ export default {
   },
   computed: {
     publications() {
-      return this.$route.meta.data.publications;
+      return this.routeData.publications;
     },
     filterQ() {
       return this.$route.query.pub_year;
     },
     filterOptions() {
-      return this.$route.meta.data.years;
+      return this.routeData.years;
     }
   },
   methods: {}

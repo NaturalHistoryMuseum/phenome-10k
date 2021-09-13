@@ -1,5 +1,4 @@
 from phenome10k.extensions import db
-from sqlalchemy.ext.associationproxy import association_proxy
 
 
 class Taxonomy(db.Model):
@@ -7,7 +6,6 @@ class Taxonomy(db.Model):
     name = db.Column(db.String(250), nullable=False)
     parent_id = db.Column(db.Integer, db.ForeignKey('taxonomy.id'))
 
-    scans = association_proxy('scan_taxonomy_ref', 'scan')
     children = db.relationship('Taxonomy')
 
     def serialize_tree(self, depth=float('inf')):

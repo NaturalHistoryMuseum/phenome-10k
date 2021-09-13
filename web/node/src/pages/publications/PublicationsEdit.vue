@@ -58,8 +58,10 @@
 
 <script>
 import { Button, Delete, Errors, TextInput } from '../common/forms';
+import Page from '../common/base/Page';
 
 export default {
+  extends: Page,
   components: {
     TextInput,
     Errors,

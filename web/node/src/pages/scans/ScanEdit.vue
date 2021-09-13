@@ -1,7 +1,7 @@
 <template>
   <div :class="$style.main">
     <div :class="$style.title">
-      <h1>{{ scan ? 'Edit: ' + scan.scientific_name : 'Upload New' }}</h1>
+      <h1>{{ $route.name === 'scan_edit' && scan ? 'Editing ' + scan.scientific_name : 'Upload New' }}</h1>
     </div>
 
     <div :class="['Body__content', $style.sectionGrid]">
@@ -32,10 +32,12 @@
         </div>
         <Errors :errors="form.stills.errors" />
 
-        <div v-for="{ name, file, id } in stills" :key="file" :class="$style.still">
-          <Delete type="button" @click="removeStill(id)">Remove Image</Delete>
-          <img :src="file" :class="$style.stillImage" />
-          <div :class="$style.stillName">{{ name }}</div>
+        <div :class="$style.stillsGrid">
+          <div v-for="{ name, file, id } in stills" :key="file">
+            <Delete type="button" @click="removeStill(id)">Remove Image</Delete>
+            <img :src="file" :class="$style.stillImage" />
+            <div :class="$style.stillName">{{ name }}</div>
+          </div>
         </div>
       </div>
 
@@ -44,7 +46,7 @@
         <div :class="$style.col1">
           <div :class="$style.section" :id="$style.scientificName">
             <TextInput name="scientific_name" :data="form.scientific_name" @keyup="e => searchGbif(e.target.value)"
-                       autocomplete="off" type="text" :disabled="gbifSelectedId">
+                       autocomplete="off" type="text">
               <div :class="$style.sectionHead">
                 <h2 :class="$style.sectionTitle">Scientific Name</h2>
               </div>
@@ -226,7 +228,6 @@ async function jsonOrText(source) {
 
 function* blobIterator(blob, chunkSize = 500000) {
   for (let i = 0; i < blob.size; i += chunkSize) {
-    console.log(i, blob.size, i / blob.size);
     yield [
       blob.slice(i, i + chunkSize),
       100 * i / blob.size
@@ -309,7 +310,6 @@ export default {
       gbifSelectedId,         // Selected GBIF result
       gbifSelectedEntry: {},  // Selected GBIF result details (for display)
       stillName: '',          // Contents of the Still Name text input
-      data,                   // Data returned from the database
       myPubs: true,           // Search only for publications created by current user
       pubSearchResults,       // List of results for publication search
       publications,           // Object containing all publications, keyed by ID
@@ -350,10 +350,13 @@ export default {
       return this.scan ? this.scan.stills : [];
     },
     formAction() {
-      return this.scan ? this.$router.resolve({ name: 'edit-scan', params: this.scan }).href : '';
+      return this.scan ? this.$router.resolve({ name: 'scan_edit', params: this.scan }).href : '';
     }
   },
   methods: {
+    logme() {
+      console.log(this.scan);
+    },
     async searchGbif(term) {
       if ((!term) || this.gbifSelectedId) {
         this.gbifData = [];
@@ -418,12 +421,14 @@ export default {
      * Delete a still by its attachment id
      */
     async removeStill(id) {
-      const res = await fetch(`/stills/${ id }/`, {
+      const res = await fetch(`/files/stills/${ id }`, {
         method: 'DELETE',
         headers: { accept: 'application/json' }
       });
       const json = await res.json();
-      this.scan = json.scan;
+      if (json.scan) {
+        this.scan = json.scan;
+      }
     },
     async captureStill() {
       this.form.stills.errors = [];
@@ -450,6 +455,7 @@ export default {
         headers: { 'accept': 'application/json' },
         body: data
       });
+
       const json = await res.json();
       this.scan = json;
       this.stillName = '';
@@ -608,19 +614,26 @@ export default {
     }
   }
 
-  .still {
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-  }
+  & .stillsGrid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 20px 0;
+    grid-gap: 20px;
 
-  .stillImage {
-    max-width: 100%;
-  }
+    & > * {
+      display: grid;
+    }
 
-  .stillName {
-    color: $palette-grey-3;
-    margin-top: 5px;
+    & .stillImage {
+      max-width: 100%;
+    }
+
+    & .stillName {
+      color: $palette-grey-3;
+      margin-top: 5px;
+      font-size: $small-font-size;
+      justify-self: center;
+    }
   }
 }
 

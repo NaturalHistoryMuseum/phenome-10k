@@ -1,7 +1,5 @@
-from sqlalchemy.sql import func
-from sqlalchemy.ext.associationproxy import association_proxy
-
 from phenome10k.extensions import db
+from sqlalchemy.sql import func
 
 
 class Publication(db.Model):
@@ -18,8 +16,7 @@ class Publication(db.Model):
     link = db.Column(db.String(250))
     abstract = db.Column(db.Text)
 
-    files = association_proxy('publication_file_ref', 'attachment')
-    scans = association_proxy('scan_publication_ref', 'scan')
+    files = db.relationship('Attachment', secondary='publication_file', backref='publications', cascade='all')
 
     def serialize(self):
         return {

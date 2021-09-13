@@ -51,7 +51,7 @@ export default {
   justify-content: space-between;
   font-size: $small-font-size;
   color: $palette-grey-2;
-  padding: 0.5em 0 2em;
+  padding: 2em 0;
 }
 
 .page {

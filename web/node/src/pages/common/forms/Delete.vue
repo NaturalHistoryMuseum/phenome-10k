@@ -1,27 +1,35 @@
 <template functional>
-  <button class="Delete" v-bind="props" v-on="listeners">
-    <slot />
-    ❌
+  <button :class="$style.main" v-bind="props" v-on="listeners">
+    <span><slot /></span>
+    <span>❌</span>
   </button>
 </template>
 
-<style>
-.Delete {
+<style module lang="scss">
+@import 'scss/palette';
+@import 'scss/fonts';
+
+.main {
   appearance: none;
   border: none;
   background: none;
-  color: #666;
-  font-size: 10px;
-  font-family: 'Supria Sans W01 Regular', Arial, Helvetica, sans-serif;
-  align-self: flex-end;
+  color: $palette-grey-3;
+  font-size: $small-font-size;
+  @include font-body;
+  justify-self: end;
   cursor: pointer;
-  margin: 0 0 5px;
-  padding: 0;
+  margin: 0;
+  padding: 5px;
 
-&
-:hover {
-  text-decoration: underline;
-}
+  &:hover {
+    background: $palette-grey-7;
+    color: $palette-grey-2;
+    transition: all 0.2s;
+  }
+
+  & > * {
+    padding-left: 5px;
+  }
 
 }
 </style>

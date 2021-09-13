@@ -47,6 +47,7 @@ services:
       dockerfile: docker/app-node/Dockerfile
     environment:
       DATABASE_HOST: data
+      NODE_ENV: development
     depends_on:
       - data
     networks:

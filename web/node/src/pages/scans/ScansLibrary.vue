@@ -37,7 +37,7 @@
     </div>
     <div :class="[$style.filterControls, 'Body__filters']">
         <Search :class="$style.search" name="q" v-model="q" />
-        <div :class="$style.sort" v-if="data.showMine">
+        <div :class="$style.sort" v-if="routeData.showMine">
           Viewing:
           <ul :class="$style.sortList">
             <li :class="getMineLinkClass(false)">
@@ -96,13 +96,13 @@ export default {
   },
   computed: {
     groups() {
-      return this.data.groups;
+      return this.routeData.groups;
     },
     results() {
-      return this.data.scans;
+      return this.routeData.scans;
     },
     tags() {
-      return this.data.tags;
+      return this.routeData.tags;
     },
     populatedGroups() {
       return this.groups.filter(group => group.items.length);
@@ -147,9 +147,6 @@ export default {
       };
     }
   },
-  mounted() {
-    console.log(this.data);
-  }
 };
 </script>
 

@@ -23,7 +23,7 @@
         <td>{{ getDateCreated(scan) }}</td>
         <td>
           <router-link :class="$style.link"
-                       :to="{ name: 'scans_view', params: { id: scan.url_slug || scan.id } }">
+                       :to="{ name: 'scan_view', params: { id: scan.url_slug || scan.id } }">
             {{ scan.scientific_name || '(unnamed specimen)' }}
           </router-link>
           <dl :class="$style.details">
@@ -40,13 +40,13 @@
         </td>
         <td>
           <form method="post" :class="$style.actions">
-            <input name="csrf_token" type="hidden" :value="$route.meta.data.csrf_token">
+            <input name="csrf_token" type="hidden" :value="routeData.csrf_token">
             <button
-                :formaction="$router.resolve({ name: 'scans_edit', params: { id: scan.id }, query: { redirect: $route.fullPath } }).href"
+                :formaction="$router.resolve({ name: 'scan_edit', params: { id: scan.id }, query: { redirect: $route.fullPath } }).href"
                 :name="scan.published ? null : 'published'" value="On"
             >{{ scan.published ? 'Unpublish' : 'Publish' }}
             </button>
-            <router-link :to="{ name: 'scans_edit' , params: { id: scan.id } }">Edit</router-link>
+            <router-link :to="{ name: 'scan_edit' , params: { id: scan.id } }">Edit</router-link>
             <button name="delete" :value="scan.id" @click="confirmDelete">Delete</button>
           </form>
         </td>
@@ -79,7 +79,7 @@ export default {
   },
   computed: {
     scans() {
-      return this.$route.meta.data.scans;
+      return this.routeData.scans;
     },
     filterQ() {
       return this.$route.query.char;

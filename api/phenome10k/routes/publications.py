@@ -121,7 +121,7 @@ def view(pub_object):
     return render_vue(pub_object.serialize(), title=pub_object.title)
 
 
-@bp.route('/create/', methods=['GET', 'POST'])
+@bp.route('/create', endpoint='create', methods=['GET', 'POST'])
 @bp.route('/<publication:pub_object>/edit', methods=['GET', 'POST'])
 @requires_contributor
 def edit(pub_object=None):

@@ -1,8 +1,5 @@
-from sqlalchemy.sql import func
-from sqlalchemy.ext.associationproxy import association_proxy
-from .links import ScanTag
-
 from phenome10k.extensions import db
+from sqlalchemy.sql import func
 
 
 class Scan(db.Model):
@@ -25,10 +22,11 @@ class Scan(db.Model):
     source = db.relationship('File', foreign_keys='Scan.file_id', cascade='all')
     ctm = db.relationship('File', foreign_keys='Scan.ctm_id', cascade='all')
 
-    publications = association_proxy('scan_publication_ref', 'publication')
-    attachments = association_proxy('scan_attachment_ref', 'attachment')
-    tags = association_proxy('scan_tag_ref', 'tag', creator=lambda t: ScanTag(tag=t))
-    taxonomy = association_proxy('scan_taxonomy_ref', 'taxonomy')
+    # association proxy relationships
+    publications = db.relationship('Publication', secondary='scan_publication', backref='scans')
+    attachments = db.relationship('Attachment', secondary='scan_attachment', backref='scans', cascade='all')
+    tags = db.relationship('Tag', secondary='scan_tag', backref='scans', lazy='select')
+    taxonomy = db.relationship('Taxonomy', secondary='scan_taxonomy', backref='scans')
 
     errors = []
 
