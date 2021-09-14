@@ -1,16 +1,13 @@
-import io
 import math
-from zipfile import ZipFile
 
-from flask import Blueprint, request, redirect, url_for, g, send_file
+from flask import Blueprint, request, redirect, url_for, g
 from flask import current_app
 from flask_login import current_user, login_required
 from werkzeug.datastructures import FileStorage
 from werkzeug.exceptions import NotFound
 
 from ._decorators import requires_contributor
-from ._utils import hide_scan_files, render_vue, ensure_editable
-from ._utils import render_content, rpc_call, make_aliases
+from ._utils import hide_scan_files, render_vue, ensure_editable, render_content, rpc_call, make_aliases
 from ..data.scan_store import ScanException
 from ..extensions import db, scan_store, upload_store
 from ..forms import ScanUploadForm

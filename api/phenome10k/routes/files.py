@@ -9,13 +9,10 @@ from flask import request
 from flask.helpers import safe_join
 from werkzeug.exceptions import NotFound, BadRequest
 
-from ._decorators import login_required
-from ._decorators import requires_contributor
+from ._decorators import login_required, requires_contributor
 from ._utils import ensure_editable
-from ..extensions import db
-from ..extensions import upload_store
-from ..models import PublicationFile
-from ..models import ScanAttachment
+from ..extensions import db, upload_store
+from ..models import PublicationFile, ScanAttachment, Publication, Scan
 
 bp = Blueprint('files', __name__, url_prefix='/files')
 
