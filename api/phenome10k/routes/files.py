@@ -41,7 +41,8 @@ def delete_pub_file(attach_id):
 
     if attachment:
         ensure_editable(attachment)
-        return_to = url_for('publications.edit', pub_object=attachment.publication)
+        publication = Publication.query.get(attachment.publication_id)
+        return_to = url_for('publications.edit', pub_object=publication)
         db.session.delete(attachment)
         db.session.commit()
 
@@ -125,7 +126,8 @@ def delete_still(still_id):
 
     if attachment:
         ensure_editable(attachment)
-        return_to = url_for('scan.edit', scan_object=attachment.scan)
+        scan = Scan.query.get(attachment.scan_id)
+        return_to = url_for('scan.edit', scan_object=scan)
         db.session.delete(attachment)
         db.session.commit()
 
