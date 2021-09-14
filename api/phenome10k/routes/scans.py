@@ -213,7 +213,6 @@ def edit(scan_object=None):
         try:
             url = scan_store.update(scan_object, form.file.data, form.data, form.attachments.data)
             if form.file.data is not None:
-                # TODO
                 create_ctm.delay(scan_object.id)
 
             if form.published.data and form.validate():

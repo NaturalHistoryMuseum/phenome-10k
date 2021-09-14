@@ -146,7 +146,7 @@ def edit(pub_object=None):
         pub_object.published = True
 
         for file in form.files.data:
-            if file == '':
+            if file == '' or file.filename == '':
                 continue
             f = File.from_upload(file)
             db.session.add(f)
@@ -159,7 +159,7 @@ def edit(pub_object=None):
 
         db.session.commit()
 
-        return redirect(url_for('publications.edit', pub_object=pub_object))
+        return redirect(url_for('publications.view', pub_object=pub_object))
 
     data = {
         'publication': pub_object.serialize() if pub_object else None,

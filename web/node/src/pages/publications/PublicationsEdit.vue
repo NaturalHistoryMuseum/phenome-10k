@@ -97,7 +97,7 @@ export default {
      * Delete a file by its attachment id
      */
     async removeFile(id) {
-      const res = await fetch(`/remove-pub-file/${ id }`, {
+      const res = await fetch(`/files/pub/${ id }/delete`, {
         method: 'DELETE',
         headers: { accept: 'application/json' }
       });
@@ -109,7 +109,7 @@ export default {
    * Fetch the selected files on mount in case input is pre-populated (e.g. page refresh)
    */
   mounted() {
-    this.selectedFiles();
+    this.selectFiles();
   }
 };
 </script>
@@ -129,10 +129,6 @@ export default {
   &--first::after {
     content: '* Required';
   }
-}
-
-textarea {
-  resize: vertical;
 }
 
 .fileInput {
@@ -168,6 +164,10 @@ textarea {
   }
 }
 
+textarea {
+  resize: vertical;
+}
+
 .controls {
   margin-top: 70px;
   display: flex;
@@ -183,7 +183,7 @@ textarea {
     border-bottom: 1px solid #ebebeb;
     padding: 10px 5px;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
   }
 }
 </style>
