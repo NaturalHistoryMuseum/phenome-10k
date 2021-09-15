@@ -19,8 +19,8 @@
   - name: Install pymysql, cryptography
     pip:
       name:
-        - PyMySQL
-        - cryptography
+        - "PyMySQL<1"
+        - "cryptography<3.4"
     become: y
   - name: Enable the service
     service:

@@ -15,6 +15,7 @@
     file:
       path: '{{ p10k_src_dir }}'
       group: phenome10k
+      mode: '0770'
       #recurse: y
     become: y
   - name: Allow nginx to read from static files dir
@@ -53,12 +54,35 @@
       NODE_ENV: production
     become: y
     become_user: phenome10k
+  - name: Check ownership of node/dist
+    file:
+      path: '{{ p10k_src_dir }}/node/dist'
+      group: phenome10k
+      mode: '0770'
+      state: directory
+    become: y
+  - name: Check ownership of static/dist
+    file:
+      path: '{{ static_files_dir }}/dist'
+      group: phenome10k
+      mode: '0770'
+      recurse: y
+    become: y
   - name: Install pymysql, cryptography
     pip:
       name:
-        - PyMySQL
-        - cryptography
+        - "PyMySQL<1"
+        - "cryptography<3.4"
     become: y
+  - name: Upgrade virtualenv pip
+    pip:
+      name: pip
+      extra_args: "--upgrade"
+      virtualenv: '{{ virtualenv_location }}'
+      virtualenv_python: python3
+      virtualenv_command: virtualenv-3
+    become: y
+    become_user: phenome10k
   - name: Install pip dependencies
     pip:
       chdir: '{{ p10k_src_dir }}'
