@@ -1,3 +1,0 @@
-[console_scripts]
-p10k = phenome10k.cli:cli
-

@@ -5,7 +5,7 @@ from phenome10k.tasks import celery
 
 
 def init(return_celery=False):
-    app = Flask(__name__, static_folder='../../static')
+    app = Flask(__name__, static_folder=Config.STATIC_DIR)
     app.config.from_object(Config)
 
     db.init_app(app)

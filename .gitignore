@@ -17,3 +17,9 @@ coverage
 web/scss/.sass-cache/
 
 api/thumbnails/
+
+build/
+
+dist/
+
+api/phenome10k.egg-info/

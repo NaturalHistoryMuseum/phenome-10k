@@ -2,14 +2,15 @@ import os
 
 from dotenv import load_dotenv
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-# Parent directory takes precedence, which makes things
-# easier when running in vagrant.
-load_dotenv(os.path.join(basedir, '../.env'))
-load_dotenv(os.path.join(basedir, '.env'))
+# the project root where common things like the static folder and node src are stored
+basedir = os.environ.get('BASE_DIR', os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
+load_dotenv(os.environ.get('P10K_ENV', os.path.join(basedir, '.env')))
 
 
 class Config(object):
+    BASE_DIR = basedir
+    STATIC_DIR = os.environ.get('STATIC_DIR', os.path.join(basedir, 'static'))
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'G}<Ci&XWqSqA/mF7ZCWI7JJ.:QuuZF'
     SQLALCHEMY_DATABASE_URI = (os.environ.get('DATABASE_URL') or
                                'sqlite:///' + os.path.join(basedir, 'app.db'))

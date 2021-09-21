@@ -2,16 +2,16 @@
   - name: rebuild node modules
     command: npm rebuild
     args:
-      chdir: '{{ p10k_src_dir }}'
+      chdir: '{{ frontend_root_dir }}'
     environment:
       NODE_ENV: production
     become: y
     become_user: phenome10k
 
   - name: rebuild front end
-    command: node {{ p10k_src_dir }}/build
+    command: npm build
     args:
-      chdir: '{{ p10k_src_dir }}'
+      chdir: '{{ frontend_root_dir }}'
     environment:
       NODE_ENV: production
     become: y
@@ -29,8 +29,26 @@
       state: restarted
     become: y
 
-  - name: restart task queue
+  - name: restart celery
     service:
-      name: task-queue
+      name: celery
+      state: restarted
+    become: y
+
+  - name: restart flower
+    service:
+      name: flower
+      state: restarted
+    become: y
+
+  - name: restart rabbitmq
+    service:
+      name: rabbitmq-server
+      state: restarted
+    become: y
+
+  - name: restart redis
+    service:
+      name: redis
       state: restarted
     become: y

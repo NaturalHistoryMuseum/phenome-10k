@@ -1,6 +1,6 @@
 import click
 from flask.cli import FlaskGroup
-from phenome10k.models import User
+from phenome10k.models import User, Scan
 from phenome10k.extensions import db
 from phenome10k import create_app
 
