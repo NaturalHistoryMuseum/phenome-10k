@@ -17,6 +17,8 @@ export default {
 </script>
 
 <style module lang="scss">
+@import 'scss/vars';
+
 .main {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -29,6 +31,12 @@ export default {
   & > * {
     margin: 0;
     padding: 0;
+  }
+}
+
+@media (max-width: $small-screen) {
+  .main {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 

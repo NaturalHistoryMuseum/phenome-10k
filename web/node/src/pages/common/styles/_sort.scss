@@ -1,17 +1,16 @@
 @import 'scss/palette';
 @import 'scss/fonts';
+@import 'scss/vars';
 
 .sortItem {
   padding: 0 20px;
   font-weight: bold;
   color: $palette-grey-2;
+  border-right: 1px solid;
 
   &:last-child {
+    border-right: none;
     padding-right: 0;
-  }
-
-  &:nth-child(n+2) {
-    border-left: 1px solid;
   }
 
   & a {
@@ -29,6 +28,8 @@
   color: $palette-grey-2;
   font-size: $small-font-size;
   grid-column-start: 2;
+  display: grid;
+  grid-template-columns: auto 1fr;
 }
 
 .sortList {
@@ -42,4 +43,15 @@
   display: grid;
   grid-template-columns: auto auto;
   align-items: center;
+}
+
+@media (max-width: $small-screen) {
+  .sort {
+    grid-template-columns: auto;
+    height: 100%;
+  }
+
+  .sortItem:first-child {
+    padding-left: 0;
+  }
 }

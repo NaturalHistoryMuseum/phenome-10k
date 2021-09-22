@@ -69,14 +69,16 @@ $middle-padding: 10px;
   font-size: $small-font-size;
 
   & .nav__item {
-    padding-top: $edge-padding;
-    padding-bottom: $middle-padding;
     color: black;
   }
 
-  & li:not(:last-child)::after {
-    content: '|';
-    color: $palette-grey-5;
+  & li:not(:first-child) {
+    background: linear-gradient(
+        to right,
+        $palette-grey-5,
+        transparent 1px
+    ) no-repeat center;
+    background-size: 100% 50%;
   }
 }
 
@@ -91,6 +93,11 @@ $middle-padding: 10px;
 
   & > * {
     margin-top: -5px;
+  }
+
+  & > a {
+    line-height: 1.1;
+    padding-top: 5px;
   }
 }
 
@@ -128,6 +135,7 @@ $middle-padding: 10px;
   @include Header__col2;
   font-size: $small-font-size;
   padding-top: $middle-padding;
+  line-height: 1.1;
 
   & a:hover {
     color: $palette-primary;
@@ -147,14 +155,14 @@ $nav-item-padding: 15px;
   text-transform: uppercase;
 
   & > li {
-    padding: 0;
+    padding-left: $nav-item-padding;
+    padding-right: $nav-item-padding;
+    line-height: 1.1;
+    text-align: center;
   }
 
   & .nav__item {
-    padding-left: $nav-item-padding;
-    padding-right: $nav-item-padding;
     text-decoration: none;
-    white-space: nowrap;
 
     &:hover, &.nav__item--selected {
       color: $palette-primary;

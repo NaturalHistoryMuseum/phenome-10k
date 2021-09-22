@@ -27,12 +27,10 @@
   align-items: center;
   font-size: 12px; }
   .Header__subnav .nav__item {
-    padding-top: 15px;
-    padding-bottom: 10px;
     color: black; }
-  .Header__subnav li:not(:last-child)::after {
-    content: '|';
-    color: #c2c2c2; }
+  .Header__subnav li:not(:first-child) {
+    background: linear-gradient(to right, #c2c2c2, transparent 1px) no-repeat center;
+    background-size: 100% 50%; }
 
 .Header__user {
   grid-area: user;
@@ -45,6 +43,9 @@
   display: grid; }
   .Header__user > * {
     margin-top: -5px; }
+  .Header__user > a {
+    line-height: 1.1;
+    padding-top: 5px; }
 
 .Header__divider {
   grid-row: row2;
@@ -72,7 +73,8 @@
   justify-self: end;
   text-align: right;
   font-size: 12px;
-  padding-top: 10px; }
+  padding-top: 10px;
+  line-height: 1.1; }
   .Header__auth a:hover {
     color: #008558; }
 
@@ -84,12 +86,12 @@
   margin: 10px -15px;
   text-transform: uppercase; }
   .nav__list > li {
-    padding: 0; }
-  .nav__list .nav__item {
     padding-left: 15px;
     padding-right: 15px;
-    text-decoration: none;
-    white-space: nowrap; }
+    line-height: 1.1;
+    text-align: center; }
+  .nav__list .nav__item {
+    text-decoration: none; }
     .nav__list .nav__item:hover, .nav__list .nav__item.nav__item--selected {
       color: #008558; }
 
