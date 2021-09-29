@@ -1,7 +1,8 @@
 import click
 from flask.cli import FlaskGroup
-from phenome10k.models import User, Scan
+from phenome10k.models import User, Scan, Taxonomy
 from phenome10k.extensions import db
+from phenome10k.data.gbif import pull_tags
 from phenome10k import create_app
 
 
@@ -37,13 +38,31 @@ def set_admin_pw(password):
 
     if user.check_password(password):
         db.session.commit()
-        print('Password not changed')
+        click.echo('Password not changed', err=True)
         return
 
     user.set_password(password)
     db.session.commit()
 
-    print('Password changed')
+    click.echo('Password changed')
+
+
+@cli.command()
+def update_gbif_tags():
+    """ Updates taxonomy tags from gbif backbone and deletes unused ones."""
+    click.echo('Updating tags:')
+    for scan in Scan.query.filter(Scan.gbif_id).all():
+        tags = [
+            db.session.merge(tag) for tag in pull_tags(scan.gbif_id)
+        ]
+        scan.taxonomy = tags
+        click.echo(' - ' + scan.scientific_name)
+
+    click.echo('Deleting tags:')
+    for tax in Taxonomy.query.filter(db.not_(Taxonomy.scans.any())):
+        click.echo(' - ' + tax.name)
+        db.session.delete(tax)
+    db.session.commit()
 
 
 if __name__ == '__main__':

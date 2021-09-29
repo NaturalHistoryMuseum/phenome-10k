@@ -7,7 +7,8 @@ COPY ./api /var/phenome-10k/www/api
 
 WORKDIR /var/phenome-10k/www/api
 
-RUN python setup.py develop
+RUN pip install numpy
+RUN pip install -e .
 
 # run any initialisation or pre-run checks
 ENTRYPOINT ["/bin/bash", "/deploy/entrypoint"]

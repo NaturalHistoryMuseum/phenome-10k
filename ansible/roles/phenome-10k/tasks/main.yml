@@ -90,7 +90,7 @@
       hour: "0"
       day: "1"
       month: "*"
-      job: "{{ venv_bin }}/python {{ p10k_src_dir }}/gbif.py"
+      job: "{{ venv_bin }}/p10k update-gbif-tags"
     become: y
     become_user: phenome10k
 
