@@ -77,7 +77,7 @@
 
             <div :class="$style.pubAbstract" v-html="publication.abstract" />
 
-            <div :class="$style.pubLink">
+            <div :class="$style.pubLink" v-if="publication.link">
               <b>Link:</b>
               <a :href="publication.link">{{ publication.link }}</a>
             </div>

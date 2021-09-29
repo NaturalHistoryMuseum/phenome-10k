@@ -117,7 +117,7 @@
                   <div :class="$style.listSearch">
                     <input type="text" name="pub_query" @keyup="pubSearch"
                            :placeholder="myPubs ? 'Search My Publications' : 'Search Publications'"
-                           autocomplete="off" />
+                           autocomplete="off" :title="myPubs ? 'Search your own publication titles' : 'Search all publication titles'"/>
                   </div>
                   <ul :class="$style.listbox">
                     <li v-for="pub in pubSearchResults" :key="pub.id">
@@ -715,7 +715,7 @@ export default {
     padding: 7px 65px;
     display: inline-block;
     text-transform: uppercase;
-    color: $palette-grey-4;
+    color: $palette-grey-3;
 
     &--active {
       border-bottom: 1px solid #fff;

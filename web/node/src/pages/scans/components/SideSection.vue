@@ -4,7 +4,8 @@
       <button :class="$style.button">
         {{ title }}
       </button>
-      <img :src="'/static/' + (open ? 'minus' : 'plus') + '.png'" :class="$style.indicator">
+      <img :src="'/static/' + (open ? 'minus' : 'plus') + '.png'" :class="$style.indicator"
+           :alt="(open ? 'Collapse' : 'Expand') + ` options for ${title}`">
       <div v-if="count">
         ({{ count }})
       </div>

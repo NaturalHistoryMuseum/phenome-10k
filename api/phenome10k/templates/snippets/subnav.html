@@ -16,7 +16,7 @@
       {{ nav_item('publications.manage', 'Manage pubs') }}
       {{ nav_item('publications.create', 'Add new') }}
     {% endif %}
-    {% if request.blueprint == 'library' or request.blueprint == 'publications' %}
+    {% if request.blueprint == 'scans' or request.blueprint == 'publications' %}
       {{ nav_item('user.contribute', 'Contribute') }}
     {% endif %}
   </ul>

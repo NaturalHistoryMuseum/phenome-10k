@@ -119,7 +119,7 @@ $middle-padding: 10px;
     &:hover {
       text-decoration: underline;
       background: change-color($palette-grey-5, $alpha: 0.3);
-      transition: background-color 0.2s;
+      transition: all 0.2s;
     }
   }
 
@@ -132,6 +132,11 @@ $middle-padding: 10px;
 
     &:hover {
       background: change-color($palette-grey-3, $alpha: 0.3);
+      color: white !important;
+    }
+
+    &--selected {
+      color: white !important;
     }
   }
 }

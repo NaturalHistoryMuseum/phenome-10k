@@ -62,13 +62,16 @@
     .Header__nav .nav__item:hover {
       text-decoration: underline;
       background: rgba(194, 194, 194, 0.3);
-      transition: background-color 0.2s; }
+      transition: all 0.2s; }
   .Header__nav .nav__item--selected {
     font-weight: bold; }
   .Header__nav--dark .nav__item {
     color: #c2c2c2; }
     .Header__nav--dark .nav__item:hover {
-      background: rgba(103, 103, 103, 0.3); }
+      background: rgba(103, 103, 103, 0.3);
+      color: white !important; }
+    .Header__nav--dark .nav__item--selected {
+      color: white !important; }
 
 .Header__auth {
   grid-area: auth;

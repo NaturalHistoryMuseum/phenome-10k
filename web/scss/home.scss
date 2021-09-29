@@ -4,6 +4,7 @@
 // =======================================================================================
 
 body {
+  background: #0a0a0a; // fallback
   background: top left/cover url(../homepage.jpg), linear-gradient(#0a0a0a, #656766 1150px);
   color: white;
 }
@@ -29,6 +30,8 @@ a {
 .Home__text {
   margin-top: 0;
   max-width: 450px;
+  padding: 5px;
+  background-color: change-color($palette-grey-1, $alpha: 0.8)
 }
 
 .Home__button {
@@ -42,7 +45,7 @@ a {
   text-transform: uppercase;
   text-align: center;
   text-decoration: none;
-  color: $palette-grey-1;
+  color: white;
 }
 
 .Home__button:hover {

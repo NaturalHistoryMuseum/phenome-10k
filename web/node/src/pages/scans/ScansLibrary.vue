@@ -28,7 +28,8 @@
             </router-link>
             <button v-if="taxonomy.hasChildren" :class="$style.taxExpand"
                     @click="$set(open, taxonomy.id, !open[taxonomy.id])">
-              <img :src="'/static/' + (open[taxonomy.id] ? 'minus' : 'plus') + '.png'">
+              <img :src="'/static/' + (open[taxonomy.id] ? 'minus' : 'plus') + '.png'"
+                   :alt="(open[taxonomy.id] ? 'Collapse ' : 'Expand ') + taxonomy.name">
             </button>
             <component v-if="open[taxonomy.id]" :is="taxonomy.children" />
           </li>

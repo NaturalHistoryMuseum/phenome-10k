@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Red+Hat+Text&family=Titillium+Web&display=swap");
 body {
+  background: #0a0a0a;
   background: top left/cover url(../homepage.jpg), linear-gradient(#0a0a0a, #656766 1150px);
   color: white; }
 
@@ -18,7 +19,9 @@ a {
 
 .Home__text {
   margin-top: 0;
-  max-width: 450px; }
+  max-width: 450px;
+  padding: 5px;
+  background-color: rgba(31, 31, 31, 0.8); }
 
 .Home__button {
   font-family: "Titillium Web", "Helvetica", Arial, sans-serif;
@@ -31,7 +34,7 @@ a {
   text-transform: uppercase;
   text-align: center;
   text-decoration: none;
-  color: #1F1F1F; }
+  color: white; }
 
 .Home__button:hover {
   text-decoration: underline; }
