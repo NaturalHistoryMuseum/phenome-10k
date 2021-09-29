@@ -113,8 +113,7 @@ $middle-padding: 10px;
   @include Header__col1;
 
   & .nav__item {
-    padding-bottom: $edge-padding;
-    padding-top: $middle-padding;
+    padding: 5px 5px 10px;
     color: $palette-grey-2;
 
     &:hover {
@@ -126,6 +125,14 @@ $middle-padding: 10px;
 
   & .nav__item--selected {
     font-weight: bold;
+  }
+
+  &--dark .nav__item {
+    color: $palette-grey-5;
+
+    &:hover {
+      background: change-color($palette-grey-3, $alpha: 0.3);
+    }
   }
 }
 
@@ -144,7 +151,7 @@ $middle-padding: 10px;
 
 // NAV ---------------------------------------------------------------
 
-$nav-item-padding: 15px;
+$nav-item-padding: 10px;
 
 .nav__list {
   @include font-body;

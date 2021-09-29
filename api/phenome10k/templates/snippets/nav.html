@@ -5,7 +5,7 @@
          href="{{ url_for(endpoint) }}">{{ page_title }}</a></li>
 {% endmacro -%}
 
-<nav class="Header__nav">
+<nav class="Header__nav{{ ' Header__nav--dark' if nav_dark else ''}}">
   <ul class="nav__list">
     {{ nav_item('home.index', 'Home') }}
     {{ nav_item('home.about', 'About') }}
