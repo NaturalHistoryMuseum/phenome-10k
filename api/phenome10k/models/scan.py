@@ -1,4 +1,4 @@
-from phenome10k.extensions import db
+from phenome10k.extensions import db, ma
 from sqlalchemy.sql import func
 
 

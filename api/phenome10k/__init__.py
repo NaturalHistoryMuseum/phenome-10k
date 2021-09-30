@@ -1,6 +1,6 @@
 from flask import Flask
 from phenome10k.config import Config, get_celery_config
-from phenome10k.extensions import db, migrate, login, mail, scan_store, upload_store
+from phenome10k.extensions import db, migrate, login, mail, scan_store, upload_store, ma
 from phenome10k.tasks import celery
 
 
@@ -14,6 +14,7 @@ def init(return_celery=False):
     mail.init_app(app)
     scan_store.init_app(db)
     upload_store.init_app(app)
+    ma.init_app(app)
     config_celery(app)
 
     from phenome10k.routes import init_routes
