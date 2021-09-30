@@ -98,13 +98,13 @@ class ScanStore:
                      + data.get('ontogenic_age')
                      + data.get('elements'))
 
-        gbif_id = data.get('gbif_id')
+        gbif_species_id = data.get('gbif_species_id')
 
-        if gbif_id and gbif_id != scan.gbif_id:
+        if gbif_species_id and gbif_species_id != scan.gbif_species_id:
             from .gbif import pull_tags
 
-            scan.gbif_id = gbif_id
-            tags = pull_tags(gbif_id)
+            scan.gbif_species_id = gbif_species_id
+            tags = pull_tags(gbif_species_id)
 
             tag_ids = [tag.id for tag in tags]
             existing_tags = Taxonomy.query.filter(Taxonomy.id.in_(tag_ids)).all()

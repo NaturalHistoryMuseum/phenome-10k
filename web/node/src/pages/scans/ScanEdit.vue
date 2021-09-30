@@ -59,13 +59,13 @@
             </div>
             <div v-else-if="gbifData.length < 1" :class="$style.gbifSelected">No associated GBIF record</div>
             <div v-else-if="gbifData.length < 2" :class="$style.gbifSelected">
-              <input type="hidden" name="gbif_id" :value="gbifData[0].id">
+              <input type="hidden" name="gbif_species_id" :value="gbifData[0].id">
               <i>{{ gbifData[0].name }}</i> {{ gbifData[0].details }}
             </div>
             <ul v-else :class="$style.gbifList">
               <li v-for="entry in gbifData" :key="entry.id">
                 <label>
-                  <input type="radio" name="gbif_id" :value="entry.id" v-model="gbifSelectedId"
+                  <input type="radio" name="gbif_species_id" :value="entry.id" v-model="gbifSelectedId"
                          @click="selectGbifSpecies(entry)">
                   <i>{{ entry.name }}</i> {{ entry.details }}
                 </label>
@@ -295,12 +295,12 @@ export default {
     const pubSearchResults = data.form.publications.choices;
     const allPubs = data.scan ? pubSearchResults.concat(data.scan.publications) : pubSearchResults;
     const publications = allPubs.reduce((o, pub) => Object.assign(o, { [pub.id]: pub }), {});
-    const gbifData = (data.scan && data.scan.gbif_id) ? [{
-      id: data.scan.gbif_id,
+    const gbifData = (data.scan && data.scan.gbif_species_id) ? [{
+      id: data.scan.gbif_species_id,
       name: data.scan.scientific_name,
       details: ''
     }] : [];
-    const gbifSelectedId = data.scan && data.scan.gbif_id;
+    const gbifSelectedId = data.scan && data.scan.gbif_species_id;
 
     return {
       progress: null,         // Upload progress of the model file
