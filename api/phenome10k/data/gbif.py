@@ -23,8 +23,8 @@ def pull_tags(gbif_species_id):
     return [
         Taxonomy(
             id=tag['key'],
-            name=tag['vernacularName'] if 'vernacularName' in tag else tag['canonicalName'],
-            parent_id=tag['parentKey'] if 'parentKey' in tag else None
+            name=tag.get('vernacularName', tag['canonicalName']),
+            parent_id=tag.get('parentKey')
         ) for tag in tags
     ]
 
