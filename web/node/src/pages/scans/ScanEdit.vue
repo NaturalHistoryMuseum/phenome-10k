@@ -63,7 +63,7 @@
             <ul v-else :class="$style.gbifList">
               <li v-for="entry in gbifResults.occurrence" :key="entry.id">
                 <label>
-                  <input type="radio" name="gbif_occurrence_id" :value="entry.id" v-model="gbifSelectedId.occurrence"
+                  <input type="radio" :value="entry.id" v-model="gbifSelectedId.occurrence"
                          @click="selectGbifOcc(entry)">
                   {{ formatOcc(entry.entry) }}
                 </label>
@@ -79,6 +79,7 @@
                 <h2 :class="$style.sectionTitle">Scientific Name</h2>
               </div>
             </TextInput>
+            <input type="hidden" v-model="form.gbif_species_id.data" name="gbif_species_id">
             <div v-if="gbifSelectedId.species" :class="$style.gbifSelectedEntry">
               <span>
                 {{ formatSpecies(gbifSelectedEntry.species) }}
@@ -89,7 +90,7 @@
             <ul v-else :class="$style.gbifList">
               <li v-for="entry in gbifResults.species" :key="entry.id">
                 <label>
-                  <input type="radio" name="gbif_species_id" :value="entry.id" v-model="gbifSelectedId.species"
+                  <input type="radio" :value="entry.id" v-model="gbifSelectedId.species"
                          @click="selectGbifSpecies(entry)">
                   {{ formatSpecies(entry.entry) }}
                 </label>
