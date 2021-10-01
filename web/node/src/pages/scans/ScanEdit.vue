@@ -453,12 +453,17 @@ export default {
         });
       }
 
-      if ((!this.form.specimen_location.data) && results.hostingOrganizationKey) {
+      if (results.hostingOrganizationKey) {
         await this.getGbifOrg(results.hostingOrganizationKey);
       }
 
-      if ((!this.form.specimen_id.data) && results.catalogNumber) {
-        this.formSet('specimen_id', results.catalogNumber);
+      if (results.catalogNumber) {
+        let specimenId = '';
+        if (results.institutionCode) {
+          specimenId = results.institutionCode + ' ';
+        }
+        specimenId += results.catalogNumber;
+        this.formSet('specimen_id', specimenId);
       }
 
       if ((!this.form.description.data) && (results.fieldNotes || results.identificationNotes)) {
