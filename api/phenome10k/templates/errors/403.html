@@ -1,11 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
+  <h1 class="Body__title">Forbidden</h1>
 
-<h1>Forbidden</h1>
-
-<p>Sorry, you don't have permission to access this page.</p>
-
-<p>{{ message }}</p>
-
+  <div class="Body__content">
+    <p>Sorry, you don't have permission to access this page.</p>
+    <p>{{ message }}</p>
+  </div>
 {% endblock %}

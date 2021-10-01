@@ -114,7 +114,8 @@
   grid-template-areas: '.     .     title      ' 'side1 side2 top-filters' 'side1 side2 content    ' 'side1 side2 pagination ';
   grid-template-columns: [sidesection-start] 229px 161px [sidesection-end content-start] 1fr [content-end];
   grid-template-rows: [headers-start] auto auto [headers-end content-start] minmax(0, 1fr) [content-end] auto [page-end];
-  grid-gap: 20px 0; }
+  grid-gap: 20px 0;
+  position: relative; }
 
 .Body__sidesection {
   grid-column: sidesection-start / sidesection-end;
@@ -132,5 +133,15 @@
 
 .Body__pagination {
   grid-area: pagination; }
+
+.Body__messages {
+  position: absolute;
+  grid-column: content;
+  bottom: 100%;
+  list-style: none;
+  background-color: #f2f2f2;
+  padding: 2px 5px;
+  width: 100%;
+  text-align: center; }
 
 /*# sourceMappingURL=base.css.map */

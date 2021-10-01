@@ -209,6 +209,7 @@ $nav-item-padding: 10px;
   grid-template-columns: [sidesection-start] ($line-position + 1) $sidebar-margin-right [sidesection-end content-start] 1fr [content-end];
   grid-template-rows: [headers-start] auto auto [headers-end content-start] minmax(0, 1fr) [content-end] auto [page-end];
   grid-gap: 20px 0;
+  position: relative;
 }
 
 .Body__sidesection {
@@ -231,4 +232,15 @@ $nav-item-padding: 10px;
 
 .Body__pagination {
   grid-area: pagination;
+}
+
+.Body__messages {
+  position: absolute;
+  grid-column: content;
+  bottom: 100%;
+  list-style: none;
+  background-color: $palette-grey-7;
+  padding: 2px 5px;
+  width: 100%;
+  text-align: center;
 }
