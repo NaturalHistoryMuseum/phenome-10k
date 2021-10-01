@@ -404,8 +404,14 @@ export default {
       }
 
       term = encodeURIComponent(term);
-      const res = await fetch(`//api.gbif.org/v1/species/suggest?q=${ term }&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&rank=SPECIES`);
-      const results = await res.json();
+      let res = await fetch(`//api.gbif.org/v1/species/suggest?q=${ term }&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&rank=SPECIES`);
+      let results = await res.json();
+      if (results.length === 0) {
+        // be slightly more lenient if nothing is found
+        res = await fetch(`//api.gbif.org/v1/species/search?q=${ term }&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c`);
+        results = await res.json();
+        results = results.results;
+      }
       this.$set(this.gbifResults, 'species', results.map(
           entry => ({
             id: entry.key,
