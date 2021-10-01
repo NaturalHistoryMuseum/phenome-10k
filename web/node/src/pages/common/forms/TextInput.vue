@@ -4,8 +4,8 @@
       <slot />
     </div>
     <textarea v-if="$attrs.type === 'textarea'" :class="$style.input" v-bind="$attrs" v-on="$listeners"
-              v-model="initialValue" />
-    <input v-else :class="$style.input" v-bind="$attrs" v-on="$listeners" v-model="initialValue" />
+              @input="setValue" :value="text"/>
+    <input v-else :class="$style.input" v-bind="$attrs" v-on="$listeners" :value="text" @input="setValue"/>
     <Errors :errors="data.errors" />
   </label>
 </template>
@@ -20,13 +20,16 @@ export default {
   inheritAttrs: false,
   props: ['data', 'labelClass'],
   data() {
-    return {
-      initialValue: this.data.data
-    };
+    return {};
   },
-  watch: {
-    'data.data'(value) {
-      this.initialValue = value;
+  computed: {
+    text() {
+      return this.data.data;
+    }
+  },
+  methods: {
+    setValue(event) {
+      this.$set(this.data, 'data', event.target.value)
     }
   }
 };

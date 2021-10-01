@@ -73,6 +73,7 @@ class ScanStore:
     def update(self, scan, file, data, attachments=None):
         from .slugs import generate_slug
         from ..models import Taxonomy, Attachment, File
+        from .gbif import pull_tags, validate_id
         attachments = attachments or []
         author_id = scan.author_id
         # Save upload to temporary file
@@ -98,14 +99,14 @@ class ScanStore:
                      + data.get('ontogenic_age')
                      + data.get('elements'))
 
+        gbif_occurrence_id = data.get('gbif_occurrence_id')
+        if validate_id('occurrence', gbif_occurrence_id):
+            scan.gbif_occurrence_id = gbif_occurrence_id
+
         gbif_species_id = data.get('gbif_species_id')
-
-        if gbif_species_id and gbif_species_id != scan.gbif_species_id:
-            from .gbif import pull_tags
-
+        if gbif_species_id != scan.gbif_species_id and validate_id('species', gbif_species_id):
             scan.gbif_species_id = gbif_species_id
             tags = pull_tags(gbif_species_id)
-
             tag_ids = [tag.id for tag in tags]
             existing_tags = Taxonomy.query.filter(Taxonomy.id.in_(tag_ids)).all()
             existing_tag_ids = [tag.id for tag in existing_tags]
@@ -119,9 +120,6 @@ class ScanStore:
                 scan.taxonomy.append(tag)
 
         for file in attachments:
-            # if isinstance(file, Attachment):
-            # 	continue
-
             # Take the filename as the label and generate a new, safe filename
             label = file.filename
             filename = secure_filename(file.filename) + '.png'

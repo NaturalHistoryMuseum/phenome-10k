@@ -34,6 +34,7 @@ class ScanUploadForm(FlaskForm):
                                    widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput(),
                                    validators=[DataRequired()])
     gbif_species_id = StringField()
+    gbif_occurrence_id = StringField()
     published = BooleanField('Publish')
     submit = SubmitField('Save')
 

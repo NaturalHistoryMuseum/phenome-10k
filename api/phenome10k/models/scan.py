@@ -61,6 +61,7 @@ class Scan(db.Model):
                 'source': self.source and self.source.serialize(),
                 'attachments': [a.serialize() for a in self.attachments],
                 'gbif_species_id': self.gbif_species_id,
+                'gbif_occurrence_id': self.gbif_occurrence_id,
                 'published': self.published,
                 'alt_name': self.alt_name,
                 'specimen_id': self.specimen_id,

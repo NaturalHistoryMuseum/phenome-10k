@@ -47,6 +47,11 @@
 
           <div :class="$style.scanDesc" v-html="scan.description" />
 
+          <div :class="$style.links">
+            <a :href="`https://gbif.org/occurrence/${scan.gbif_occurrence_id}`" v-if="scan.gbif_occurrence_id" target="_blank">View specimen {{ scan.specimen_id }} on GBIF</a>
+            <a :href="`https://gbif.org/species/${scan.gbif_species_id}`" v-if="scan.gbif_species_id" target="_blank">View <i>{{ scan.scientific_name }}</i> on GBIF</a>
+          </div>
+
           <div v-for="publication in scan.publications.filter(pub=>pub.published)" :key="publication.id"
                :class="$style.publicationDetails">
 
@@ -214,6 +219,12 @@ export default {
   dt {
     font-weight: bold;
   }
+}
+
+.links {
+  display: grid;
+  margin-top: 1em;
+  font-size: $small-font-size;
 }
 
 .scanDesc {
