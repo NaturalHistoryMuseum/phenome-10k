@@ -1,6 +1,7 @@
 alembic==1.6.5
 argon2-cffi==19.1.0
 asn1crypto==0.24.0
+celery
 click==7.0
 cryptography==3.4.7
 email-validator==1.1.3

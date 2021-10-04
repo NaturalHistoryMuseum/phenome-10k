@@ -3,9 +3,9 @@ __pycache__
 venv
 node_modules
 *.pyc
-app/static/dist
+static/dist
 node/dist
-*.env
+./*.env
 .vagrant
 ansible/playbook.retry
 .coverage
@@ -13,3 +13,13 @@ htmlcov/
 coverage
 
 .idea/
+
+web/scss/.sass-cache/
+
+api/thumbnails/
+
+build/
+
+dist/
+
+api/phenome10k.egg-info/

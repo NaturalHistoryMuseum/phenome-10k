@@ -1,0 +1,16 @@
+@import 'fonts';
+
+.Contribute__form {
+  background: #ddd;
+  padding: 10px;
+}
+
+.Contribute__form-row {
+  display: block;
+}
+
+textarea.Contribute__form-row {
+  min-width: 100%;
+  margin-bottom: 5px;
+  padding: 5px;
+}

@@ -1,0 +1,30 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Phenome 10k</title>
+    <link>{{ url_for('scans.library', _external=True) }}</link>
+    <image>
+      <url>{{ url_for('static', filename='logo.png', _external=True) }}</url>
+      <title></title>
+      <link>{{ url_for('scans.library', _external=True) }}</link>
+    </image>
+    <description>New scans uploaded to Phenome 10k</description>
+    {% for scan in scans %}
+    <item>
+      <title>{{ scan.scientific_name }}</title>
+      <link>{{ url_for('scan.view', scan_object=scan_object) }}</link>
+      <pubDate>{{ scan.date_created }}</pubDate>
+      <guid isPermaLink="false">https://phenome10k.org/?p={{ scan.id }}</guid>
+      <description>{{ scan.description }}</description>
+      <content>
+        {{ scan.description }}
+        {% if scan.thumbnail %}
+        <img src="{{ scan.thumbnail.file.serialize(external = True) }}" />
+        {% endif %}
+      </content>
+      {% if scan.thumbnail %}
+      <enclosure url="{{ scan.thumbnail.file.serialize(external=True) }}" length="{{ scan.thumbnail.file.size }}" type="image/png" />
+      {% endif %}
+    </item>
+    {% endfor %}
+  </channel>
+</rss>

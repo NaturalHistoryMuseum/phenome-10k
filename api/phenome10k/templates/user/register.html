@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="Body__content">
+    <h1>Register</h1>
+    <form action="" method="post" class="p10k__form">
+      {{ form.hidden_tag() }}
+      {% if error %}
+        <span class="error">[{{ error }}]</span>
+      {% endif %}
+      <div class="p10k__form_row_stack">
+        {{ form.name.label }}<br>
+        {{ form.name() }}<br>
+        {% for error in form.name.errors %}
+          <span class="error">[{{ error }}]</span>
+        {% endfor %}
+      </div>
+      <div class="p10k__form_row_stack">
+        {{ form.email.label }}<br>
+        {{ form.email() }}<br>
+        {% for error in form.email.errors %}
+          <span class="error">[{{ error }}]</span>
+        {% endfor %}
+      </div>
+      <div class="p10k__form_row_stack">
+        {{ form.password.label }}<br>
+        {{ form.password() }}<br>
+        {% for error in form.password.errors %}
+          <span class="error">[{{ error }}]</span>
+        {% endfor %}
+      </div>
+      <div class="p10k__form_row_stack">
+        {{ form.country.label }}<br>
+        {{ form.country() }}<br>
+        {% for error in form.country.errors %}
+          <span class="error">[{{ error }}]</span>
+        {% endfor %}
+      </div>
+      <div class="p10k__form_row_stack">
+        {{ form.organisation.label }}<br>
+        {{ form.organisation() }}<br>
+        {% for error in form.organisation.errors %}
+          <span class="error">[{{ error }}]</span>
+        {% endfor %}
+      </div>
+      <p class="p10k__smalltext">
+        The personal details you provide here will be processed by the Natural History Museum
+        (as Data Controller) for the purposes of providing you with access to upload or download
+        scans of biological and palaeontological specimens. The Natural History Museum believes that
+        the use of this information to provide this service is necessary for the legitimate interests
+        of the organisation on the grounds that it promotes the sharing of knowledge and resources
+        within the academic and educational community. This information will not be used for anything
+        other than this purpose or shared with any other third party for their own marketing purposes.
+        The data will be held as long as you wish to have a user account for the site. If you have
+        any queries about the use of your data, would like to object to this ongoing processing or
+        make a request in line with your rights as a data subject, please get in touch with the Natural
+        History Museum’s Data Protection Officer by emailing
+        <a href="mailto:dataprotection@nhm.ac.uk">dataprotection@nhm.ac.uk</a>. For more information
+        about the Natural History Museum’s Privacy Notice and your Rights please visit our website
+        <a href="http://www.nhm.ac.uk/about-us/privacy-notice.html">www.nhm.ac.uk/about-us/privacy-notice.html</a>.</p>
+      <div>{{ form.submit(class='p10k__button') }}</div>
+    </form>
+  </div>
+{% endblock %}

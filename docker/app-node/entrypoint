@@ -1,0 +1,11 @@
+#!/bin/sh
+
+echo "Waiting for MySQL..."
+
+while ! mysqladmin ping -h "$DATABASE_HOST" --silent > /dev/null 2> /dev/null; do
+    sleep 1
+done
+
+echo "MYSQL started."
+
+exec "$@"

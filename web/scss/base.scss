@@ -1,0 +1,234 @@
+@import 'fonts';
+@import 'palette';
+@import 'vars';
+
+// GRID ==============================================================
+
+.Grid {
+  display: grid;
+  grid-template-areas: 'sidebar header .'
+                       'sidebar .      .';
+  grid-template-rows: [header-start] $logo-height [header-end body-start] 1fr [body-end];
+  grid-template-columns: [sidebar-start] $sidebar-width [sidebar-end primary-start] minmax(auto, 1089px) [primary-end vspace-start] minmax(50px, auto) [vspace-end];
+
+  & .Grid__sidebar {
+    grid-area: sidebar;
+    display: grid;
+    grid-template-rows: [logo-start] $logo-height [logo-end body-start] 1fr [body-end];
+    grid-template-areas: 'logo'
+                       'body';
+    background: linear-gradient(
+        to right,
+        transparent,
+        transparent $line-position,
+        $palette-grey-4 $line-position,
+        $palette-grey-4 ($line-position+1),
+        transparent ($line-position+1)
+    );
+  }
+}
+
+// HEADER ============================================================
+
+.Grid__header {
+  grid-area: header;
+  display: grid;
+  grid-template-areas: 'subnav user'
+                       'nav    auth';
+  grid-template-rows: [row1] 55px [row2] auto;
+  grid-template-columns: [nav-start] auto [nav-end user-start] auto [user-end space-start];
+  grid-gap: 0 40px;
+  margin-top: 5px;
+}
+
+@mixin Header__row1 {
+  align-self: end;
+}
+
+@mixin Header__row2 {
+  align-self: start;
+}
+
+@mixin Header__col1 {
+  justify-self: start;
+}
+
+@mixin Header__col2 {
+  justify-self: end;
+  text-align: right;
+}
+
+$edge-padding: 15px;
+$middle-padding: 10px;
+
+.Header__subnav {
+  grid-area: subnav;
+  @include Header__row1;
+  @include Header__col1;
+  align-items: center;
+  font-size: $small-font-size;
+
+  & .nav__item {
+    color: black;
+  }
+
+  & li:not(:first-child) {
+    background: linear-gradient(
+        to right,
+        $palette-grey-5,
+        transparent 1px
+    ) no-repeat center;
+    background-size: 100% 50%;
+  }
+}
+
+.Header__user {
+  grid-area: user;
+  @include Header__row1;
+  @include Header__col2;
+  font-size: $small-font-size;
+  color: $palette-grey-2;
+  padding-bottom: $middle-padding;
+  display: grid;
+
+  & > * {
+    margin-top: -5px;
+  }
+
+  & > a {
+    line-height: 1.1;
+    padding-top: 5px;
+  }
+}
+
+.Header__divider {
+  grid-row: row2;
+  grid-column: nav-start / user-end;
+  border-top: 1px solid $palette-primary;
+}
+
+.Header__nav {
+  grid-area: nav;
+  @include Header__row2;
+  @include Header__col1;
+
+  & .nav__item {
+    padding: 5px 5px 10px;
+    color: $palette-grey-2;
+
+    &:hover {
+      text-decoration: underline;
+      background: change-color($palette-grey-5, $alpha: 0.3);
+      transition: all 0.2s;
+    }
+  }
+
+  & .nav__item--selected {
+    font-weight: bold;
+  }
+
+  &--dark .nav__item {
+    color: $palette-grey-5;
+
+    &:hover {
+      background: change-color($palette-grey-3, $alpha: 0.3);
+      color: white !important;
+    }
+
+    &--selected {
+      color: white !important;
+    }
+  }
+}
+
+.Header__auth {
+  grid-area: auth;
+  @include Header__row2;
+  @include Header__col2;
+  font-size: $small-font-size;
+  padding-top: $middle-padding;
+  line-height: 1.1;
+
+  & a:hover {
+    color: $palette-primary;
+  }
+}
+
+// NAV ---------------------------------------------------------------
+
+$nav-item-padding: 10px;
+
+.nav__list {
+  @include font-body;
+  list-style: none;
+  display: flex;
+  padding: 0;
+  margin: $middle-padding (-$nav-item-padding);
+  text-transform: uppercase;
+
+  & > li {
+    padding-left: $nav-item-padding;
+    padding-right: $nav-item-padding;
+    line-height: 1.1;
+    text-align: center;
+  }
+
+  & .nav__item {
+    text-decoration: none;
+
+    &:hover, &.nav__item--selected {
+      color: $palette-primary;
+    }
+  }
+}
+
+// END HEADER ========================================================
+
+// SIDEBAR ===========================================================
+
+.Sidebar__logo {
+  grid-area: logo;
+  position: absolute;
+  top: 0;
+  left: 100px;
+}
+
+
+// END SIDEBAR =======================================================
+
+// BODY ==============================================================
+
+.Grid__body {
+  grid-row: body-start / body-end;
+  grid-column: sidebar-start / primary-end;
+  display: grid;
+  grid-template-areas: '.     .     title      '
+                       'side1 side2 top-filters'
+                       'side1 side2 content    '
+                       'side1 side2 pagination ';
+  grid-template-columns: [sidesection-start] ($line-position + 1) $sidebar-margin-right [sidesection-end content-start] 1fr [content-end];
+  grid-template-rows: [headers-start] auto auto [headers-end content-start] minmax(0, 1fr) [content-end] auto [page-end];
+  grid-gap: 20px 0;
+}
+
+.Body__sidesection {
+  grid-column: sidesection-start / sidesection-end;
+  grid-row: 2 / page-end;
+  font-size: $small-font-size;
+}
+
+.Body__content {
+  grid-area: content;
+}
+
+.Body__title {
+  grid-area: title;
+}
+
+.Body__filters {
+  grid-area: top-filters;
+}
+
+.Body__pagination {
+  grid-area: pagination;
+}

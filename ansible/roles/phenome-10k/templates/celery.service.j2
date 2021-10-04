@@ -1,0 +1,13 @@
+[Unit]
+Description=celery task service
+
+[Service]
+Type=simple
+ExecStart={{ celery_binary }} --app phenome10k.celery_worker worker
+Restart=on-abort
+WorkingDirectory={{ app_root_dir }}
+User={{ p10k_linux_user }}
+Environment="P10K_ENV={{ p10k_home }}/.env"
+
+[Install]
+WantedBy=multi-user.target

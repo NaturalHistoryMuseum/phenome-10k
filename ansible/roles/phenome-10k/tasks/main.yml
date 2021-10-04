@@ -11,87 +11,40 @@
       - rebuild front end
       - restart gunicorn
       - restart node
-  - name: Ensure phenome10k group owns the folder
+
+  - name: Ensure phenome10k group owns the src folder
     file:
       path: '{{ p10k_src_dir }}'
       group: phenome10k
       mode: '0770'
-      #recurse: y
     become: y
+
+  - name: And the backend folder
+    file:
+      path: '{{ app_root_dir }}'
+      group: phenome10k
+      mode: '0770'
+    become: y
+
+  - name: And the frontend folder
+    file:
+      path: '{{ frontend_root_dir }}'
+      group: phenome10k
+      mode: '0770'
+    become: y
+
   - name: Allow nginx to read from static files dir
     sefcontext:
       target: '{{ static_files_dir }}(/.*)?'
       setype: httpd_sys_content_t
     become: y
+
   - name: Apply new SELinux file context to filesystem
     command: 'restorecon -Rv {{ static_files_dir }}'
     become: y
     register: restorecon
     changed_when: 'restorecon.stdout !=  ""'
-  - name: Install node dependencies
-    npm:
-      path: '{{ p10k_src_dir }}'
-    become: y
-    become_user: phenome10k
-  - name: Rebuild node modules
-    command: "npm rebuild"
-    args:
-      chdir: '{{ p10k_src_dir }}'
-      removes: "{{ p10k_home }}/.node-{{node_version}}-rebuild"
-    become: y
-    become_user: phenome10k
-  - name: Remove rebuild flag
-    command: "rm {{ p10k_home }}/.node-{{node_version}}-rebuild"
-    args:
-      removes: "{{ p10k_home }}/.node-{{node_version}}-rebuild"
-    become: y
-  - name: Build front end
-    command: node {{ p10k_src_dir }}/build
-    args:
-      chdir: '{{ p10k_src_dir }}'
-      creates: '{{ static_files_dir }}/dist'
-    environment:
-      NODE_ENV: production
-    become: y
-    become_user: phenome10k
-  - name: Check ownership of node/dist
-    file:
-      path: '{{ p10k_src_dir }}/node/dist'
-      group: phenome10k
-      mode: '0770'
-      state: directory
-    become: y
-  - name: Check ownership of static/dist
-    file:
-      path: '{{ static_files_dir }}/dist'
-      group: phenome10k
-      mode: '0770'
-      recurse: y
-    become: y
-  - name: Install pymysql, cryptography
-    pip:
-      name:
-        - "PyMySQL<1"
-        - "cryptography<3.4"
-    become: y
-  - name: Upgrade virtualenv pip
-    pip:
-      name: pip
-      extra_args: "--upgrade"
-      virtualenv: '{{ virtualenv_location }}'
-      virtualenv_python: python3
-      virtualenv_command: virtualenv-3
-    become: y
-    become_user: phenome10k
-  - name: Install pip dependencies
-    pip:
-      chdir: '{{ p10k_src_dir }}'
-      requirements: 'requirements.txt'
-      virtualenv: '{{ virtualenv_location }}'
-      virtualenv_python: python3
-      virtualenv_command: virtualenv-3
-    become: y
-    become_user: phenome10k
+
   - name: Copy env variables
     template:
       src: .env.j2
@@ -107,6 +60,7 @@
       state: directory
       owner: phenome10k
     become: y
+
   - name: Create upload directories
     file:
       path: '{{ item }}'
@@ -118,89 +72,16 @@
       - "{{ models_dir }}"
       - "{{ tmp_upload_dir }}"
     become: y
-  - name: Migrate database
-    command: '{{ venv_bin }}/flask db upgrade -d {{ p10k_src_dir }}/migrations'
-    environment:
-      FLASK_APP: '{{ p10k_src_dir }}/app'
-    args:
-      chdir: '{{ p10k_src_dir }}'
-    become: y
-    become_user: phenome10k
-    register: upgrade_db
-    changed_when: upgrade_db.stdout.find('Running upgrade') >= 0
-    run_once: true
 
-  - name: Create the gunicorn service
-    template:
-      src: gunicorn.service.j2
-      dest: /etc/systemd/system/gunicorn.service
-    become: y
-    notify:
-      - restart gunicorn
-  - name: Enable gunicorn service
-    systemd:
-      name: gunicorn.service
-      state: started
-      enabled: y
-    become: y
-
-  - name: Create the node service
-    template:
-      src: node.service.j2
-      dest: /etc/systemd/system/node.service
-    become: y
-    notify:
-      - restart node
-  - name: Enable node service
-    systemd:
-      name: node.service
-      state: started
-      enabled: y
-    become: y
-
-  - name: Create task queue script
-    template:
-      src: tasks.sh.j2
-      dest: '{{ p10k_home }}/tasks.sh'
-      mode: preserve
-    become: y
-    become_user: phenome10k
-
-  - name: Create the task queue service
-    template:
-      src: task-queue.service.j2
-      dest: /etc/systemd/system/task-queue.service
-    become: y
-    notify:
-      - restart task queue
-
-  - name: Enable task-queue service
-    systemd:
-      name: task-queue.service
-      state: started
-      enabled: y
-    become: y
-
-  - name: Set admin password
-    command: '{{ venv_bin }}/flask set-admin-pw {{ p10k_admin_password }}'
-    environment:
-      FLASK_APP: '{{ p10k_src_dir }}/app'
-    args:
-      chdir: '{{ p10k_src_dir }}'
-    register: set_pw
-    changed_when:  set_pw.stdout.find('Password changed') >= 0
-    become: y
-    become_user: phenome10k
-    run_once: true
-
-  - name: Open gunicorn port on firewall
-    firewalld:
-      zone: dmz
-      port: '{{ gunicorn_port }}/tcp'
-      permanent: true
-      state: enabled
-      immediate: true
-    become: true
+  - import_tasks: app-flask.yml
+    tags:
+      - flask
+  - import_tasks: app-node.yml
+    tags:
+      - node
+  - import_tasks: app-celery.yml
+    tags:
+      - celery
 
   - name: Add the gbif cron job
     cron:
@@ -209,7 +90,7 @@
       hour: "0"
       day: "1"
       month: "*"
-      job: "{{ venv_bin }}/python {{ p10k_src_dir }}/gbif.py"
+      job: "{{ venv_bin }}/p10k update-gbif-tags"
     become: y
     become_user: phenome10k
 

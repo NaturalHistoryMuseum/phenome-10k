@@ -1,0 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Text&family=Titillium+Web&display=swap');
+$base-font: 'Helvetica', Arial, sans-serif;
+$body-font: 'Red Hat Text', $base-font;
+$heading-font: 'Titillium Web', $base-font;
+
+@mixin font-heading {
+  font-family: $heading-font;
+}
+
+@mixin font-body {
+  font-family: $body-font;
+}
+
+$body-font-size: 15px;
+$small-font-size: 12px;

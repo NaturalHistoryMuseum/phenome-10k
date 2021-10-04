@@ -1,0 +1,18 @@
+//$palette-primary: #009966;
+$palette-primary: #008558;
+$palette-error: red;
+$palette-secondary: #4374b7;
+
+
+$palette-grey-0: #09090a;
+$palette-grey-1: #1F1F1F;
+$palette-grey-2: #4C4C4C;
+$palette-grey-3: #676767;
+$palette-grey-4: #999999;
+$palette-grey-5: #c2c2c2;
+$palette-grey-6: #d8d8d8;
+$palette-grey-7: #f2f2f2;
+
+@mixin viewerGradient() {
+  background: linear-gradient(to bottom, $palette-grey-0, $palette-grey-3);
+}

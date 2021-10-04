@@ -1,0 +1,20 @@
+{% macro nav_item(endpoint, page_title, use_blueprint=False) -%}
+  {% set matches = (request.blueprint == endpoint.split('.')[0]) if use_blueprint
+      else (request.endpoint == endpoint) %}
+  <li><a class="nav__item{{ ' nav__item--selected' if matches else '' }}"
+         href="{{ url_for(endpoint) }}">{{ page_title }}</a></li>
+{% endmacro -%}
+
+<nav class="Header__nav{{ ' Header__nav--dark' if nav_dark else ''}}">
+  <ul class="nav__list">
+    {{ nav_item('home.index', 'Home') }}
+    {{ nav_item('home.about', 'About') }}
+    {{ nav_item('scans.library', 'Scans', True) }}
+    {{ nav_item('publications.library', 'Publications', True) }}
+    {% if not current_user.is_anonymous and current_user.is_admin() %}
+      {{ nav_item('admin.users', 'Users') }}
+    {% endif %}
+  </ul>
+</nav>
+
+

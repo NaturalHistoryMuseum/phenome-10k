@@ -1,0 +1,19 @@
+#!/bin/sh
+
+echo "Waiting for MySQL..."
+
+while ! mysqladmin ping -h "$DATABASE_HOST" --silent > /dev/null 2> /dev/null; do
+    sleep 1
+done
+
+echo "MYSQL started."
+
+if [ "${RUN_INIT}" == "TRUE" ]
+then
+  echo "Running flask init"
+  flask db upgrade
+  p10k set-admin-pw pass
+  p10k update-gbif-tags
+fi
+
+exec "$@"

@@ -1,0 +1,44 @@
+@import 'scss/palette';
+@import 'scss/fonts';
+
+.main {
+  display: contents;
+}
+
+.title {
+  grid-row: headers;
+  grid-column: content;
+  display: grid;
+  grid-gap: 10px;
+}
+
+.unpublished {
+  color: $palette-grey-2;
+  font-size: $small-font-size;
+}
+
+.sideLinks {
+  grid-area: 1 / 2;
+  align-self: center;
+  justify-self: center;
+  margin-top: 0.5em;
+  display: grid;
+  text-align: right;
+  grid-gap: 1em;
+}
+
+.datalist {
+  margin: 0;
+
+  dt, dd {
+    display: inline;
+  }
+
+  dd {
+    margin-left: 0.5em;
+  }
+
+  dt {
+    font-weight: bold;
+  }
+}

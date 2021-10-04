@@ -72,5 +72,7 @@ Vagrant.configure("2") do |config|
         "vrrp_state" => "BACKUP"
       }
     }
+#     ansible.skip_tags = []
+#     ansible.tags = []
   end
 end

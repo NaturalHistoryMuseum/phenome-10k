@@ -1,0 +1,57 @@
+@import 'scss/palette';
+@import 'scss/fonts';
+@import 'scss/vars';
+
+.sortItem {
+  padding: 0 20px;
+  font-weight: bold;
+  color: $palette-grey-2;
+  border-right: 1px solid;
+
+  &:last-child {
+    border-right: none;
+    padding-right: 0;
+  }
+
+  & a {
+    color: inherit;
+  }
+
+  &--active a {
+    color: $palette-primary;
+  }
+}
+
+.sort {
+  text-transform: uppercase;
+  margin-left: auto;
+  color: $palette-grey-2;
+  font-size: $small-font-size;
+  grid-column-start: 2;
+  display: grid;
+  grid-template-columns: auto 1fr;
+}
+
+.sortList {
+  display: inline-flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.filterControls {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+}
+
+@media (max-width: $small-screen) {
+  .sort {
+    grid-template-columns: auto;
+    height: 100%;
+  }
+
+  .sortItem:first-child {
+    padding-left: 0;
+  }
+}
