@@ -1,4 +1,5 @@
 from marshmallow import fields
+from flask_marshmallow.fields import AbsoluteURLFor
 
 from ._utils import PublicList
 from ..extensions import ma
@@ -16,3 +17,4 @@ class ScanSchema(ma.SQLAlchemyAutoSchema):
     attachments = fields.List(
         fields.Nested('AttachmentSchema')
     )
+    url = AbsoluteURLFor('scan.view', values={'scan_object': '<url_slug>'})

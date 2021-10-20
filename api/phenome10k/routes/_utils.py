@@ -1,10 +1,12 @@
+import requests
 from flask import url_for, request, jsonify, render_template, current_app, redirect
 from flask_login import current_user
+from sqlalchemy.exc import MultipleResultsFound
 from werkzeug.exceptions import Forbidden
 from werkzeug.routing import BaseConverter, ValidationError, PathConverter
-import requests
 
 from ..models import Scan, Publication
+from ..extensions import db
 
 
 def hide_scan_files(data):
@@ -34,7 +36,11 @@ class SlugConverter(BaseConverter):
         return model
 
     def to_url(self, value):
-        return BaseConverter.to_url(self, value.url_slug or value.id)
+        try:
+            slug = value.url_slug or value.id
+        except AttributeError:
+            slug = str(value)
+        return BaseConverter.to_url(self, slug)
 
 
 class ScanConverter(SlugConverter):
@@ -89,7 +95,6 @@ def rpc(url, method, params):
 
 
 def make_aliases(main_blueprint, *alias_blueprints):
-
     def catchall(path):
         correct_prefix = main_blueprint.url_prefix.rstrip('/')
         intended_path = path.strip('/')
@@ -98,3 +103,72 @@ def make_aliases(main_blueprint, *alias_blueprints):
     for alias in alias_blueprints:
         alias.route('/', defaults={'path': ''})(catchall)
         alias.route('/<path:path>')(catchall)
+
+
+class Query(object):
+    def __init__(self, model, schema):
+        self.model = model
+        self.schema = schema
+
+    def search(self, **kwargs):
+        columns = {c.name: c for c in self.model.__table__.c}
+        query_args = {k: v for k, v in kwargs.items() if k in columns}
+        q = kwargs.get('q')
+        exact = kwargs.get('exact', False)
+        try:
+            offset = int(kwargs.get('offset', 0))
+        except:
+            offset = 0
+        query_filters = []
+        for k, v in query_args.items():
+            if isinstance(v, str) and '*' in v:
+                query_filters.append(columns[k].like(v.replace('*', '%')))
+            else:
+                query_filters.append(columns[k] == v)
+        if q:
+            or_filters = []
+            if isinstance(q, str) and '*' in q:
+                q = q.replace('*', '%')
+                for c in columns.values():
+                    or_filters.append(c.like(q))
+            else:
+                for c in columns.values():
+                    try:
+                        v = c.type.python_type(q)
+                        or_filters.append(c == v)
+                    except:
+                        continue
+            query_filters.append(db.or_(*or_filters))
+        query = self.model.query.filter(*query_filters)
+        if exact:
+            try:
+                results = query.one_or_none()
+            except MultipleResultsFound:
+                return {'success': False,
+                        'error': 'Multiple results found.'}
+            except:
+                return {'success': False,
+                        'error': 'Invalid query.'}
+            result_dict = {
+                'success': True,
+                'query': kwargs,
+                'exact_match': True,
+                'match_found': results is not None,
+            }
+            if results:
+                result_dict['record'] = self.schema().dump(results)
+        else:
+            try:
+                results = query.order_by(self.model.id).offset(offset).limit(20).all()
+            except:
+                return {'success': False,
+                        'error': 'Invalid query.'}
+            result_dict = {
+                'success': True,
+                'query': kwargs,
+                'exact_match': False,
+                'count': len(results),
+                'records': self.schema(many=True).dump(results),
+                'offset': offset
+            }
+        return result_dict
