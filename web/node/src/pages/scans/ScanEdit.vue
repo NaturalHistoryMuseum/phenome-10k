@@ -50,6 +50,7 @@
                        autocomplete="off" type="text" :readonly="gbifSelectedId.occurrence">
               <div :class="$style.sectionHead">
                 <h2 :class="$style.sectionTitle">GBIF Occurrence</h2>
+                <span :class="$style.sectionSubTitle">The GBIF occurrence record for this specimen (if one exists). Enter the occurrence ID, or try searching for the specimen ID.</span>
               </div>
             </TextInput>
             <div v-if="gbifSelectedId.occurrence" :class="$style.gbifSelectedEntry">
