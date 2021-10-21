@@ -5,8 +5,9 @@ from sqlalchemy.exc import MultipleResultsFound
 from werkzeug.exceptions import Forbidden
 from werkzeug.routing import BaseConverter, ValidationError, PathConverter
 
-from ..models import Scan, Publication
 from ..extensions import db
+from ..models import Scan, Publication
+from ..schemas.response import QueryResponse
 
 
 def hide_scan_files(data):
@@ -106,69 +107,71 @@ def make_aliases(main_blueprint, *alias_blueprints):
 
 
 class Query(object):
-    def __init__(self, model, schema):
+    def __init__(self, model):
         self.model = model
-        self.schema = schema
+        self._columns = {c.name: c for c in self.model.__table__.c}
 
     def search(self, **kwargs):
-        columns = {c.name: c for c in self.model.__table__.c}
-        query_args = {k: v for k, v in kwargs.items() if k in columns}
-        q = kwargs.get('q')
-        exact = kwargs.get('exact', False)
+        """
+        Search a model on its attributes.
+        Additional kwargs:
+            - q
+            - exact
+            - offset
+        """
+        r = QueryResponse(valid_query=False, query_success=False)
+        query_args = {k: v for k, v in kwargs.items() if k in self._columns}
+        r.queried_attributes = query_args
+        r.q = kwargs.get('q')
+        r.exact = kwargs.get('exact', False)
         try:
-            offset = int(kwargs.get('offset', 0))
-        except:
-            offset = 0
+            r.offset = int(kwargs.get('offset', 0))
+        except ValueError:
+            r.offset = 0
         query_filters = []
         for k, v in query_args.items():
             if isinstance(v, str) and '*' in v:
-                query_filters.append(columns[k].like(v.replace('*', '%')))
+                query_filters.append(self._columns[k].like(v.replace('*', '%')))
             else:
-                query_filters.append(columns[k] == v)
-        if q:
+                query_filters.append(self._columns[k] == v)
+        if r.q:
             or_filters = []
-            if isinstance(q, str) and '*' in q:
-                q = q.replace('*', '%')
-                for c in columns.values():
+            if isinstance(r.q, str) and '*' in r.q:
+                q = r.q.replace('*', '%')
+                for c in self._columns.values():
                     or_filters.append(c.like(q))
             else:
-                for c in columns.values():
+                for c in self._columns.values():
                     try:
-                        v = c.type.python_type(q)
+                        v = c.type.python_type(r.q)
                         or_filters.append(c == v)
                     except:
                         continue
             query_filters.append(db.or_(*or_filters))
         query = self.model.query.filter(*query_filters)
-        if exact:
+        if r.exact:
             try:
                 results = query.one_or_none()
             except MultipleResultsFound:
-                return {'success': False,
-                        'error': 'Multiple results found.'}
+                r.valid_query = True
+                r.error = 'Multiple results found'
+                return r
             except:
-                return {'success': False,
-                        'error': 'Invalid query.'}
-            result_dict = {
-                'success': True,
-                'query': kwargs,
-                'exact_match': True,
-                'match_found': results is not None,
-            }
-            if results:
-                result_dict['record'] = self.schema().dump(results)
+                r.error = 'Invalid query'
+                return r
+            r.valid_query = True
+            r.query_success = len(results) == 1
+            r.count = len(results)
+            r.records = results
+            return r
         else:
             try:
-                results = query.order_by(self.model.id).offset(offset).limit(20).all()
+                results = query.order_by(self.model.id).offset(r.offset).limit(20).all()
             except:
-                return {'success': False,
-                        'error': 'Invalid query.'}
-            result_dict = {
-                'success': True,
-                'query': kwargs,
-                'exact_match': False,
-                'count': len(results),
-                'records': self.schema(many=True).dump(results),
-                'offset': offset
-            }
-        return result_dict
+                r.error = 'Invalid query'
+                return r
+            r.valid_query = True
+            r.query_success = len(results) > 0
+            r.count = len(results)
+            r.records = results
+            return r

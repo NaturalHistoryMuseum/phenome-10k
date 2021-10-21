@@ -1,4 +1,6 @@
 alembic==1.6.5
+apispec[marshmallow]==5.1.1
+apispec-webframeworks==0.5.2
 argon2-cffi==19.1.0
 asn1crypto==0.24.0
 celery[redis]<=5.1

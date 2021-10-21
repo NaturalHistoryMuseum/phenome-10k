@@ -1,6 +1,5 @@
 from marshmallow import fields
 
-from ._utils import PublicList
 from ..extensions import ma
 from ..models import File, Attachment
 
