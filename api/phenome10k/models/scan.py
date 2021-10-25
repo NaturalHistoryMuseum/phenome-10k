@@ -1,10 +1,11 @@
-from phenome10k.extensions import db
+from phenome10k.extensions import db, ma
 from sqlalchemy.sql import func
 
 
 class Scan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    gbif_id = db.Column(db.Integer)
+    gbif_species_id = db.Column(db.Integer)
+    gbif_occurrence_id = db.Column(db.Integer)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     date_created = db.Column(db.DateTime, index=True, server_default=func.now())
     date_modified = db.Column(db.DateTime, onupdate=func.now())
@@ -59,7 +60,8 @@ class Scan(db.Model):
                 'ctm': self.ctm and self.ctm.serialize(),
                 'source': self.source and self.source.serialize(),
                 'attachments': [a.serialize() for a in self.attachments],
-                'gbif_id': self.gbif_id,
+                'gbif_species_id': self.gbif_species_id,
+                'gbif_occurrence_id': self.gbif_occurrence_id,
                 'published': self.published,
                 'alt_name': self.alt_name,
                 'specimen_id': self.specimen_id,

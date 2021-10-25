@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
+  <h1 class="Body__title">Sign In</h1>
   <div class="Body__content">
-    <h1>Sign In</h1>
     <form action="" method="post" class="p10k__form">
       {{ form.hidden_tag() }}
       {% if error %}

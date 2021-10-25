@@ -33,7 +33,8 @@ class ScanUploadForm(FlaskForm):
                                    coerce=lambda f: f if isinstance(f, Tag) else Tag.query.get(int(f)),
                                    widget=widgets.ListWidget(), option_widget=widgets.CheckboxInput(),
                                    validators=[DataRequired()])
-    gbif_id = StringField()
+    gbif_species_id = StringField()
+    gbif_occurrence_id = StringField()
     published = BooleanField('Publish')
     submit = SubmitField('Save')
 

@@ -44,30 +44,56 @@
       <form :id="$style.details" :action="formAction" method="post" @submit.prevent="submit" novalidate>
         <input type="hidden" name="csrf_token" :value="csrf">
         <div :class="$style.col1">
+          <div :class="$style.section" :id="$style.gbifOccurrence">
+            <TextInput name="gbif_occurrence_id" :data="form.gbif_occurrence_id"
+                       @input="e => searchGbifOcc(e.target.value)"
+                       autocomplete="off" type="text" :readonly="gbifSelectedId.occurrence">
+              <div :class="$style.sectionHead">
+                <h2 :class="$style.sectionTitle">GBIF Occurrence</h2>
+                <span :class="$style.sectionSubTitle">The GBIF occurrence record for this specimen (if one exists). Enter the occurrence ID, or try searching for the specimen ID.</span>
+              </div>
+            </TextInput>
+            <div v-if="gbifSelectedId.occurrence" :class="$style.gbifSelectedEntry">
+              <span>
+                {{ formatOcc(gbifSelectedEntry.occurrence) }}
+              </span>
+              <span @click="deselectGbifOcc">x</span>
+            </div>
+            <div v-else-if="gbifResults.occurrence.length < 1" :class="$style.gbifSelected">No associated GBIF record
+            </div>
+            <ul v-else :class="$style.gbifList">
+              <li v-for="entry in gbifResults.occurrence" :key="entry.id">
+                <label>
+                  <input type="radio" :value="entry.id" v-model="gbifSelectedId.occurrence"
+                         @click="selectGbifOcc(entry)">
+                  {{ formatOcc(entry.entry) }}
+                </label>
+              </li>
+            </ul>
+          </div>
+
           <div :class="$style.section" :id="$style.scientificName">
-            <TextInput name="scientific_name" :data="form.scientific_name" @keyup="e => searchGbif(e.target.value)"
-                       autocomplete="off" type="text">
+            <TextInput name="scientific_name" :data="form.scientific_name"
+                       @input="e => searchGbifSpecies(e.target.value)"
+                       autocomplete="off" type="text" :readonly="gbifSelectedId.species">
               <div :class="$style.sectionHead">
                 <h2 :class="$style.sectionTitle">Scientific Name</h2>
               </div>
             </TextInput>
-            <div v-if="gbifSelectedId" :class="$style.gbifSelectedEntry">
+            <input type="hidden" v-model="form.gbif_species_id.data" name="gbif_species_id">
+            <div v-if="gbifSelectedId.species" :class="$style.gbifSelectedEntry">
               <span>
-                <i>{{ gbifSelectedEntry.name }}</i> {{ gbifSelectedEntry.details }}
+                {{ formatSpecies(gbifSelectedEntry.species) }}
               </span>
               <span @click="deselectGbifSpecies">x</span>
             </div>
-            <div v-else-if="gbifData.length < 1" :class="$style.gbifSelected">No associated GBIF record</div>
-            <div v-else-if="gbifData.length < 2" :class="$style.gbifSelected">
-              <input type="hidden" name="gbif_id" :value="gbifData[0].id">
-              <i>{{ gbifData[0].name }}</i> {{ gbifData[0].details }}
-            </div>
+            <div v-else-if="gbifResults.species.length < 1" :class="$style.gbifSelected">No associated GBIF record</div>
             <ul v-else :class="$style.gbifList">
-              <li v-for="entry in gbifData" :key="entry.id">
+              <li v-for="entry in gbifResults.species" :key="entry.id">
                 <label>
-                  <input type="radio" name="gbif_id" :value="entry.id" v-model="gbifSelectedId"
+                  <input type="radio" :value="entry.id" v-model="gbifSelectedId.species"
                          @click="selectGbifSpecies(entry)">
-                  <i>{{ entry.name }}</i> {{ entry.details }}
+                  {{ formatSpecies(entry.entry) }}
                 </label>
               </li>
             </ul>
@@ -117,7 +143,8 @@
                   <div :class="$style.listSearch">
                     <input type="text" name="pub_query" @keyup="pubSearch"
                            :placeholder="myPubs ? 'Search My Publications' : 'Search Publications'"
-                           autocomplete="off" :title="myPubs ? 'Search your own publication titles' : 'Search all publication titles'"/>
+                           autocomplete="off"
+                           :title="myPubs ? 'Search your own publication titles' : 'Search all publication titles'" />
                   </div>
                   <ul :class="$style.listbox">
                     <li v-for="pub in pubSearchResults" :key="pub.id">
@@ -295,20 +322,26 @@ export default {
     const pubSearchResults = data.form.publications.choices;
     const allPubs = data.scan ? pubSearchResults.concat(data.scan.publications) : pubSearchResults;
     const publications = allPubs.reduce((o, pub) => Object.assign(o, { [pub.id]: pub }), {});
-    const gbifData = (data.scan && data.scan.gbif_id) ? [{
-      id: data.scan.gbif_id,
-      name: data.scan.scientific_name,
-      details: ''
-    }] : [];
-    const gbifSelectedId = data.scan && data.scan.gbif_id;
+    const gbifResults = {
+      species: [],
+      occurrence: []
+    };
+    const gbifSelectedId = {
+      species: data.scan ? data.scan.gbif_species_id : null,
+      occurrence: data.scan ? data.scan.gbif_occurrence_id : null
+    };
+    const gbifSelectedEntry = {
+      species: {},
+      occurrence: {}
+    };
 
     return {
       progress: null,         // Upload progress of the model file
       status: null,           // Upload status of the model file
       processing: false,      // Whether or not the upload is being processed
-      gbifData,               // List of GBIF search results
-      gbifSelectedId,         // Selected GBIF result
-      gbifSelectedEntry: {},  // Selected GBIF result details (for display)
+      gbifResults,            // List of GBIF search results
+      gbifSelectedId,         // Selected GBIF results
+      gbifSelectedEntry,      // Selected GBIF result details (for display)
       stillName: '',          // Contents of the Still Name text input
       myPubs: true,           // Search only for publications created by current user
       pubSearchResults,       // List of results for publication search
@@ -322,7 +355,15 @@ export default {
   },
   mounted() {
     if (this.scan) {
-      this.searchGbif(this.scan.scientific_name);
+      if (this.gbifSelectedId.species) {
+        this.getGbifSpecies(this.gbifSelectedId.species);
+      } else if (this.scan.scientific_name) {
+        this.searchGbifSpecies(this.scan.scientific_name);
+      }
+
+      if (this.gbifSelectedId.occurrence) {
+        this.getGbifOccurrence(this.gbifSelectedId.occurrence);
+      }
 
       if (this.scan.source && !this.scan.ctm) {
         this.processUpload();
@@ -354,38 +395,135 @@ export default {
     }
   },
   methods: {
-    logme() {
-      console.log(this.scan);
+    formSet(key, value) {
+      this.$set(this.form[key], 'data', value);
     },
-    async searchGbif(term) {
-      if ((!term) || this.gbifSelectedId) {
-        this.gbifData = [];
+    async searchGbifSpecies(term) {
+      if ((!term) || this.gbifSelectedId.species) {
+        this.$set(this.gbifResults, 'species', []);
         return;
       }
 
       term = encodeURIComponent(term);
-      const res = await fetch(`//api.gbif.org/v1/species/suggest?q=${ term }&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&rank=SPECIES`);
-      const results = await res.json();
-      this.gbifData = results.map(
+      let res = await fetch(`//api.gbif.org/v1/species/suggest?q=${ term }&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&rank=SPECIES`);
+      let results = await res.json();
+      if (results.length === 0) {
+        // be slightly more lenient if nothing is found
+        res = await fetch(`//api.gbif.org/v1/species/search?q=${ term }&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c`);
+        results = await res.json();
+        results = results.results;
+      }
+      this.$set(this.gbifResults, 'species', results.map(
           entry => ({
             id: entry.key,
-            name: entry.canonicalName,
-            details: `${ entry.scientificName.replace(entry.canonicalName, '') } (${ entry.kingdom })`
+            entry: entry
           })
-      );
+      ));
+    },
+    async searchGbifOcc(term) {
+      if ((!term) || this.gbifSelectedId.occurrence) {
+        this.$set(this.gbifResults, 'occurrence', []);
+        return;
+      }
+
+      term = encodeURIComponent(term);
+      const res = await fetch(`//api.gbif.org/v1/occurrence/search?q=${ term }`);
+      const results = await res.json();
+      this.$set(this.gbifResults, 'occurrence', results.results.map(
+          entry => ({
+            id: entry.key,
+            entry: entry
+          })
+      ));
+    },
+    async getGbifSpecies(speciesId) {
+      const res = await fetch(`//api.gbif.org/v1/species/${ speciesId }`);
+      const results = await res.json();
+      this.$set(this.gbifSelectedEntry, 'species', results);
+
+      this.formSet('scientific_name', results.canonicalName);
+
+      // extra data
+      if (!this.form.alt_name.data) {
+        this.formSet('alt_name', results.vernacularName);
+      }
+    },
+    async getGbifOccurrence(occurrenceId) {
+      const res = await fetch(`//api.gbif.org/v1/occurrence/${ occurrenceId }`);
+      const results = await res.json();
+      this.$set(this.gbifSelectedEntry, 'occurrence', results);
+
+      // extra data
+      if ((!this.form.gbif_species_id.data) && results.acceptedTaxonKey) {
+        this.selectGbifSpecies({
+          id: results.acceptedTaxonKey
+        });
+      }
+
+      if (results.hostingOrganizationKey) {
+        await this.getGbifOrg(results.hostingOrganizationKey);
+      }
+
+      if (results.catalogNumber) {
+        let specimenId = '';
+        if (results.institutionCode) {
+          specimenId = results.institutionCode + ' ';
+        }
+        specimenId += results.catalogNumber;
+        this.formSet('specimen_id', specimenId);
+      }
+
+      if ((!this.form.description.data) && (results.fieldNotes || results.identificationNotes)) {
+        this.formSet('description', (results.fieldNotes || results.identificationNotes));
+      }
+    },
+    async getGbifOrg(orgId) {
+      const res = await fetch(`//api.gbif.org/v1/organization/${ orgId }`);
+      const results = await res.json();
+      this.formSet('specimen_location', results.title);
     },
     /**
      * Automatically fill out the name field when user selects a GBIF item
      */
     selectGbifSpecies(species) {
-      this.form.scientific_name.data = species.name;
-      this.gbifSelectedEntry = species;
+      this.formSet('gbif_species_id', species.id);
+      this.$set(this.gbifSelectedId, 'species', species.id);
+      this.$set(this.gbifResults, 'species', []);
+      this.getGbifSpecies(species.id);
     },
     deselectGbifSpecies() {
-      this.form.scientific_name.data = null;
-      this.gbifSelectedId = null;
-      this.gbifSelectedEntry = null;
-      this.gbifData = [];
+      this.formSet('scientific_name', null);
+      this.formSet('gbif_species_id', null);
+      this.$set(this.gbifSelectedId, 'species', null);
+      this.$set(this.gbifSelectedEntry, 'species', {});
+      this.$set(this.gbifResults, 'species', []);
+    },
+    selectGbifOcc(record) {
+      this.formSet('gbif_occurrence_id', record.id);
+      this.$set(this.gbifSelectedId, 'occurrence', record.id);
+      this.$set(this.gbifResults, 'occurrence', []);
+      this.getGbifOccurrence(record.id);
+    },
+    deselectGbifOcc() {
+      this.formSet('gbif_occurrence_id', null);
+      this.$set(this.gbifSelectedId, 'occurrence', null);
+      this.$set(this.gbifSelectedEntry, 'occurrence', {});
+      this.$set(this.gbifResults, 'occurrence', []);
+    },
+    formatOcc(entry) {
+      if (!entry) {
+        return '';
+      }
+      let name = entry.species || entry.genericName || entry.scientificName;
+      let label = [entry.key, entry.institutionCode, entry.catalogNumber].filter(x => x)
+                                                                         .join('; ');
+      return `${ name } (${ label })`;
+    },
+    formatSpecies(entry) {
+      if (!entry) {
+        return '';
+      }
+      return `${ entry.canonicalName } ${ entry.authorship } (${ entry.kingdom })`;
     },
     async submit({ target }) {
       const data = new FormData(target);
@@ -396,7 +534,7 @@ export default {
       });
 
       if (res.status >= 400) {
-        const reponseData = await jsonOrText(res);
+        const responseData = await jsonOrText(res);
         this.errors = Array.isArray(responseData) ? responseData : [responseData];
       }
 
@@ -637,7 +775,7 @@ export default {
   }
 }
 
-#scientificName {
+#scientificName, #gbifOccurrence {
   .gbifSelected {
     font-size: $small-font-size;
     color: $palette-grey-3;
