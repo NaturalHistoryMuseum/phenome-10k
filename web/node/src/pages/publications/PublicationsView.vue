@@ -11,19 +11,12 @@
 
     <div class="Body__content">
       <dl :class="$style.datalist">
-        <div>
           <dt>Year:</dt>
           <dd>{{ publication.pub_year }}</dd>
-        </div>
-        <div>
           <dt>Authors:</dt>
           <dd>{{ publication.authors }}</dd>
-        </div>
-        <div>
           <dt>Journal:</dt>
           <dd>{{ publication.journal }}</dd>
-        </div>
-        <div>
           <dt>Scans:</dt>
           <dd>
             <template v-for="(scan, ix) in publication.scans">
@@ -34,7 +27,6 @@
                            :class="$style.link" />
             </template>
           </dd>
-        </div>
       </dl>
 
       <div :class="$style.abstract" v-html="publication.abstract" />

@@ -27,29 +27,21 @@
           </div>
 
           <dl :class="$style.datalist">
-            <div>
-              <dt>Alt Name:</dt>
-              <dd>{{ scan.alt_name }}</dd>
-            </div>
-            <div>
-              <dt>Location:</dt>
-              <dd>{{ scan.specimen_location }}</dd>
-            </div>
-            <div>
-              <dt>Specimen ID:</dt>
-              <dd>{{ scan.specimen_id }}</dd>
-            </div>
-            <div>
-              <dt>Additional Media:</dt>
-              <dd>{{ scan.specimen_link || '-' }}</dd>
-            </div>
+            <dt>Alt Name:</dt>
+            <dd>{{ scan.alt_name }}</dd>
+            <dt>Location:</dt>
+            <dd>{{ scan.specimen_location }}</dd>
+            <dt>Specimen ID:</dt>
+            <dd>{{ scan.specimen_id }}</dd>
+            <dt>Additional Media:</dt>
+            <dd>{{ scan.specimen_link || '-' }}</dd>
           </dl>
 
           <div :class="$style.scanDesc" v-html="scan.description" />
 
           <div :class="$style.links">
             <a :href="externalLinks.gbifSpecies" v-if="externalLinks.gbifSpecies" target="_blank">
-              View {{ scan.scientific_name }} on GBIF
+              View <i>{{ scan.scientific_name }}</i> on GBIF
             </a>
             <a :href="externalLinks.gbifOccurrence" v-if="externalLinks.gbifOccurrence" target="_blank">
               View specimen {{ scan.specimen_id }} on GBIF
@@ -65,26 +57,18 @@
             <h2>Related Publication</h2>
 
             <dl :class="$style.datalist">
-              <div>
-                <dt>Title:</dt>
-                <dd>
-                  <router-link :to="{ name: 'publications_view', params: { id: publication.url_slug } }">
-                    {{ publication.title }}
-                  </router-link>
-                </dd>
-              </div>
-              <div>
-                <dt>Year:</dt>
-                <dd>{{ publication.pub_year }}</dd>
-              </div>
-              <div>
-                <dt>Authors:</dt>
-                <dd>{{ publication.authors }}</dd>
-              </div>
-              <div>
-                <dt>Journal:</dt>
-                <dd>{{ publication.journal }}</dd>
-              </div>
+              <dt>Title:</dt>
+              <dd>
+                <router-link :to="{ name: 'publications_view', params: { id: publication.url_slug } }">
+                  {{ publication.title }}
+                </router-link>
+              </dd>
+              <dt>Year:</dt>
+              <dd>{{ publication.pub_year }}</dd>
+              <dt>Authors:</dt>
+              <dd>{{ publication.authors }}</dd>
+              <dt>Journal:</dt>
+              <dd>{{ publication.journal }}</dd>
             </dl>
 
             <div :class="$style.pubAbstract" v-html="publication.abstract" />
@@ -174,13 +158,13 @@ export default {
       return decodeURIComponent(this.scan.ctm);
     },
     externalLinks() {
-      let links = {}
+      let links = {};
 
       if (this.scan.gbif_species_id) {
-        links['gbifSpecies'] = `https://gbif.org/species/${this.scan.gbif_species_id}`
+        links['gbifSpecies'] = `https://gbif.org/species/${ this.scan.gbif_species_id }`;
       }
       if (this.scan.gbif_occurrence_id) {
-        links['gbifOccurrence'] = `https://gbif.org/occurrence/${scan.gbif_occurrence_id}`
+        links['gbifOccurrence'] = `https://gbif.org/occurrence/${ scan.gbif_occurrence_id }`;
       }
 
       return links;
