@@ -21,8 +21,7 @@
             <template v-for="(tag, ix) in scan.tags">
               <router-link :key="tag.id"
                            :to="{ name: 'scans_library', query: { [tag.category]: tag.taxonomy } }"
-                           :class="$style.tag">{{ tag.name }}<!--
-          --></router-link>
+                           :class="$style.tag">{{ tag.name }}</router-link>
             </template>
           </div>
 
@@ -223,27 +222,14 @@ export default {
 
   & .tag {
     color: $palette-grey-2;
+    font-size: $small-font-size;
+    margin-right: 1em;
 
-    &:not(:last-child)::after {
-      content: ', ';
-      color: $palette-grey-5;
+    &::before {
+      content: '#';
+      font-size: 0.8em;
+      margin-right: 3px;
     }
-  }
-}
-
-.datalist {
-  margin: 0;
-
-  dt, dd {
-    display: inline;
-  }
-
-  dd {
-    margin-left: 0.5em;
-  }
-
-  dt {
-    font-weight: bold;
   }
 }
 
@@ -278,7 +264,6 @@ export default {
     margin-top: 0;
   }
 }
-
 
 .file {
   display: grid;

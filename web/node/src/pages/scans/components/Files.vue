@@ -4,7 +4,7 @@
       <h3 :class="$style.subheader">{{ title }}</h3>
       <a :href="download" :class="$style.downloadLink">
         <span>Download</span>
-        <img src="/static/download.png" alt="">
+        <img src="/static/download.png" alt="Download file">
       </a>
     </div>
     <div :class="$style.list">
