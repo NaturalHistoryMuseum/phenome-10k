@@ -12,6 +12,11 @@
       creates: "{{ p10k_home }}/.node-{{node_version}}-installed"
     become: y
 
+  - file:
+      path: /tmp/setup_{{node_version}}.sh
+      mode: '0777'
+    become: y
+
   - name: Install node rpm
     shell: /tmp/setup_{{node_version}}.sh
     args:

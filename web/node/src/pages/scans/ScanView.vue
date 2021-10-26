@@ -48,12 +48,15 @@
           <div :class="$style.scanDesc" v-html="scan.description" />
 
           <div :class="$style.links">
-            <a :href="`https://gbif.org/occurrence/${scan.gbif_occurrence_id}`" v-if="scan.gbif_occurrence_id"
-               target="_blank">View specimen {{ scan.specimen_id }} on GBIF</a>
-            <a :href="`https://gbif.org/species/${scan.gbif_species_id}`" v-if="scan.gbif_species_id" target="_blank">View
-              <i>{{ scan.scientific_name }}</i> on GBIF</a>
-            <a :href="nhmPortalLink" v-if="nhmPortalLink" target="_blank">View specimen {{ scan.specimen_id }} on the Natural History
-                                                          Museum Data Portal</a>
+            <a :href="externalLinks.gbifSpecies" v-if="externalLinks.gbifSpecies" target="_blank">
+              View <i>{{ scan.scientific_name }}</i> on GBIF
+            </a>
+            <a :href="externalLinks.gbifOccurrence" v-if="externalLinks.gbifOccurrence" target="_blank">
+              View specimen {{ scan.specimen_id }} on GBIF
+            </a>
+            <a :href="nhmPortalLink" v-if="nhmPortalLink" target="_blank">
+              View specimen {{ scan.specimen_id }} on the Natural History Museum Data Portal
+            </a>
           </div>
 
           <div v-for="publication in scan.publications.filter(pub=>pub.published)" :key="publication.id"
@@ -169,6 +172,18 @@ export default {
     },
     ctm() {
       return decodeURIComponent(this.scan.ctm);
+    },
+    externalLinks() {
+      let links = {}
+
+      if (this.scan.gbif_species_id) {
+        links['gbifSpecies'] = `https://gbif.org/species/${this.scan.gbif_species_id}`
+      }
+      if (this.scan.gbif_occurrence_id) {
+        links['gbifOccurrence'] = `https://gbif.org/occurrence/${scan.gbif_occurrence_id}`
+      }
+
+      return links;
     }
   },
   methods: {
@@ -188,8 +203,7 @@ export default {
       let record = results.result.records[0];
       if (record) {
         this.nhmPortalLink = `https://data.nhm.ac.uk/object/${ record.occurrenceID }`;
-      }
-      else {
+      } else {
         this.nhmPortalLink = null;
       }
     }
