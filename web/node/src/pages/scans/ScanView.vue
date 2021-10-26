@@ -49,7 +49,7 @@
 
           <div :class="$style.links">
             <a :href="externalLinks.gbifSpecies" v-if="externalLinks.gbifSpecies" target="_blank">
-              View <i>{{ scan.scientific_name }}</i> on GBIF
+              View {{ scan.scientific_name }} on GBIF
             </a>
             <a :href="externalLinks.gbifOccurrence" v-if="externalLinks.gbifOccurrence" target="_blank">
               View specimen {{ scan.specimen_id }} on GBIF
