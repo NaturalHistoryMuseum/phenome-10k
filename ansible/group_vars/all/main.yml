@@ -47,6 +47,7 @@ skip_git_checkout: yes
 mysql_monit:
   user_name: monit
   password: 'Monit_mysql_password.8'
+use_ssl: no
 
 # To gain access to this inbox, look up the phenome10k/mailtrap:invite_url secret
 postfix_relay_host: smtp.mailtrap.io

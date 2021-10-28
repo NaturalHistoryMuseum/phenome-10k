@@ -4,6 +4,7 @@
       repo: "https://github.com/NaturalHistoryMuseum/phenome-10k.git"
       dest: '{{ p10k_src_dir }}'
       version: main
+      force: y
     become: y
     become_user: phenome10k
     when: not skip_git_checkout

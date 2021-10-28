@@ -1,0 +1,52 @@
+upstream phenome10k {
+{% for server in app_servers %}  server {{ server }}:{{ gunicorn_port }};{% endfor %}
+}
+
+server {
+    listen       80;
+    listen       [::]:80;
+    listen       443 ssl;
+    listen	     [::]:443 ssl;
+    server_name  {{ monit_hostname }};
+
+    location / {
+      proxy_pass http://localhost:8080/;
+      proxy_set_header Host $http_host;
+    }
+}
+
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    add_header Content-Security-Policy upgrade-insecure-requests;
+
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen	 443 ssl http2 default_server;
+    listen	 [::]:443 ssl http2 default_server;
+    server_name  _;
+    access_log   /var/log/nginx/p10k.log;
+
+    ssl_certificate {{ letsencrypt_dir }}/fullchain.pem;
+    ssl_certificate_key {{ letsencrypt_dir }}/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    add_header Content-Security-Policy upgrade-insecure-requests;
+
+    location / {
+      proxy_pass http://phenome10k;
+      proxy_connect_timeout 10s;
+      proxy_read_timeout 10s;
+
+      # Redefine the header fields that NGINX sends to the upstream server
+      proxy_set_header Host $http_host;
+
+      # Allow large file uploads
+      client_max_body_size {{ max_upload_size_mb }}M;
+    }
+}
