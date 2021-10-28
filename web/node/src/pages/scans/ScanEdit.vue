@@ -363,6 +363,8 @@ export default {
 
       if (this.gbifSelectedId.occurrence) {
         this.getGbifOccurrence(this.gbifSelectedId.occurrence);
+      } else if (this.scan.specimen_id) {
+        this.searchGbifOcc(this.scan.specimen_id);
       }
 
       if (this.scan.source && !this.scan.ctm) {
@@ -427,7 +429,11 @@ export default {
       }
 
       term = encodeURIComponent(term);
-      const res = await fetch(`//api.gbif.org/v1/occurrence/search?q=${ term }`);
+      let url = `//api.gbif.org/v1/occurrence/search?q=${ term }&limit=5`;
+      if (this.form.gbif_species_id.data) {
+        url += `&speciesKey=${ this.form.gbif_species_id.data }`;
+      }
+      const res = await fetch(url);
       const results = await res.json();
       this.$set(this.gbifResults, 'occurrence', results.results.map(
           entry => ({
@@ -460,11 +466,11 @@ export default {
         });
       }
 
-      if (results.hostingOrganizationKey) {
+      if ((!this.form.specimen_location.data) && results.hostingOrganizationKey) {
         await this.getGbifOrg(results.hostingOrganizationKey);
       }
 
-      if (results.catalogNumber) {
+      if ((!this.form.specimen_id.data) && results.catalogNumber) {
         let specimenId = '';
         if (results.institutionCode) {
           specimenId = results.institutionCode + ' ';
