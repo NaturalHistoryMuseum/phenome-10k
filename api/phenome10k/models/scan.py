@@ -4,8 +4,8 @@ from sqlalchemy.sql import func
 
 class Scan(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    gbif_species_id = db.Column(db.Integer)
-    gbif_occurrence_id = db.Column(db.Integer)
+    gbif_species_id = db.Column(db.BigInteger)
+    gbif_occurrence_id = db.Column(db.BigInteger)
     author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     date_created = db.Column(db.DateTime, index=True, server_default=func.now())
     date_modified = db.Column(db.DateTime, onupdate=func.now())
