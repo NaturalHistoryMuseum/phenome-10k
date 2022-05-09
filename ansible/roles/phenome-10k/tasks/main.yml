@@ -12,6 +12,10 @@
       - rebuild front end
       - restart gunicorn
       - restart node
+    tags:
+      - flask
+      - node
+      - celery
 
   - name: Ensure phenome10k group owns the src folder
     file:
