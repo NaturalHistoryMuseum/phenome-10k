@@ -2,7 +2,17 @@
   <div :class="$style.main">
     <h1 class="Body__title">Manage Users</h1>
     <div class="Body__filters">
-      {{ routeData.error }}
+      <div>{{ routeData.error }}</div>
+      <div v-if="userFilters" :class="$style.sort">
+        <ul :class="$style.sortList">
+          <li @click="$router.replace({query: {}})">
+            Clear all
+          </li>
+          <li v-for="(value, name) in userFilters">
+            {{ name }}: {{ value }}
+          </li>
+        </ul>
+      </div>
     </div>
     <div class="Body__content">
       <div :class="$style.table">
@@ -19,43 +29,80 @@
           <div>{{ user.email }}</div>
           <div>{{ date(user.date_registered) }}</div>
           <div>
-            <form method="POST" class="p10k__form">
-              <div>
-                <select name="role" v-model="user.role" @change="changedRoles.push(user.id)">
-                  <option>USER</option>
-                  <option>CONTRIBUTOR</option>
-                  <option>ADMIN</option>
-                </select>
-              </div>
-              <div>
-                <button name="id" :value="user.id" v-if="changedRoles.includes(user.id)">Save</button>
-              </div>
-            </form>
+            <template v-if="editing.includes(user.id)">
+              <form method="POST" class="p10k__form">
+                <div>
+                  <select name="role" v-model="user.role" @change="changedRoles.push(user.id)">
+                    <option>USER</option>
+                    <option>CONTRIBUTOR</option>
+                    <option>ADMIN</option>
+                  </select>
+                </div>
+                <div>
+                  <button name="id" :value="user.id" v-if="changedRoles.includes(user.id)">Save</button>
+                </div>
+              </form>
+            </template>
+            <template v-else>
+              <span @click="addParam('role', user.role)">{{ user.role }}</span>
+              <i class="fas fa-pencil fa-xs" :class="$style.editButton" @click="editing.push(user.id)"></i>
+            </template>
           </div>
-          <div :class="$style.flag"><img v-if="user.country_code" :src="`https://www.countryflags.io/${user.country_code}/flat/48.png`"
-                    :alt="user.country_code"></div>
-          <div>{{ user.user_type }}</div>
+          <div :class="$style.flag" @click="addParam('country_code', user.country_code)"><CountryFlag v-if="user.country_code" :country="user.country_code" size="normal"/></div>
+          <div @click="addParam('user_type', user.user_type)">{{ user.user_type }}</div>
         </div>
       </div>
+      <Pagination :page="page"
+                :total="totalPages"
+                :to="changePage"
+                class="Body__pagination" />
     </div>
   </div>
 </template>
 
 <script>
 import Page from '../common/base/Page';
+import CountryFlag from 'vue-country-flag';
 
 export default {
   extends: Page,
+  components: {
+    CountryFlag
+  },
   data() {
     return {
-      users: this.$route.meta.data.users,
-      changedRoles: []
+      changedRoles: [],
+      editing: []
     };
+  },
+  computed: {
+    users() {
+      return this.$route.meta.data.users;
+    },
+    totalPages() {
+      return Math.ceil(this.$route.meta.data.total / this.$route.meta.data.pageSize);
+    },
+    page() {
+      return Math.ceil(this.$route.meta.data.offset / this.$route.meta.data.pageSize) + 1;
+    },
+    userFilters() {
+      return this.$route.meta.data.filters;
+    }
   },
   methods: {
     date(strDate) {
       return new Date(strDate).toLocaleDateString();
-    }
+    },
+    addParam(name, value) {
+      let q = {...this.$route.query};
+      q[name] = value;
+      this.$router.replace({ query: q });
+    },
+    changePage(page) {
+      let q = {...this.$route.query};
+      q['offset'] = (page-1) * this.$route.meta.data.pageSize;
+      return {name: this.$route.name, query: q}
+    },
   }
 };
 </script>
@@ -63,6 +110,8 @@ export default {
 <style module lang="scss">
 @import 'scss/palette';
 @import 'scss/fonts';
+
+@import '../common/styles/sort';
 
 .main {
   display: contents;
@@ -109,7 +158,18 @@ export default {
   }
 }
 
-.flag {
-  line-height: 1;
+.editButton {
+  padding-left: 5px;
+  opacity: 0.6;
+}
+
+.sortList li {
+  &:first-child {
+    cursor: pointer;
+  }
+
+  &:not(:last-child) {
+  margin-right: 2em;
+}
 }
 </style>

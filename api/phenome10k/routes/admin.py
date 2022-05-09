@@ -26,12 +26,32 @@ def users():
             error = 'No user was found for id ' + user_id
 
     query = User.query
-    user_id = request.args.get('id')
+    user_columns = {c.name: getattr(User, c.name) for c in User.__table__.c}
+    filters = []
+    filter_dict = {}
+    for filter_name, v in request.args.items():
+        if filter_name not in user_columns or filter_name == 'password':
+            continue
+        filter_dict[filter_name] = v
+        if '*' in v:
+            v = v.replace('*', '%')
+            filters.append(user_columns[filter_name].ilike(v))
+        else:
+            filters.append(user_columns[filter_name] == v)
 
-    if user_id:
-        query = query.filter_by(id=user_id)
+    query = query.filter(*filters)
 
-    users_list = [user.serialize() for user in query.all()]
-    data = {'users': users_list, 'error': error}
+    try:
+        limit = int(request.args.get('limit', 50))
+    except:
+        limit = 50
+
+    try:
+        offset = int(request.args.get('offset', 0))
+    except:
+        offset = 0
+
+    users_list = [user.serialize() for user in query.limit(limit).offset(offset).all()]
+    data = {'users': users_list, 'error': error, 'total': query.count(), 'pageSize': limit, 'offset': offset, 'filters': filter_dict}
 
     return render_vue(data, title='Users')
