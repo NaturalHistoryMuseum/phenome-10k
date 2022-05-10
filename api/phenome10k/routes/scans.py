@@ -4,7 +4,7 @@ from flask import Blueprint, request, redirect, url_for, g
 from flask import current_app
 from flask_login import current_user, login_required
 from werkzeug.datastructures import FileStorage
-from werkzeug.exceptions import NotFound
+from werkzeug.exceptions import NotFound, Unauthorized
 
 from ._decorators import requires_contributor
 from ._utils import hide_scan_files, render_vue, ensure_editable, render_content, rpc_call, make_aliases
@@ -162,8 +162,11 @@ def manage(page=1):
 
 @single_scan.route('/')
 def view(scan_object):
-    if not scan_object.published and not (current_user.is_authenticated and current_user.can_edit(scan_object)):
-        raise NotFound()
+    if not scan_object.published:
+        if not current_user.is_authenticated:
+            raise Unauthorized('Unauthenticated user.')
+        if not current_user.can_edit(scan_object):
+            raise Unauthorized('User cannot edit this object.')
     data = hide_scan_files(scan_object.serialize())
 
     return render_vue(data, title=scan_object.scientific_name)
