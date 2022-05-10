@@ -4,7 +4,7 @@
       name: pip
       extra_args: "--upgrade"
       virtualenv: '{{ virtualenv_location }}'
-      virtualenv_python: python3
+      virtualenv_python: /usr/local/bin/python3.8
       virtualenv_command: virtualenv-3
     become: y
     become_user: phenome10k
@@ -14,7 +14,7 @@
       name: numpy
       extra_args: "--upgrade"
       virtualenv: '{{ virtualenv_location }}'
-      virtualenv_python: python3
+      virtualenv_python: /usr/local/bin/python3.8
       virtualenv_command: virtualenv-3
     become: y
     become_user: phenome10k
@@ -22,7 +22,7 @@
   - name: Install phenome10k
     command:
       chdir: '{{ app_root_dir }}'
-      cmd: '{{ venv_bin }}/python setup.py install'
+      cmd: '{{ venv_bin }}/pip install -e .'
     become: y
     become_user: phenome10k
 

@@ -7,12 +7,54 @@
         - python-setuptools
         - libsemanage-python
         - policycoreutils-python
+        - python-pip
     become: y
-  - name: Install python3
+
+  - name: Install packages for building python
     yum:
       name:
-        - python-pip
-        - python36
-        - python36-pip
-        - python36-virtualenv
-    become: yes
+        - "@development"
+        - zlib-devel
+        - gcc
+        - openssl-devel
+        - bzip2-devel
+        - libffi-devel
+    become: y
+
+  - name: Download Python 3.8
+    get_url:
+      url: https://www.python.org/ftp/python/{{python_version}}/Python-{{python_version}}.tgz
+      dest: /tmp/python-{{python_version}}.tgz
+      mode: 777
+    become: y
+
+  - name: Extract Python
+    unarchive:
+      src: /tmp/python-{{python_version}}.tgz
+      dest: /tmp/
+      remote_src: yes
+    become: y
+
+  - name: Configure Python
+    command:
+      chdir: /tmp/Python-{{python_version}}
+      cmd: ./configure --with-ensurepip=install
+    become: y
+
+  - name: Make Python
+    command:
+      chdir: /tmp/Python-{{python_version}}
+      cmd: make -j 8
+    become: y
+
+  - name: Install Python
+    command:
+      chdir: /tmp/Python-{{python_version}}
+      cmd: make altinstall
+    become: y
+
+  - name: Install virtualenv
+    pip:
+      name: virtualenv
+      executable: /usr/local/bin/pip3.8
+    become: y
