@@ -633,7 +633,9 @@ export default {
       while (!this.scan || !this.scan.ctm) {
         await new Promise(resolve => setTimeout(resolve, 3000));
 
-        const result = await fetch('/' + id, {
+        // if there is no / at the end of this, it ends up going through a http -> https
+        // redirect and losing the session cookie, which loses the authentication
+        const result = await fetch('/' + id + '/', {
           headers: {
             Accept: 'application/json'
           }
