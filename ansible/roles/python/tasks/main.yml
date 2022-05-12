@@ -7,7 +7,6 @@
         - python-setuptools
         - libsemanage-python
         - policycoreutils-python
-        - python-pip
     become: y
 
   - name: Install packages for building python
@@ -19,6 +18,7 @@
         - openssl-devel
         - bzip2-devel
         - libffi-devel
+        - python-pip
     become: y
 
   - name: Download Python 3.8

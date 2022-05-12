@@ -5,7 +5,7 @@
       extra_args: "--upgrade"
       virtualenv: '{{ virtualenv_location }}'
       virtualenv_python: /usr/local/bin/python3.8
-      virtualenv_command: virtualenv-3
+      virtualenv_command: /usr/local/bin/virtualenv
     become: y
     become_user: phenome10k
 
@@ -15,7 +15,7 @@
       extra_args: "--upgrade"
       virtualenv: '{{ virtualenv_location }}'
       virtualenv_python: /usr/local/bin/python3.8
-      virtualenv_command: virtualenv-3
+      virtualenv_command: /usr/local/bin/virtualenv
     become: y
     become_user: phenome10k
 
