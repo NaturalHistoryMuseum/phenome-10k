@@ -21,7 +21,7 @@ marshmallow-sqlalchemy==0.28.0
 numpy==1.22.3
 numpy-stl==2.16.3
 passlib==1.7.4
-Pillow==9.1.0
+Pillow==9.1.1
 PyMySQL==1.0.2
 pytest==7.1.2
 pytest-cov==3.0.0
