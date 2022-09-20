@@ -1,0 +1,11 @@
+{% extends "email_base.html" %}
+
+{% block preheader %}
+Reset your password
+{% endblock %}
+
+{% block content %}
+  <p>We received a request to reset your password on Phenome10k.</p>
+  <p>If this was you, you can <a href="{{ reset_link }}">reset your password here</a>. If not, you can ignore this
+     message.</p>
+{% endblock %}

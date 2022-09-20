@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>{% block title %}Message from Phenome10k{% endblock %}</title>
+  <style>
+      @font-face {
+          font-family: 'Titillium Web';
+          font-style: normal;
+          font-weight: 400;
+          src: url(https://fonts.gstatic.com/s/titilliumweb/v15/NaPecZTIAOhVxoMyOr9n_E7fdM3mDbRS.woff2) format('woff2');
+          unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+      }
+
+      @font-face {
+          font-family: 'Titillium Web';
+          font-style: normal;
+          font-weight: 400;
+          src: url(https://fonts.gstatic.com/s/titilliumweb/v15/NaPecZTIAOhVxoMyOr9n_E7fdMPmDQ.woff2) format('woff2');
+          unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+
+      @font-face {
+          font-family: 'Red Hat Text';
+          font-style: normal;
+          font-weight: 400;
+          src: url(https://fonts.gstatic.com/s/redhattext/v13/RrQCbohi_ic6B3yVSzGBrMx6ZI_cy1A6Ok2ML7hwZr_QcLVF.woff2) format('woff2');
+          unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB, U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+      }
+
+      @font-face {
+          font-family: 'Red Hat Text';
+          font-style: normal;
+          font-weight: 400;
+          src: url(https://fonts.gstatic.com/s/redhattext/v13/RrQCbohi_ic6B3yVSzGBrMx6ZI_cy1A6Ok2ML7hwZrHQcA.woff2) format('woff2');
+          unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+      }
+
+      body {
+          font-family: "Red Hat Text", sans-serif;
+          width: 100% !important;
+          -webkit-text-size-adjust: 100%;
+          -ms-text-size-adjust: 100%;
+          margin: 0;
+          padding: 0;
+      }
+
+      #outlook a {
+          padding: 0;
+      }
+
+      .ExternalClass {
+          width: 100%;
+      }
+
+      .ExternalClass, .ExternalClass p, .ExternalClass span, .ExternalClass font, .ExternalClass td, .ExternalClass div {
+          line-height: 100%;
+      }
+
+      table td {
+          border-collapse: collapse;
+      }
+
+      table {
+          border-collapse: collapse;
+          mso-table-lspace: 0;
+          mso-table-rspace: 0;
+          border-radius: 10px;
+      }
+
+      #main-table {
+          margin: 0;
+          padding: 0;
+          width: 100% !important;
+          line-height: 100% !important;
+      }
+  </style>
+</head>
+<body>
+<div style="display:none !important;visibility:hidden;font-size:0;">
+  {% block preheader %}Message from Phenome10k{% endblock %}
+</div>
+<table cellpadding="0" cellspacing="0" border="0" id="main-table">
+  <tr>
+    <td>
+      <table cellpadding="20" cellspacing="5" border="0" align="center" style="background-color: #008558">
+        <tr>
+          <td>
+            <table cellpadding="20" cellspacing="5" border="0" align="center" style="background-color: #fff">
+              <tr>
+                <td>
+                {# HEADER #}
+                  <img src="https://www.phenome10k.org/static/logo.png" alt="Phenome10k">
+                </td>
+              </tr>
+              <tr>
+                <td valign="top">
+                  <p>Hello {% if user %}{{ user.name }}{% endif %},</p>
+                  <br>
+                  {% block content %}
+                  {% endblock %}
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  {# FOOTER #}
+                  <small>From the <a href="https://phenome10k.org">Phenome10k</a> team</small>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

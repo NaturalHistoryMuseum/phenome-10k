@@ -1,0 +1,6 @@
+{% extends "email_base.txt" %}
+
+{% block content %}
+Click the link below to reset your password:
+{{ reset_link }}
+{% endblock %}
