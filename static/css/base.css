@@ -134,7 +134,7 @@
 .Body__pagination {
   grid-area: pagination; }
 
-.Body__messages {
+.Body__messages, .flashes {
   position: absolute;
   grid-column: content;
   bottom: 100%;
