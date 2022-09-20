@@ -39,4 +39,7 @@ a {
 .Home__button:hover {
   text-decoration: underline; }
 
+.Body__messages, .flashes {
+  background: rgba(31, 31, 31, 0.8); }
+
 /*# sourceMappingURL=home.css.map */
