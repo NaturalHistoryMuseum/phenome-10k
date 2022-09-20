@@ -67,3 +67,7 @@ celery_broker_url: "amqp://{{ p10k_db_user }}:{{ p10k_db_password|urlencode() }}
 celery_backend_url: "redis://{{ redis_host }}:6379"
 rabbitmq_setup_script: https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.rpm.sh
 erlang_setup_script: https://packagecloud.io/install/repositories/rabbitmq/erlang/script.rpm.sh
+
+# hcaptcha
+hcaptcha_site_key: "{{ lookup('hashi_vault', 'secret=phenome10k/hcaptcha:site_key url=https://man-vault-2.nhm.ac.uk:8200')}}"
+hcaptcha_secret_key: "{{ lookup('hashi_vault', 'secret=phenome10k/hcaptcha:secret_key url=https://man-vault-2.nhm.ac.uk:8200')}}"

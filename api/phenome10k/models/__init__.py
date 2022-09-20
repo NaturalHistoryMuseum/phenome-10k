@@ -4,4 +4,4 @@ from .publication import Publication
 from .scan import Scan
 from .tag import Tag
 from .taxonomy import Taxonomy
-from .user import User
+from .user import User, user_datastore

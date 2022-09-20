@@ -27,8 +27,8 @@
             </label>
             <button class="Contribute__form-row">Request contributor status</button>
           {% else %}
-            You must <a href="{{ url_for('user.login', next=url_for('user.contribute')) }}">sign in</a> or
-            <a href="{{ url_for('user.register', next=url_for('user.contribute')) }}">register</a> before requesting to
+            You must <a href="{{ url_for('security.login', next=url_for('user.contribute')) }}">sign in</a> or
+            <a href="{{ url_for('security.register', next=url_for('user.contribute')) }}">register</a> before requesting to
             become a
             contributor.
           {% endif %}

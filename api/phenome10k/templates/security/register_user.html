@@ -1,48 +1,21 @@
 {% extends "base.html" %}
+{% from "security/_macros.html" import render_field_with_errors, render_field, render_form_errors %}
 
 {% block content %}
+  {% include "security/_messages.html" %}
+  <h1 class="Body__title">Register</h1>
   <div class="Body__content">
-    <h1>Register</h1>
-    <form action="" method="post" class="p10k__form">
-      {{ form.hidden_tag() }}
-      {% if error %}
-        <span class="error">[{{ error }}]</span>
+    <form action="{{ url_for_security('register') }}" method="POST" name="register_user_form" class="p10k__form">
+      {{ register_user_form.hidden_tag() }}
+      {{ render_form_errors(register_user_form) }}
+      {{ render_field_with_errors(register_user_form.name) }}
+      {{ render_field_with_errors(register_user_form.email) }}
+      {{ render_field_with_errors(register_user_form.password) }}
+      {% if register_user_form.password_confirm %}
+        {{ render_field_with_errors(register_user_form.password_confirm) }}
       {% endif %}
-      <div class="p10k__form_row_stack">
-        {{ form.name.label }}<br>
-        {{ form.name() }}<br>
-        {% for error in form.name.errors %}
-          <span class="error">[{{ error }}]</span>
-        {% endfor %}
-      </div>
-      <div class="p10k__form_row_stack">
-        {{ form.email.label }}<br>
-        {{ form.email() }}<br>
-        {% for error in form.email.errors %}
-          <span class="error">[{{ error }}]</span>
-        {% endfor %}
-      </div>
-      <div class="p10k__form_row_stack">
-        {{ form.password.label }}<br>
-        {{ form.password() }}<br>
-        {% for error in form.password.errors %}
-          <span class="error">[{{ error }}]</span>
-        {% endfor %}
-      </div>
-      <div class="p10k__form_row_stack">
-        {{ form.country.label }}<br>
-        {{ form.country() }}<br>
-        {% for error in form.country.errors %}
-          <span class="error">[{{ error }}]</span>
-        {% endfor %}
-      </div>
-      <div class="p10k__form_row_stack">
-        {{ form.organisation.label }}<br>
-        {{ form.organisation() }}<br>
-        {% for error in form.organisation.errors %}
-          <span class="error">[{{ error }}]</span>
-        {% endfor %}
-      </div>
+      {{ render_field_with_errors(register_user_form.country) }}
+      {{ render_field_with_errors(register_user_form.organisation) }}
       <p class="p10k__smalltext">
         The personal details you provide here will be processed by the Natural History Museum
         (as Data Controller) for the purposes of providing you with access to upload or download
@@ -58,7 +31,8 @@
         <a href="mailto:dataprotection@nhm.ac.uk">dataprotection@nhm.ac.uk</a>. For more information
         about the Natural History Museum’s Privacy Notice and your Rights please visit our website
         <a href="http://www.nhm.ac.uk/about-us/privacy-notice.html">www.nhm.ac.uk/about-us/privacy-notice.html</a>.</p>
-      <div>{{ form.submit(class='p10k__button') }}</div>
+      {{ hcaptcha }}
+      <div>{{ register_user_form.submit(class='p10k__button') }}</div>
     </form>
   </div>
 {% endblock %}

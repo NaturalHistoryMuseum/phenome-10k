@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% from "security/_macros.html" import render_field_with_errors, render_field, render_form_errors %}
+
+{% block content %}
+  {% include "security/_messages.html" %}
+  <h1 class="Body__title">Sign In</h1>
+  <div class="Body__content">
+    <form action="{{ url_for_security('login') }}" method="POST" name="login_user_form" class="p10k__form">
+      {{ login_user_form.hidden_tag() }}
+      {{ render_form_errors(login_user_form) }}
+      {{ render_field_with_errors(login_user_form.email) }}
+      {{ render_field_with_errors(login_user_form.password) }}
+      <div class="p10k__form_row">{{ login_user_form.remember(class='mr') }} {{ login_user_form.remember.label }}</div>
+      <div>{{ login_user_form.submit(class='p10k__button') }}</div>
+      <div class="mt"><a href="{{ url_for('security.forgot_password') }}">Forgotten your password?</a></div>
+      <div class="mt">New User? <a href="{{ url_for('security.register') }}">Register</a></div>
+    </form>
+  </div>
+{% endblock %}

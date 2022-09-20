@@ -1,7 +1,7 @@
 from flask import Blueprint, request, redirect, url_for
 
 from ..extensions import db
-from ..models import User
+from ..models import User, user_datastore
 from ._decorators import requires_admin
 from ._utils import render_vue
 
@@ -19,8 +19,9 @@ def users():
 
         if user:
             # Todo: Validation and errors
-            user.role = request.form.get('role')
-            db.session.commit()
+            role = user_datastore.find_role(request.form.get('role'))
+            user_datastore.add_role_to_user(user, role)
+            user_datastore.commit()
             return redirect(url_for('admin.users'))
         else:
             error = 'No user was found for id ' + user_id
@@ -38,6 +39,10 @@ def users():
             filters.append(user_columns[filter_name].ilike(v))
         else:
             filters.append(user_columns[filter_name] == v)
+
+    role_filter = request.args.get('role')
+    if role_filter:
+        filters.append(User.roles.any(name=role_filter))
 
     query = query.filter(*filters)
 

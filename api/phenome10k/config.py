@@ -16,8 +16,13 @@ class Config(object):
                                'sqlite:///' + os.path.join(basedir, 'app.db'))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     RENDER_AS_BATCH = not os.environ.get('DATABASE_URL')
-    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER') or 'no-reply@phenome10k.org'
-    ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL') or 'test@example.com'
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'no-reply@phenome10k.org')
+    MAIL_SERVER = os.environ.get('MAIL_SERVER', 'localhost')
+    MAIL_PORT = os.environ.get('MAIL_PORT', 25)
+    MAIL_USE_TLS = True
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+    ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL') or 'alycejenni@gmail.com'
     LOG_FILE = os.environ.get('LOG_FILE') or 'logs/phenome10k.log'
     SERVER_NAME = os.environ.get('SERVER_NAME') or None
     UPLOAD_DIRECTORY = os.environ.get('UPLOAD_DIRECTORY') or os.path.abspath('uploads')
@@ -27,6 +32,16 @@ class Config(object):
     RPC_HOST = os.environ.get('RPC_HOST') or 'http://localhost:8080'
     CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672')
     CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULTS_BACKEND', 'redis://localhost:6379/0')
+    SECURITY_PASSWORD_HASH = 'argon2'
+    SECURITY_PASSWORD_SCHEMES = ['argon2']
+    SECURITY_PASSWORD_SINGLE_HASH = ['argon2']
+    SECURITY_REGISTERABLE = True
+    SECURITY_RECOVERABLE = True
+    SECURITY_CHANGEABLE = True
+    SECURITY_SEND_REGISTER_EMAIL = False
+    HCAPTCHA_ENABLED = not os.environ.get('FLASK_DEBUG', False)
+    HCAPTCHA_SITE_KEY = os.environ.get('HCAPTCHA_SITE_KEY')
+    HCAPTCHA_SECRET_KEY = os.environ.get('HCAPTCHA_SECRET_KEY')
 
 
 def get_celery_config():

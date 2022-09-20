@@ -38,9 +38,10 @@
   {% include 'snippets/nav.html' %}
   <div class="Header__auth">
     {% if current_user.is_anonymous %}
-      <a href="{{ url_for('user.login') }}">Sign in</a>
+      <a href="{{ url_for('security.login') }}">Sign in</a>
+      <a href="{{ url_for('security.register') }}">Register</a>
     {% else %}
-      <a href="{{ url_for('user.logout') }}">Sign Out</a>
+      <a href="{{ url_for('security.logout') }}">Sign Out</a>
     {% endif %}
   </div>
 </div>
