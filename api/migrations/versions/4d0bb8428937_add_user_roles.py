@@ -54,7 +54,6 @@ def upgrade():
     op.bulk_insert(role_table, [
         {'id': 1, 'name': 'ADMIN', 'description': 'Site administrator', 'priority': 1},
         {'id': 2, 'name': 'CONTRIBUTOR', 'description': 'Content contributor', 'priority': 2},
-        {'id': 3, 'name': 'USER', 'description': 'Basic user'},
     ], multiinsert=False)
 
     roles_users_table = op.create_table('roles_users',
@@ -69,11 +68,12 @@ def upgrade():
     user_roles = []
     role_dict = {
         'ADMIN': 1,
-        'CONTRIBUTOR': 2,
-        'USER': 3
+        'CONTRIBUTOR': 2
     }
     for user in session.query(User):
-        user_roles.append({'user_id': user.id, 'role_id': role_dict.get(user.role, 3)})
+        role_id = role_dict.get(user.role)
+        if role_id is not None:
+            user_roles.append({'user_id': user.id, 'role_id': role_id})
     op.bulk_insert(roles_users_table, user_roles, multiinsert=False)
 
     op.add_column('user', sa.Column('active', sa.Boolean(), nullable=False, server_default='1'))
