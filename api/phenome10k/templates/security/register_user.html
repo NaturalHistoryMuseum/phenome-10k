@@ -34,5 +34,9 @@
       {{ hcaptcha }}
       <div>{{ register_user_form.submit(class='p10k__button') }}</div>
     </form>
+    <div class="p10k__smalltext mt">
+      <div><a href="{{ url_for('security.send_confirmation') }}">Resend confirmation email</a></div>
+      <div>Have an account? <a href="{{ url_for('security.login') }}">Sign in</a></div>
+    </div>
   </div>
 {% endblock %}

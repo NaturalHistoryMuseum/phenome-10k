@@ -6,4 +6,5 @@ We received a request to reset your password on Phenome10k. If this was you, you
 {{ reset_link }}
 
 If not, you can ignore this message.
+This link will expire in {{ security.reset_password_within }}.
 {% endblock %}
