@@ -1,9 +1,8 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, current_app
+from flask import Blueprint, render_template, request, current_app
 from flask_mail import Message
-from flask_security import logout_user, current_user
+from flask_security import current_user
 
-from ..extensions import db, mail
-from ..models import User
+from ..extensions import mail, security
 
 bp = Blueprint('user', __name__, template_folder='../templates/user')
 
@@ -35,3 +34,10 @@ def contribute():
             html=html
         ))
     return render_template('contribute.html', title='Contributing')
+
+
+@bp.route('/profile')
+@bp.route('/profile/<user_id>')
+def profile(user_id=None):
+    user = security.datastore.find_user(id=user_id) if user_id else current_user
+    return render_template('profile.html', title=user.name, user=user, change_password_form=security.change_password_form())

@@ -1,8 +1,11 @@
 from flask_security import LoginForm
-from ..extensions import security
+from wtforms import (StringField)
+from wtforms.validators import DataRequired
 
 
 class P10KLoginForm(LoginForm):
+    email = StringField('Email', validators=[DataRequired()])
+
     def validate(self, **kwargs):
         if not super().validate(**kwargs):
             return False
