@@ -1,5 +1,5 @@
-from .scan import ScanSchema, ScanSearchResponse
-from .publication import PublicationSchema, PublicationSearchResponse
+from .scan import ScanSchema, NestedScanSchema, ScanSearchResponse
+from .publication import PublicationSchema, NestedPublicationSchema, PublicationSearchResponse
 from .file_attachment import AttachmentSchema
 from .response import get_search_schema
 

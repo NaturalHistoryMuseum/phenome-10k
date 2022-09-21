@@ -11,8 +11,15 @@ class PublicationSchema(ma.SQLAlchemyAutoSchema):
     class Meta:
         model = Publication
 
-    scans = PublicList(fields.Nested('ScanSchema',
-                                     exclude=['publications', 'published']))
+    scans = PublicList(fields.Nested('NestedScanSchema'))
+
+    url = AbsoluteURLFor('publications.view', values={'pub_object': '<id>'})
+
+
+class NestedPublicationSchema(ma.SQLAlchemyAutoSchema):
+    class Meta:
+        model = Publication
+        exclude = ['published']
 
     url = AbsoluteURLFor('publications.view', values={'pub_object': '<id>'})
 
