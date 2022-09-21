@@ -1,9 +1,9 @@
 import click
 from flask.cli import FlaskGroup
-from phenome10k.models import User, Scan, Taxonomy
-from phenome10k.extensions import db
-from phenome10k.data.gbif import pull_tags
 from phenome10k import create_app
+from phenome10k.data.gbif import pull_tags
+from phenome10k.extensions import db, security
+from phenome10k.models import User, Scan, Taxonomy
 
 
 def create_cli_app(info):
@@ -27,24 +27,15 @@ def cli():
 @cli.command()
 @click.argument('password')
 def set_admin_pw(password):
-    user = User(
-        id=1,
-        name='Administrator',
-        email='admin',
-        role='ADMIN'
-    )
-
-    user = db.session.merge(user)
-
-    if user.check_password(password):
-        db.session.commit()
-        click.echo('Password not changed', err=True)
-        return
+    user = security.datastore.find_user(email='admin')
+    if not user:
+        user = security.datastore.create_user(name='Administrator', email='admin')
+    security.datastore.add_role_to_user(user, 'ADMIN')
 
     user.set_password(password)
-    db.session.commit()
+    security.datastore.commit()
 
-    click.echo('Password changed')
+    click.echo('Admin password set.')
 
 
 @cli.command()

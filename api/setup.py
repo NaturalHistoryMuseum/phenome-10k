@@ -26,7 +26,7 @@ setup(
     include_package_data=True,
     entry_points={
         'console_scripts': [
-            'p10k=phenome10k.cli:cli'
+            'p10k=api.phenome10k.cli:cli'
         ],
     },
     license='MIT'
