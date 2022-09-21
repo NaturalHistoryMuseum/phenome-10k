@@ -1,0 +1,7 @@
+{% extends "email_base.txt" %}
+
+{% block content %}
+Please use the link below to confirm your email address. This link will expire in {{ security.confirm_email_within }}.
+
+{{ confirmation_link }}
+{% endblock %}

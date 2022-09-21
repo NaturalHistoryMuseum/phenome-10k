@@ -31,6 +31,7 @@ class User(db.Model, UserMixin):
     user_type = db.Column(db.String(64))
     active = db.Column(db.Boolean(), nullable=False)
     fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
+    confirmed_at = db.Column(db.DateTime(), nullable=True)
 
     roles = db.relationship('Role', secondary=roles_users,
                             backref=db.backref('users', lazy='dynamic'))

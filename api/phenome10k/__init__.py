@@ -12,7 +12,7 @@ def init(return_celery=False):
 
     db.init_app(app)
     migrate.init_app(app, db)
-    security.init_app(app, user_datastore, login_form=P10KLoginForm, register_form=P10KRegisterForm)
+    security.init_app(app, user_datastore, login_form=P10KLoginForm, confirm_register_form=P10KRegisterForm)
     captcha.init_app(app)
     mail.init_app(app)
     scan_store.init_app(db)

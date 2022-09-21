@@ -1,19 +1,17 @@
 import json
 import urllib.request
 
-from flask_wtf import FlaskForm
-from wtforms import (StringField, PasswordField, SubmitField, SelectField)
-from wtforms.validators import DataRequired, Email, ValidationError
-from flask_security import RegisterForm
-
-from phenome10k.models import User
+from flask_security import ConfirmRegisterForm
 from phenome10k.extensions import captcha
+from phenome10k.models import User
+from wtforms import (StringField, SelectField)
+from wtforms.validators import DataRequired, ValidationError
 
 data = urllib.request.urlopen('http://country.io/names.json').read()
 countries = sorted(list(json.loads(data).items()), key=lambda x: x[1])
 
 
-class P10KRegisterForm(RegisterForm):
+class P10KRegisterForm(ConfirmRegisterForm):
     name = StringField('Name', validators=[DataRequired()])
     country = SelectField('Country', choices=countries)
     organisation = SelectField(
