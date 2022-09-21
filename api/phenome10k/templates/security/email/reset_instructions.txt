@@ -1,6 +1,9 @@
 {% extends "email_base.txt" %}
 
 {% block content %}
-Click the link below to reset your password:
+We received a request to reset your password on Phenome10k. If this was you, you can use this link to reset your password:
+
 {{ reset_link }}
+
+If not, you can ignore this message.
 {% endblock %}
