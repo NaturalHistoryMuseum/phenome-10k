@@ -20,7 +20,8 @@
           <div>Name</div>
           <div>Email</div>
           <div>Registered</div>
-          <div>Role</div>
+          <div @click="addParam('role', 'ADMIN')">Admin</div>
+          <div @click="addParam('role', 'CONTRIBUTOR')">Contributor</div>
           <div>Country</div>
           <div>User type</div>
         </div>
@@ -29,33 +30,21 @@
           <div>{{ user.email }}</div>
           <div>{{ date(user.date_registered) }}</div>
           <div>
-            <template v-if="editing.includes(user.id)">
-              <form method="POST" class="p10k__form">
-                <div>
-                  <select name="role" v-model="user.role" @change="changedRoles.push(user.id)">
-                    <option>USER</option>
-                    <option>CONTRIBUTOR</option>
-                    <option>ADMIN</option>
-                  </select>
-                </div>
-                <div>
-                  <button name="id" :value="user.id" v-if="changedRoles.includes(user.id)">Save</button>
-                </div>
-              </form>
-            </template>
-            <template v-else>
-              <span @click="addParam('role', user.role)">{{ user.role }}</span>
-              <i class="fas fa-pencil fa-xs" :class="$style.editButton" @click="editing.push(user.id)"></i>
-            </template>
+            <i class="fas" :class="user.admin ? 'fa-check' : 'fa-times'" @click="toggleRole('ADMIN', !user.admin, user.id)"></i>
           </div>
-          <div :class="$style.flag" @click="addParam('country_code', user.country_code)"><CountryFlag v-if="user.country_code" :country="user.country_code" size="normal"/></div>
+          <div>
+            <i class="fas" :class="user.contributor ? 'fa-check' : 'fa-times'" @click="toggleRole('CONTRIBUTOR', !user.contributor, user.id)"></i>
+          </div>
+          <div :class="$style.flag" @click="addParam('country_code', user.country_code)">
+            <CountryFlag v-if="user.country_code" :country="user.country_code" size="normal" />
+          </div>
           <div @click="addParam('user_type', user.user_type)">{{ user.user_type }}</div>
         </div>
       </div>
       <Pagination :page="page"
-                :total="totalPages"
-                :to="changePage"
-                class="Body__pagination" />
+                  :total="totalPages"
+                  :to="changePage"
+                  class="Body__pagination" />
     </div>
   </div>
 </template>
@@ -70,10 +59,7 @@ export default {
     CountryFlag
   },
   data() {
-    return {
-      changedRoles: [],
-      editing: []
-    };
+    return {};
   },
   computed: {
     users() {
@@ -94,15 +80,27 @@ export default {
       return new Date(strDate).toLocaleDateString();
     },
     addParam(name, value) {
-      let q = {...this.$route.query};
+      let q = { ...this.$route.query };
       q[name] = value;
       this.$router.replace({ query: q });
     },
     changePage(page) {
-      let q = {...this.$route.query};
-      q['offset'] = (page-1) * this.$route.meta.data.pageSize;
-      return {name: this.$route.name, query: q}
+      let q = { ...this.$route.query };
+      q['offset'] = (page - 1) * this.$route.meta.data.pageSize;
+      return { name: this.$route.name, query: q };
     },
+    toggleRole(roleName, addRole, userId) {
+      fetch('/change-role', {
+        method: 'POST',
+        mode: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ role: roleName, action: addRole ? 'ADD' : 'REMOVE', user_id: userId })
+      }).then((r) => {
+        if (r.ok) {
+          window.location.reload()
+        }
+      });
+    }
   }
 };
 </script>
@@ -119,7 +117,7 @@ export default {
 
 .table {
   display: grid;
-  grid-template-columns: [name] 1fr [email] 1fr [registered] auto [role] auto [flag] auto [usertype] auto;
+  grid-template-columns: [name] 1fr [email] 1fr [registered] auto [admin] auto [contributor] auto [flag] auto [usertype] auto;
   grid-template-rows: auto;
   grid-auto-rows: 1fr;
   grid-gap: 10px;
@@ -141,14 +139,15 @@ export default {
   & > * {
     padding: 2px;
 
-    &:nth-child(1), &:nth-child(2){
+    &:nth-child(1), &:nth-child(2) {
       // wrap the long strings (name and email)
       word-break: break-all;
     }
 
-    &:nth-child(5) {
-      // center the flag
+    &:nth-child(4), &:nth-child(5), &:nth-child(6) {
+      // center the flag and ticks/crosses
       justify-self: center;
+      cursor: pointer;
     }
   }
 
@@ -169,7 +168,7 @@ export default {
   }
 
   &:not(:last-child) {
-  margin-right: 2em;
-}
+    margin-right: 2em;
+  }
 }
 </style>

@@ -39,14 +39,19 @@ class User(db.Model, UserMixin):
 
     @property
     def highest_role(self):
-        highest_role_id = db.session.query(roles_users).filter_by(user_id=self.id).join(Role).order_by(Role.priority).first().role_id
-        return Role.query.get(highest_role_id)
+        highest_role = db.session.query(roles_users).filter_by(user_id=self.id).join(Role).order_by(Role.priority).first()
+        if highest_role is None:
+            return None
+        return Role.query.get(highest_role.role_id)
 
     def is_admin(self):
         return 'ADMIN' in self.roles
 
     def is_contributor(self):
-        return self.is_admin() or 'CONTRIBUTOR' in self.roles
+        return 'CONTRIBUTOR' in self.roles
+
+    def can_contribute(self):
+        return self.is_admin() or self.is_contributor()
 
     def set_password(self, password):
         self.password = crypt_ctx.hash(password)
@@ -77,7 +82,8 @@ class User(db.Model, UserMixin):
             'name': self.name,
             'email': self.email,
             'date_registered': self.date_registered.isoformat(),
-            'role': self.highest_role.name,
+            'admin': self.is_admin(),
+            'contributor': self.is_contributor(),
             'country_code': self.country_code,
             'user_type': self.user_type
         }

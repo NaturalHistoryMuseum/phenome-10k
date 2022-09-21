@@ -5,7 +5,7 @@
 {% block content %}
   <div class="Body__content">
     <div class="Contribute">
-      {% if not current_user.is_authenticated or not current_user.is_contributor() %}
+      {% if not current_user.is_authenticated or not current_user.can_contribute() %}
         <h1>Become a contributor to Phenome10K!</h1>
 
         <p>Phenome10K is a free resource for 3-D images of all types, including CT and surface scans. If you have 3-D

@@ -5,12 +5,12 @@
 
 <nav class="Header__subnav">
   <ul class="nav__list">
-    {% if request.blueprint == 'scans' and current_user.is_contributor() %}
+    {% if request.blueprint == 'scans' and current_user.can_contribute() %}
       {{ nav_item('scans.library', 'View all uploads') }}
       {{ nav_item('scans.library', 'View my uploads', {'mine': ''}) }}
       {{ nav_item('scans.manage', 'Manage uploads') }}
       {{ nav_item('scans.create', 'Add new') }}
-    {% elif request.blueprint == 'publications' and current_user.is_contributor() %}
+    {% elif request.blueprint == 'publications' and current_user.can_contribute() %}
       {{ nav_item('publications.library', 'View all pubs') }}
       {{ nav_item('publications.library', 'View my pubs', {'mine': ''}) }}
       {{ nav_item('publications.manage', 'Manage pubs') }}

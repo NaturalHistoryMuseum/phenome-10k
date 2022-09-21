@@ -53,7 +53,7 @@ def library(page=1):
         'page': page,
         'total_pages': math.ceil(pubs.total / per_page),
         'q': search,
-        'showMine': current_user.is_authenticated and current_user.is_contributor()
+        'showMine': current_user.is_authenticated and current_user.can_contribute()
     }
 
     return render_vue(data, title='Publications')
