@@ -12,7 +12,7 @@ from ..schemas.response import QueryResponse
 
 def hide_scan_files(data):
     if not current_user.is_authenticated:
-        login_url = url_for('security.login')
+        login_url = url_for('security.login', next=url_for('scan.view', scan_object=Scan.query.get(data['id'])))
         data['source'] = login_url
         for pub in data['publications']:
             for file in pub['files']:
