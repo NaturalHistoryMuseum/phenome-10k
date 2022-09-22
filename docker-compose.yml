@@ -28,6 +28,7 @@ services:
       RUN_INIT: '${RUN_INIT}'
     env_file:
       - docker/.env
+      - docker/local.env
     depends_on:
       - data
       - app-celery

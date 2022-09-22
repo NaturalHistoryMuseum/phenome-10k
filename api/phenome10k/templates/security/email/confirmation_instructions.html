@@ -1,0 +1,10 @@
+{% extends "email_base.html" %}
+
+{% block preheader %}
+Please confirm your email address
+{% endblock %}
+
+{% block content %}
+  <p>Please <a href="{{ confirmation_link }}">click here</a> or use the link below to confirm your email address. This link will expire in {{ security.confirm_email_within }}.</p>
+  <p><pre style="word-break: break-word; white-space: break-spaces;">{{ confirmation_link }}</pre></p>
+{% endblock %}

@@ -1,9 +1,10 @@
-from flask import Blueprint, request, redirect, url_for
+from flask import Blueprint, request, redirect, url_for, jsonify
+from flask_security import current_user
 
-from ..extensions import db
-from ..models import User
 from ._decorators import requires_admin
 from ._utils import render_vue
+from ..extensions import security
+from ..models import User
 
 bp = Blueprint('admin', __name__)
 
@@ -15,12 +16,13 @@ def users():
 
     if request.method == 'POST':
         user_id = request.form.get('id')
-        user = User.query.get(user_id)
+        user = security.datastore.find_user(id=user_id)
 
         if user:
             # Todo: Validation and errors
-            user.role = request.form.get('role')
-            db.session.commit()
+            role = security.datastore.find_role(request.form.get('role'))
+            security.datastore.add_role_to_user(user, role)
+            security.datastore.commit()
             return redirect(url_for('admin.users'))
         else:
             error = 'No user was found for id ' + user_id
@@ -39,6 +41,10 @@ def users():
         else:
             filters.append(user_columns[filter_name] == v)
 
+    role_filter = request.args.get('role')
+    if role_filter:
+        filters.append(User.roles.any(name=role_filter))
+
     query = query.filter(*filters)
 
     try:
@@ -52,6 +58,31 @@ def users():
         offset = 0
 
     users_list = [user.serialize() for user in query.limit(limit).offset(offset).all()]
-    data = {'users': users_list, 'error': error, 'total': query.count(), 'pageSize': limit, 'offset': offset, 'filters': filter_dict}
+    data = {'users': users_list, 'error': error, 'total': query.count(), 'pageSize': limit, 'offset': offset,
+            'filters': filter_dict}
 
     return render_vue(data, title='Users')
+
+
+@bp.route('/change-role', methods=['POST'])
+@requires_admin
+def change_role():
+    try:
+        user_id = request.json['user_id']
+        role_name = request.json['role']
+        action = request.json['action']
+    except KeyError:
+        return jsonify({'error': 'Missing parameters.'}), 400
+    user = security.datastore.find_user(id=user_id)
+    role = security.datastore.find_role(role_name)
+    if role is None:
+        return jsonify({'error': 'Invalid role.'}), 400
+    if action == 'ADD':
+        security.datastore.add_role_to_user(user, role)
+        security.datastore.commit()
+    elif (action == 'REMOVE') and not ((user.id == current_user.id) and (role.name == 'ADMIN')):
+        security.datastore.remove_role_from_user(user, role)
+        security.datastore.commit()
+    else:
+        return jsonify({'error': 'Incorrect parameters.'}), 400
+    return jsonify('')

@@ -1,9 +1,9 @@
-
-from flask_login import LoginManager
+from flask_security import Security
 from flask_mail import Mail
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from flask_hcaptcha import hCaptcha
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
@@ -12,8 +12,8 @@ from .data.tmp_upload_store import TmpUploadStore
 
 db = SQLAlchemy()
 migrate = Migrate()
-login = LoginManager()
-login.login_view = 'user.login'
+security = Security()
+captcha = hCaptcha()
 mail = Mail()
 ma = Marshmallow()
 spec = APISpec(

@@ -1,0 +1,25 @@
+@charset "UTF-8";
+.Profile__roles {
+  display: flex; }
+  .Profile__roles > span {
+    padding: 2px 10px;
+    border-radius: 2em;
+    border: 2px solid #008558;
+    margin: 0 1em 0 0;
+    font-size: 0.8em;
+    text-transform: uppercase; }
+
+.Profile__details {
+  grid-area: top-filters;
+  display: flex; }
+  .Profile__details > span {
+    font-weight: bold; }
+    .Profile__details > span:not(:last-child)::after {
+      content: '●';
+      padding: 1em;
+      color: #d8d8d8; }
+
+.Profile__password {
+  margin-top: 3em; }
+
+/*# sourceMappingURL=profile.css.map */

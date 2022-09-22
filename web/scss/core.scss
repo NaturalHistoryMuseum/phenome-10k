@@ -74,6 +74,14 @@ $margin-size: 1em;
   margin-right: $margin-size;
 }
 
+.m0 {
+  margin: 0;
+}
+
+.m1 {
+  margin: $margin-size;
+}
+
 // ADDITIONAL STYLING FOR CONSISTENCY ================================
 
 .p10k__button {

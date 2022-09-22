@@ -1,12 +1,14 @@
-from flask_wtf import FlaskForm
-from wtforms import (StringField, PasswordField, BooleanField,
-                     SubmitField, HiddenField)
+from flask_security import LoginForm
+from wtforms import (StringField)
 from wtforms.validators import DataRequired
 
 
-class LoginForm(FlaskForm):
-    email = StringField('Email address', validators=[DataRequired()])
-    password = PasswordField('Password', validators=[DataRequired()])
-    remember_me = BooleanField('Remember Me')
-    submit = SubmitField('Sign In')
-    next = HiddenField()
+class P10KLoginForm(LoginForm):
+    email = StringField('Email', validators=[DataRequired()])
+
+    def validate(self, **kwargs):
+        if not super().validate(**kwargs):
+            return False
+        if not self.user.check_and_migrate_password(self.password.data):
+            return False
+        return True

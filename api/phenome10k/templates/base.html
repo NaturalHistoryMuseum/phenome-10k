@@ -31,16 +31,17 @@
   {% if not current_user.is_anonymous %}
     {% include 'snippets/subnav.html' %}
     <div class="Header__user">
-      Signed in as <a><b>{{ current_user.name }}</b></a>
+      Signed in as <a href="{{ url_for('user.profile') }}"><b>{{ current_user.name }}</b></a>
     </div>
   {% endif %}
   <span class="Header__divider"></span>
   {% include 'snippets/nav.html' %}
   <div class="Header__auth">
     {% if current_user.is_anonymous %}
-      <a href="{{ url_for('user.login') }}">Sign in</a>
+      <a href="{{ url_for('security.login') }}" class="mr">Sign in</a>
+      <a href="{{ url_for('security.register') }}">Register</a>
     {% else %}
-      <a href="{{ url_for('user.logout') }}">Sign Out</a>
+      <a href="{{ url_for('security.logout') }}">Sign Out</a>
     {% endif %}
   </div>
 </div>

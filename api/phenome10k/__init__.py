@@ -1,7 +1,9 @@
 from flask import Flask
 from phenome10k.config import Config, get_celery_config
-from phenome10k.extensions import db, migrate, login, mail, scan_store, upload_store, ma, spec
+from phenome10k.extensions import db, migrate, security, mail, scan_store, upload_store, ma, spec, captcha
 from phenome10k.tasks import celery
+from phenome10k.models import user_datastore
+from phenome10k.forms import P10KLoginForm, P10KRegisterForm
 
 
 def init(return_celery=False):
@@ -10,7 +12,8 @@ def init(return_celery=False):
 
     db.init_app(app)
     migrate.init_app(app, db)
-    login.init_app(app)
+    security.init_app(app, user_datastore, login_form=P10KLoginForm, confirm_register_form=P10KRegisterForm)
+    captcha.init_app(app)
     mail.init_app(app)
     scan_store.init_app(db)
     upload_store.init_app(app)

@@ -103,7 +103,7 @@ def library(page=1):
     data['tags'] = Tag.tree()
     data['tags']['taxonomy'] = Taxonomy.tree()
     data['q'] = search
-    data['showMine'] = current_user.is_authenticated and current_user.is_contributor()
+    data['showMine'] = current_user.is_authenticated and current_user.can_contribute()
 
     return render_vue(data, title='Scan Library')
 

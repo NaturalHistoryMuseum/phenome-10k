@@ -1,20 +1,18 @@
 import json
 import urllib.request
 
-from flask_wtf import FlaskForm
-from wtforms import (StringField, PasswordField, SubmitField, SelectField)
-from wtforms.validators import DataRequired, Email, ValidationError
-
+from flask_security import ConfirmRegisterForm
+from phenome10k.extensions import captcha
 from phenome10k.models import User
+from wtforms import (StringField, SelectField)
+from wtforms.validators import DataRequired, ValidationError
 
 data = urllib.request.urlopen('http://country.io/names.json').read()
-countries = list(json.loads(data).items())
+countries = sorted(list(json.loads(data).items()), key=lambda x: x[1])
 
 
-class RegistrationForm(FlaskForm):
+class P10KRegisterForm(ConfirmRegisterForm):
     name = StringField('Name', validators=[DataRequired()])
-    email = StringField('Email address', validators=[DataRequired(), Email()])
-    password = PasswordField('Password', validators=[DataRequired()])
     country = SelectField('Country', choices=countries)
     organisation = SelectField(
         'Organisation',
@@ -27,7 +25,6 @@ class RegistrationForm(FlaskForm):
             ('Student', 'Student')
         ]
     )
-    submit = SubmitField('Sign up')
 
     # Todo: Use input & datalist instead of country select field
     # Validate/resolve against https://restcountries.eu/#api-endpoints-name
@@ -36,3 +33,8 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter_by(email=email.data).first()
         if user is not None:
             raise ValidationError('Please use a different email address.')
+
+    def validate(self, **kwargs):
+        if not captcha.verify():
+            return False
+        return super(P10KRegisterForm, self).validate(**kwargs)

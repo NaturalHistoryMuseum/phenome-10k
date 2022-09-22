@@ -23,3 +23,5 @@ build/
 dist/
 
 api/phenome10k.egg-info/
+
+docker/local.env

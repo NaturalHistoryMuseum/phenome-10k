@@ -8,9 +8,10 @@ click
 cryptography==37.0.2
 email-validator==1.2.1
 Flask==2.0.3
-Flask-Login==0.6.1
+flask-hcaptcha==0.6.0
 Flask-Mail==0.9.1
 Flask-Migrate==3.1.0
+flask-security-too==5.0.1
 Flask-SQLAlchemy==2.5.1
 Flask-WTF==1.0.1
 Flask-Marshmallow==0.14.0

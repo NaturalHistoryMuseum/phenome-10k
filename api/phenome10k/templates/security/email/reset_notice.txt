@@ -1,0 +1,5 @@
+{% extends "email_base.txt" %}
+
+{% block content %}
+Your password has just been reset.
+{% endblock %}

@@ -1,0 +1,7 @@
+Hello {% if user %}{{ user.name }}{% endif %},
+
+{% block content %}
+{% endblock %}
+
+From Phenome10k
+https://phenome10k.org
