@@ -4,7 +4,7 @@ import time
 import magic
 from flask import current_app
 from flask.helpers import url_for
-from flask_login import current_user
+from flask_security import current_user
 from phenome10k.extensions import db
 from sqlalchemy import event
 from sqlalchemy.sql import func

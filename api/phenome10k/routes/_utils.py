@@ -1,6 +1,6 @@
 import requests
 from flask import url_for, request, jsonify, render_template, current_app, redirect
-from flask_login import current_user
+from flask_security import current_user
 from sqlalchemy.exc import MultipleResultsFound
 from werkzeug.exceptions import Forbidden
 from werkzeug.routing import BaseConverter, ValidationError, PathConverter

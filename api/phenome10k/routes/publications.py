@@ -1,7 +1,7 @@
 import math
 
 from flask import Blueprint, request, redirect, g, url_for
-from flask_login import current_user
+from flask_security import current_user
 from werkzeug.exceptions import NotFound
 
 from ._decorators import requires_contributor
