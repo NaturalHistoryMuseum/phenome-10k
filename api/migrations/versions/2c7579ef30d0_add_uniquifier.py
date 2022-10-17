@@ -1,4 +1,4 @@
-"""empty message
+"""Add user uniquifier
 
 Revision ID: 2c7579ef30d0
 Revises: 4d0bb8428937

@@ -1,4 +1,4 @@
-"""empty message
+"""Add confirmation time to user
 
 Revision ID: 77f6b43f2bfa
 Revises: 2c7579ef30d0

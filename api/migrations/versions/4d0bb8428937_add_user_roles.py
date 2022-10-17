@@ -1,4 +1,4 @@
-"""empty message
+"""Add user roles
 
 Revision ID: 4d0bb8428937
 Revises: 1aa4435fb125
