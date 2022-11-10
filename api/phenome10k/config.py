@@ -16,7 +16,7 @@ class Config(object):
                                'sqlite:///' + os.path.join(basedir, 'app.db'))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     RENDER_AS_BATCH = not os.environ.get('DATABASE_URL')
-    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'no-reply@phenome10k.org')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', 'phenome10k@nhm.ac.uk')
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'localhost')
     MAIL_PORT = os.environ.get('MAIL_PORT', 25)
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
