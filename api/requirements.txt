@@ -35,5 +35,5 @@ trimesh==3.12.0
 urllib3==1.26.9
 wcwidth==0.2.5
 Werkzeug==2.1.2
-wheel==0.37.1
+wheel==0.38.1
 zipp==3.8.0
