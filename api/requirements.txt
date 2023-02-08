@@ -5,7 +5,7 @@ argon2-cffi==21.3.0
 asn1crypto==1.5.1
 celery[redis]==5.2.2
 click
-cryptography==37.0.2
+cryptography==39.0.1
 email-validator==1.2.1
 Flask==2.0.3
 flask-hcaptcha==0.6.0
