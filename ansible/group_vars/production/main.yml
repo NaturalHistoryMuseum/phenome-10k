@@ -29,5 +29,6 @@ mysql_monit:
   password: "{{ lookup('hashi_vault', 'secret=phenome10k/mysql:monit_password url=https://man-vault-2.nhm.ac.uk:8200')}}"
 use_ssl: yes
 letsencrypt_dir: /etc/letsencrypt/live/www.phenome10k.org
+password_salt: "{{ lookup('hashi_vault', 'secret=phenome10k/p10k:password_salt url=https://man-vault-2.nhm.ac.uk:8200')}}"
 
 mail_host: mta-smtprelay-2.nhm.ac.uk
