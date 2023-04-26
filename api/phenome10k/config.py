@@ -32,8 +32,9 @@ class Config(object):
     CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://guest:guest@localhost:5672')
     CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULTS_BACKEND', 'redis://localhost:6379/0')
     SECURITY_PASSWORD_HASH = 'argon2'
-    SECURITY_PASSWORD_SCHEMES = ['argon2']
-    SECURITY_PASSWORD_SINGLE_HASH = ['argon2']
+    SECURITY_PASSWORD_SCHEMES = ['argon2', 'phpass']
+    SECURITY_PASSWORD_SINGLE_HASH = ['argon2', 'phpass']
+    SECURITY_PASSWORD_SALT = os.environ.get('SECURITY_PASSWORD_SALT', 'c27Lq82!b!a7yRC9ssPn')
     SECURITY_REGISTERABLE = True
     SECURITY_RECOVERABLE = True
     SECURITY_CHANGEABLE = True
