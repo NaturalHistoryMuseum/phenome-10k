@@ -40,12 +40,12 @@ def set_admin_pw(password):
 
 @cli.command()
 def update_gbif_tags():
-    """ Updates taxonomy tags from gbif backbone and deletes unused ones."""
+    """
+    Updates taxonomy tags from gbif backbone and deletes unused ones.
+    """
     click.echo('Updating tags:')
     for scan in Scan.query.filter(Scan.gbif_species_id).all():
-        tags = [
-            db.session.merge(tag) for tag in pull_tags(scan.gbif_species_id)
-        ]
+        tags = [db.session.merge(tag) for tag in pull_tags(scan.gbif_species_id)]
         scan.taxonomy = tags
         click.echo(' - ' + scan.scientific_name)
 

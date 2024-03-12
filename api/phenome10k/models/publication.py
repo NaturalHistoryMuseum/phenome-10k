@@ -16,7 +16,12 @@ class Publication(db.Model):
     link = db.Column(db.String(250))
     abstract = db.Column(db.Text)
 
-    files = db.relationship('Attachment', secondary='publication_file', backref='publications', cascade='all')
+    files = db.relationship(
+        'Attachment',
+        secondary='publication_file',
+        backref='publications',
+        cascade='all',
+    )
 
     def serialize(self):
         return {
@@ -37,15 +42,20 @@ class Publication(db.Model):
                 {
                     'id': scan.id,
                     'url_slug': scan.url_slug,
-                    'scientific_name': scan.scientific_name
-                } for scan in self.scans
-            ]
+                    'scientific_name': scan.scientific_name,
+                }
+                for scan in self.scans
+            ],
         }
 
     @staticmethod
     def find_by_slug(slug):
-        return Publication.query.filter(db.or_(Publication.url_slug == slug, Publication.id == slug)).first()
+        return Publication.query.filter(
+            db.or_(Publication.url_slug == slug, Publication.id == slug)
+        ).first()
 
     def is_owned_by(self, user):
-        """ Return true if the given user owns this model """
+        """
+        Return true if the given user owns this model.
+        """
         return self.author_id == user.id

@@ -24,8 +24,9 @@ def pull_tags(gbif_species_id):
         Taxonomy(
             id=tag['key'],
             name=tag.get('vernacularName', tag['canonicalName']),
-            parent_id=tag.get('parentKey')
-        ) for tag in tags
+            parent_id=tag.get('parentKey'),
+        )
+        for tag in tags
     ]
 
 

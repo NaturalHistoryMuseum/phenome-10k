@@ -58,8 +58,14 @@ def users():
         offset = 0
 
     users_list = [user.serialize() for user in query.limit(limit).offset(offset).all()]
-    data = {'users': users_list, 'error': error, 'total': query.count(), 'pageSize': limit, 'offset': offset,
-            'filters': filter_dict}
+    data = {
+        'users': users_list,
+        'error': error,
+        'total': query.count(),
+        'pageSize': limit,
+        'offset': offset,
+        'filters': filter_dict,
+    }
 
     return render_vue(data, title='Users')
 
@@ -80,7 +86,9 @@ def change_role():
     if action == 'ADD':
         security.datastore.add_role_to_user(user, role)
         security.datastore.commit()
-    elif (action == 'REMOVE') and not ((user.id == current_user.id) and (role.name == 'ADMIN')):
+    elif (action == 'REMOVE') and not (
+        (user.id == current_user.id) and (role.name == 'ADMIN')
+    ):
         security.datastore.remove_role_from_user(user, role)
         security.datastore.commit()
     else:

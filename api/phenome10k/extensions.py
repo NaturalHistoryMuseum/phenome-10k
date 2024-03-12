@@ -20,7 +20,7 @@ spec = APISpec(
     title='Phenome10k Query API',
     version='0.0.1',
     openapi_version='3.1.0',
-    plugins=[FlaskPlugin(), MarshmallowPlugin()]
+    plugins=[FlaskPlugin(), MarshmallowPlugin()],
 )
 
 scan_store = ScanStore()

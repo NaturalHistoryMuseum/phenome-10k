@@ -1,9 +1,9 @@
-"""Add confirmation time to user
+"""
+Add confirmation time to user.
 
 Revision ID: 77f6b43f2bfa
 Revises: 2c7579ef30d0
 Create Date: 2022-09-21 10:47:40.439190
-
 """
 from alembic import op
 import sqlalchemy as sa

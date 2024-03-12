@@ -35,7 +35,7 @@ def library(page=1):
         query = Publication.query.filter(
             db.or_(
                 Publication.title.ilike(search_query),
-                Publication.authors.ilike(search_query)
+                Publication.authors.ilike(search_query),
             )
         )
     else:
@@ -53,7 +53,7 @@ def library(page=1):
         'page': page,
         'total_pages': math.ceil(pubs.total / per_page),
         'q': search,
-        'showMine': current_user.is_authenticated and current_user.can_contribute()
+        'showMine': current_user.is_authenticated and current_user.can_contribute(),
     }
 
     return render_vue(data, title='Publications')
@@ -63,7 +63,9 @@ def library(page=1):
 @bp.route('/manage-publications/page/<int:page>', methods=['GET', 'POST'])
 @requires_contributor
 def manage(page=1):
-    """View a list of publications with publish, edit, delete actions"""
+    """
+    View a list of publications with publish, edit, delete actions.
+    """
 
     # Process delete request
     if request.method == 'POST':
@@ -97,26 +99,35 @@ def manage(page=1):
         query = query.filter(
             db.or_(
                 Publication.title.ilike(search_query),
-                Publication.authors.ilike(search_query)
+                Publication.authors.ilike(search_query),
             )
         )
     if pub_year:
         query = query.filter_by(pub_year=pub_year)
     pub_list = query.order_by(Publication.pub_year.desc()).paginate(page, per_page)
     data = {
-        'publications': [pub.serialize() for pub in pub_list.items if current_user.can_edit(pub)],
+        'publications': [
+            pub.serialize() for pub in pub_list.items if current_user.can_edit(pub)
+        ],
         'page': page,
         'total_pages': math.ceil(pub_list.total / per_page),
-        'years': [y[0] for y in
-                  db.session.query(Publication.pub_year).order_by(Publication.pub_year.desc()).distinct().all()],
-        'q': search
+        'years': [
+            y[0]
+            for y in db.session.query(Publication.pub_year)
+            .order_by(Publication.pub_year.desc())
+            .distinct()
+            .all()
+        ],
+        'q': search,
     }
     return render_vue(data, title='Manage Publications')
 
 
 @bp.route('/<publication:pub_object>/')
 def view(pub_object):
-    if not pub_object.published and not (current_user.is_authenticated and current_user.can_edit(pub_object)):
+    if not pub_object.published and not (
+        current_user.is_authenticated and current_user.can_edit(pub_object)
+    ):
         raise NotFound()
     return render_vue(pub_object.serialize(), title=pub_object.title)
 
@@ -133,8 +144,7 @@ def edit(pub_object=None):
     if form.validate_on_submit():
         if not pub_object:
             pub_object = Publication(
-                author_id=current_user.id,
-                url_slug=generate_slug(form.title.data)
+                author_id=current_user.id, url_slug=generate_slug(form.title.data)
             )
             db.session.add(pub_object)
         pub_object.title = form.title.data
@@ -150,12 +160,7 @@ def edit(pub_object=None):
                 continue
             f = File.from_upload(file)
             db.session.add(f)
-            pub_object.files.append(
-                Attachment(
-                    file=f,
-                    name=file.filename
-                )
-            )
+            pub_object.files.append(Attachment(file=f, name=file.filename))
 
         db.session.commit()
 
@@ -164,7 +169,7 @@ def edit(pub_object=None):
     data = {
         'publication': pub_object.serialize() if pub_object else None,
         'form': form.serialize(),
-        'csrf_token': g.csrf_token
+        'csrf_token': g.csrf_token,
     }
 
     return render_vue(data, title='Edit' if pub_object else 'Create')

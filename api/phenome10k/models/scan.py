@@ -24,8 +24,12 @@ class Scan(db.Model):
     ctm = db.relationship('File', foreign_keys='Scan.ctm_id', cascade='all')
 
     # association proxy relationships
-    publications = db.relationship('Publication', secondary='scan_publication', backref='scans')
-    attachments = db.relationship('Attachment', secondary='scan_attachment', backref='scans', cascade='all')
+    publications = db.relationship(
+        'Publication', secondary='scan_publication', backref='scans'
+    )
+    attachments = db.relationship(
+        'Attachment', secondary='scan_attachment', backref='scans', cascade='all'
+    )
     tags = db.relationship('Tag', secondary='scan_tag', backref='scans', lazy='select')
     taxonomy = db.relationship('Taxonomy', secondary='scan_taxonomy', backref='scans')
 
@@ -52,28 +56,32 @@ class Scan(db.Model):
             'id': self.id,
             'url_slug': (self.url_slug if self.url_slug else str(self.id)),
             'thumbnail': self.thumbnail and self.thumbnail.file.serialize(),
-            'scientific_name': self.scientific_name
+            'scientific_name': self.scientific_name,
         }
 
         if full:
-            obj.update({
-                'ctm': self.ctm and self.ctm.serialize(),
-                'source': self.source and self.source.serialize(),
-                'attachments': [a.serialize() for a in self.attachments],
-                'gbif_species_id': self.gbif_species_id,
-                'gbif_occurrence_id': self.gbif_occurrence_id,
-                'published': self.published,
-                'alt_name': self.alt_name,
-                'specimen_id': self.specimen_id,
-                'specimen_location': self.specimen_location,
-                'specimen_link': self.specimen_link,
-                'description': self.description,
-                'created': self.date_created.isoformat(),
-                'author': self.author.name,
-                'tags': [tag.serialize() for tag in self.tags],
-                'publications': [publication.serialize() for publication in self.publications],
-                'stills': [still.serialize() for still in self.attachments]
-            })
+            obj.update(
+                {
+                    'ctm': self.ctm and self.ctm.serialize(),
+                    'source': self.source and self.source.serialize(),
+                    'attachments': [a.serialize() for a in self.attachments],
+                    'gbif_species_id': self.gbif_species_id,
+                    'gbif_occurrence_id': self.gbif_occurrence_id,
+                    'published': self.published,
+                    'alt_name': self.alt_name,
+                    'specimen_id': self.specimen_id,
+                    'specimen_location': self.specimen_location,
+                    'specimen_link': self.specimen_link,
+                    'description': self.description,
+                    'created': self.date_created.isoformat(),
+                    'author': self.author.name,
+                    'tags': [tag.serialize() for tag in self.tags],
+                    'publications': [
+                        publication.serialize() for publication in self.publications
+                    ],
+                    'stills': [still.serialize() for still in self.attachments],
+                }
+            )
 
         return obj
 
@@ -82,7 +90,9 @@ class Scan(db.Model):
         return Scan.query.filter(db.or_(Scan.url_slug == slug, Scan.id == slug)).first()
 
     def is_owned_by(self, user):
-        """ Return true if the given user owns this model """
+        """
+        Return true if the given user owns this model.
+        """
         return self.author_id == user.id
 
     def __repr__(self):
