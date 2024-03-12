@@ -1,33 +1,51 @@
 <template>
   <div :class="$style.main">
     <div :class="$style.title">
-      <h1>{{ $route.name === 'scan_edit' && scan ? 'Editing ' + scan.scientific_name : 'Upload New' }}</h1>
+      <h1>
+        {{
+          $route.name === 'scan_edit' && scan
+            ? 'Editing ' + scan.scientific_name
+            : 'Upload New'
+        }}
+      </h1>
     </div>
 
     <div :class="['Body__content', $style.sectionGrid]">
-
       <div :class="$style.section" :id="$style.upload">
         <form :action="formAction" method="post" enctype="multipart/form-data">
-          <input type="hidden" name="csrf_token" :value="csrf">
+          <input type="hidden" name="csrf_token" :value="csrf" />
           <Errors v-if="error" :errors="[error]" />
           <Errors v-if="errors" :errors="errors" />
           <div :class="$style.sectionHead">
             <h2 :class="$style.sectionTitle">Browse and preview STL file</h2>
           </div>
-          <CtmViewer v-if="scan && scan.ctm" ref="canvas" :src="scan.ctm" height=400px width=500px />
-          <Upload3D v-else @change="upload" :progress="progress"
-                    :status="status || (scan && scan.source && 'Uploaded' )"
-                    :errors="form.file.errors"></Upload3D>
+          <CtmViewer
+            v-if="scan && scan.ctm"
+            ref="canvas"
+            :src="scan.ctm"
+            height="400px"
+            width="500px"
+          />
+          <Upload3D
+            v-else
+            @change="upload"
+            :progress="progress"
+            :status="status || (scan && scan.source && 'Uploaded')"
+            :errors="form.file.errors"
+          ></Upload3D>
         </form>
       </div>
 
       <div :class="$style.section" :id="$style.stills">
         <div :class="$style.sectionHead">
           <h2 :class="$style.sectionTitle">Take Stills</h2>
-          <span :class="$style.sectionSubTitle">Move image into appropriate position and click the button below (Minimum of 1 snapshot image, maximum of 6 images).</span>
+          <span :class="$style.sectionSubTitle"
+            >Move image into appropriate position and click the button below
+            (Minimum of 1 snapshot image, maximum of 6 images).</span
+          >
         </div>
         <div :class="$style.stillCaptureName">
-          <label>Label: <input v-model="stillName"></label>
+          <label>Label: <input v-model="stillName" /></label>
           <Button type="button" @click="captureStill">Capture</Button>
         </div>
         <Errors :errors="form.stills.errors" />
@@ -41,31 +59,57 @@
         </div>
       </div>
 
-      <form :id="$style.details" :action="formAction" method="post" @submit.prevent="submit" novalidate>
-        <input type="hidden" name="csrf_token" :value="csrf">
+      <form
+        :id="$style.details"
+        :action="formAction"
+        method="post"
+        @submit.prevent="submit"
+        novalidate
+      >
+        <input type="hidden" name="csrf_token" :value="csrf" />
         <div :class="$style.col1">
           <div :class="$style.section" :id="$style.gbifOccurrence">
-            <TextInput name="gbif_occurrence_id" :data="form.gbif_occurrence_id"
-                       @input="e => searchGbifOcc(e.target.value)"
-                       autocomplete="off" type="text" :readonly="gbifSelectedId.occurrence">
+            <TextInput
+              name="gbif_occurrence_id"
+              :data="form.gbif_occurrence_id"
+              @input="(e) => searchGbifOcc(e.target.value)"
+              autocomplete="off"
+              type="text"
+              :readonly="gbifSelectedId.occurrence"
+            >
               <div :class="$style.sectionHead">
                 <h2 :class="$style.sectionTitle">GBIF Occurrence</h2>
-                <span :class="$style.sectionSubTitle">The GBIF occurrence record for this specimen (if one exists). Enter the occurrence ID, or try searching for the specimen ID.</span>
+                <span :class="$style.sectionSubTitle"
+                  >The GBIF occurrence record for this specimen (if one exists).
+                  Enter the occurrence ID, or try searching for the specimen
+                  ID.</span
+                >
               </div>
             </TextInput>
-            <div v-if="gbifSelectedId.occurrence" :class="$style.gbifSelectedEntry">
+            <div
+              v-if="gbifSelectedId.occurrence"
+              :class="$style.gbifSelectedEntry"
+            >
               <span>
                 {{ formatOcc(gbifSelectedEntry.occurrence) }}
               </span>
               <span @click="deselectGbifOcc">x</span>
             </div>
-            <div v-else-if="gbifResults.occurrence.length < 1" :class="$style.gbifSelected">No associated GBIF record
+            <div
+              v-else-if="gbifResults.occurrence.length < 1"
+              :class="$style.gbifSelected"
+            >
+              No associated GBIF record
             </div>
             <ul v-else :class="$style.gbifList">
               <li v-for="entry in gbifResults.occurrence" :key="entry.id">
                 <label>
-                  <input type="radio" :value="entry.id" v-model="gbifSelectedId.occurrence"
-                         @click="selectGbifOcc(entry)">
+                  <input
+                    type="radio"
+                    :value="entry.id"
+                    v-model="gbifSelectedId.occurrence"
+                    @click="selectGbifOcc(entry)"
+                  />
                   {{ formatOcc(entry.entry) }}
                 </label>
               </li>
@@ -73,26 +117,47 @@
           </div>
 
           <div :class="$style.section" :id="$style.scientificName">
-            <TextInput name="scientific_name" :data="form.scientific_name"
-                       @input="e => searchGbifSpecies(e.target.value)"
-                       autocomplete="off" type="text" :readonly="gbifSelectedId.species">
+            <TextInput
+              name="scientific_name"
+              :data="form.scientific_name"
+              @input="(e) => searchGbifSpecies(e.target.value)"
+              autocomplete="off"
+              type="text"
+              :readonly="gbifSelectedId.species"
+            >
               <div :class="$style.sectionHead">
                 <h2 :class="$style.sectionTitle">Scientific Name</h2>
               </div>
             </TextInput>
-            <input type="hidden" v-model="form.gbif_species_id.data" name="gbif_species_id">
-            <div v-if="gbifSelectedId.species" :class="$style.gbifSelectedEntry">
+            <input
+              type="hidden"
+              v-model="form.gbif_species_id.data"
+              name="gbif_species_id"
+            />
+            <div
+              v-if="gbifSelectedId.species"
+              :class="$style.gbifSelectedEntry"
+            >
               <span>
                 {{ formatSpecies(gbifSelectedEntry.species) }}
               </span>
               <span @click="deselectGbifSpecies">x</span>
             </div>
-            <div v-else-if="gbifResults.species.length < 1" :class="$style.gbifSelected">No associated GBIF record</div>
+            <div
+              v-else-if="gbifResults.species.length < 1"
+              :class="$style.gbifSelected"
+            >
+              No associated GBIF record
+            </div>
             <ul v-else :class="$style.gbifList">
               <li v-for="entry in gbifResults.species" :key="entry.id">
                 <label>
-                  <input type="radio" :value="entry.id" v-model="gbifSelectedId.species"
-                         @click="selectGbifSpecies(entry)">
+                  <input
+                    type="radio"
+                    :value="entry.id"
+                    v-model="gbifSelectedId.species"
+                    @click="selectGbifSpecies(entry)"
+                  />
                   {{ formatSpecies(entry.entry) }}
                 </label>
               </li>
@@ -103,25 +168,51 @@
             <fieldset>
               <legend :class="$style.sectionHead">
                 <h2 :class="$style.sectionTitle">Specimen</h2>
-                <span :class="$style.sectionSubTitle">Please enter relevant specimen information</span>
+                <span :class="$style.sectionSubTitle"
+                  >Please enter relevant specimen information</span
+                >
               </legend>
-              <TextInput :class="$style.formLabel" name="alt_name" :data="form.alt_name" type="text">
+              <TextInput
+                :class="$style.formLabel"
+                name="alt_name"
+                :data="form.alt_name"
+                type="text"
+              >
                 Alt. Name
               </TextInput>
-              <TextInput :class="$style.formLabel" name="specimen_location" :data="form.specimen_location" type="text">
+              <TextInput
+                :class="$style.formLabel"
+                name="specimen_location"
+                :data="form.specimen_location"
+                type="text"
+              >
                 Specimen Location
               </TextInput>
-              <TextInput :class="$style.formLabel" name="specimen_id" :data="form.specimen_id" type="text">
+              <TextInput
+                :class="$style.formLabel"
+                name="specimen_id"
+                :data="form.specimen_id"
+                type="text"
+              >
                 Specimen ID
               </TextInput>
-              <TextInput :class="$style.formLabel" name="specimen_url" :data="form.specimen_url" type="text">
+              <TextInput
+                :class="$style.formLabel"
+                name="specimen_url"
+                :data="form.specimen_url"
+                type="text"
+              >
                 Additional Media
               </TextInput>
             </fieldset>
           </div>
 
           <div :class="$style.section" :id="$style.description">
-            <TextInput type="textarea" name="description" :data="form.description">
+            <TextInput
+              type="textarea"
+              name="description"
+              :data="form.description"
+            >
               <div :class="$style.sectionHead">
                 <h2 :class="$style.sectionTitle">Description</h2>
               </div>
@@ -132,32 +223,69 @@
             <fieldset>
               <legend :class="$style.sectionHead">
                 <h2 :class="$style.sectionTitle">Publications</h2>
-                <span :class="$style.sectionSubTitle">Assign any relevant publications to the scan.</span>
+                <span :class="$style.sectionSubTitle"
+                  >Assign any relevant publications to the scan.</span
+                >
               </legend>
               <div :class="$style.tabs">
-                <button type="button" @click="myPubs=true" :class="pubsTabClass(myPubs)">My Pubs</button>
-                <button type="button" @click="myPubs=false" :class="pubsTabClass(!myPubs)">All Pubs</button>
+                <button
+                  type="button"
+                  @click="myPubs = true"
+                  :class="pubsTabClass(myPubs)"
+                >
+                  My Pubs
+                </button>
+                <button
+                  type="button"
+                  @click="myPubs = false"
+                  :class="pubsTabClass(!myPubs)"
+                >
+                  All Pubs
+                </button>
               </div>
               <div :class="$style.tabsContent">
                 <div>
                   <div :class="$style.listSearch">
-                    <input type="text" name="pub_query" @keyup="pubSearch"
-                           :placeholder="myPubs ? 'Search My Publications' : 'Search Publications'"
-                           autocomplete="off"
-                           :title="myPubs ? 'Search your own publication titles' : 'Search all publication titles'" />
+                    <input
+                      type="text"
+                      name="pub_query"
+                      @keyup="pubSearch"
+                      :placeholder="
+                        myPubs
+                          ? 'Search My Publications'
+                          : 'Search Publications'
+                      "
+                      autocomplete="off"
+                      :title="
+                        myPubs
+                          ? 'Search your own publication titles'
+                          : 'Search all publication titles'
+                      "
+                    />
                   </div>
                   <ul :class="$style.listbox">
                     <li v-for="pub in pubSearchResults" :key="pub.id">
-                      <input :class="$style.checkbox" type="checkbox" :value="pub.id" :id="'pub' + pub.id"
-                             v-model="selectedPubIds">
+                      <input
+                        :class="$style.checkbox"
+                        type="checkbox"
+                        :value="pub.id"
+                        :id="'pub' + pub.id"
+                        v-model="selectedPubIds"
+                      />
                       <label :for="'pub' + pub.id">{{ pub.title }}</label>
                     </li>
                   </ul>
                 </div>
                 <ul :class="$style.listbox">
-                  <li v-for="{id, title} in selectedPubs" :key="id">
-                    <input :class="$style.checkbox" name="publications" type="checkbox" :value="id" :id="'sel-pub' + id"
-                           v-model="selectedPubIds">
+                  <li v-for="{ id, title } in selectedPubs" :key="id">
+                    <input
+                      :class="$style.checkbox"
+                      name="publications"
+                      type="checkbox"
+                      :value="id"
+                      :id="'sel-pub' + id"
+                      v-model="selectedPubIds"
+                    />
                     <label :for="'sel-pub' + id">{{ title }}</label>
                   </li>
                 </ul>
@@ -172,19 +300,35 @@
             <div :class="$style.sectionHead">
               <h2 :class="$style.sectionTitle">Categories</h2>
               <span :class="$style.sectionSubTitle">
-              Assign the relevant tags to this entry.
-              At least one category in each of Geologic Age, Elements and Ontogenetic Age is required.
-            </span>
+                Assign the relevant tags to this entry. At least one category in
+                each of Geologic Age, Elements and Ontogenetic Age is required.
+              </span>
             </div>
             <fieldset>
               <legend :class="$style.field">Geologic Age</legend>
               <div :class="$style.listbox">
-                <Tree :items="form.geologic_age.choices" #node="option" childKey="children" :class="$style.tree">
+                <Tree
+                  :items="form.geologic_age.choices"
+                  #node="option"
+                  childKey="children"
+                  :class="$style.tree"
+                >
                   <li>
-                    <input type="checkbox" :class="$style.checkbox" name="geologic_age" :value="option.id"
-                           :id="'geo-age' + option.id"
-                           :checked="(form.geologic_age.data || [] ).some(tag => option.id===tag.id)">
-                    <label :for="'geo-age' + option.id">{{ option.name }}</label>
+                    <input
+                      type="checkbox"
+                      :class="$style.checkbox"
+                      name="geologic_age"
+                      :value="option.id"
+                      :id="'geo-age' + option.id"
+                      :checked="
+                        (form.geologic_age.data || []).some(
+                          (tag) => option.id === tag.id,
+                        )
+                      "
+                    />
+                    <label :for="'geo-age' + option.id">{{
+                      option.name
+                    }}</label>
                     <component :is="option.children" />
                   </li>
                 </Tree>
@@ -194,10 +338,22 @@
             <fieldset>
               <legend :class="$style.field">Ontogenetic Age</legend>
               <ul :class="$style.listbox">
-                <li v-for="option in form.ontogenic_age.choices" :key="option.id">
-                  <input type="checkbox" :class="$style.checkbox" name="ontogenic_age" :value="option.id"
-                         :id="'onto-age' + option.id"
-                         :checked="(form.ontogenic_age.data || [] ).some(tag => option.id===tag.id)">
+                <li
+                  v-for="option in form.ontogenic_age.choices"
+                  :key="option.id"
+                >
+                  <input
+                    type="checkbox"
+                    :class="$style.checkbox"
+                    name="ontogenic_age"
+                    :value="option.id"
+                    :id="'onto-age' + option.id"
+                    :checked="
+                      (form.ontogenic_age.data || []).some(
+                        (tag) => option.id === tag.id,
+                      )
+                    "
+                  />
                   <label :for="'onto-age' + option.id">{{ option.name }}</label>
                 </li>
               </ul>
@@ -206,12 +362,28 @@
             <fieldset>
               <legend :class="$style.field">Elements</legend>
               <div :class="$style.listbox">
-                <Tree :items="form.elements.choices" #node="option" childKey="children" :class="$style.tree">
+                <Tree
+                  :items="form.elements.choices"
+                  #node="option"
+                  childKey="children"
+                  :class="$style.tree"
+                >
                   <li>
-                    <input type="checkbox" :class="$style.checkbox" name="elements" :value="option.id"
-                           :id="'elements' + option.id"
-                           :checked="(form.elements.data || [] ).some(tag => option.id===tag.id)">
-                    <label :for="'elements' + option.id">{{ option.name }}</label>
+                    <input
+                      type="checkbox"
+                      :class="$style.checkbox"
+                      name="elements"
+                      :value="option.id"
+                      :id="'elements' + option.id"
+                      :checked="
+                        (form.elements.data || []).some(
+                          (tag) => option.id === tag.id,
+                        )
+                      "
+                    />
+                    <label :for="'elements' + option.id">{{
+                      option.name
+                    }}</label>
                     <component :is="option.children" />
                   </li>
                 </Tree>
@@ -219,18 +391,22 @@
               <Errors :errors="form.elements.errors" />
             </fieldset>
           </div>
-
         </div>
         <div :id="$style.footer">
           <div>
-            <input type="checkbox" :class="$style.checkbox" name="published" :checked="form.published.data" id="submit">
+            <input
+              type="checkbox"
+              :class="$style.checkbox"
+              name="published"
+              :checked="form.published.data"
+              id="submit"
+            />
             <label for="submit">Publish</label>
           </div>
           <Button big>Save</Button>
         </div>
       </form>
     </div>
-
   </div>
 </template>
 
@@ -255,10 +431,7 @@ async function jsonOrText(source) {
 
 function* blobIterator(blob, chunkSize = 500000) {
   for (let i = 0; i < blob.size; i += chunkSize) {
-    yield [
-      blob.slice(i, i + chunkSize),
-      100 * i / blob.size
-    ];
+    yield [blob.slice(i, i + chunkSize), (100 * i) / blob.size];
   }
 }
 
@@ -289,7 +462,6 @@ const xhrUpload = async (form, progress) => {
   xhr.setRequestHeader('Accept', 'application/json');
   const ready = new Promise((res, rej) => {
     xhr.onload = async () => {
-
       if (xhr.status >= 400) {
         const responseData = await jsonOrText(xhr.responseText);
         rej(responseData);
@@ -298,7 +470,8 @@ const xhrUpload = async (form, progress) => {
 
       res(xhr);
     };
-    xhr.onerror = (progressEvent) => rej('The upload failed due to a network issue.');
+    xhr.onerror = (progressEvent) =>
+      rej('The upload failed due to a network issue.');
   });
 
   xhr.upload.onprogress = function (event) {
@@ -314,43 +487,46 @@ const xhrUpload = async (form, progress) => {
 
 export default {
   name: 'ScansEdit',
-  props: [
-    'error',
-  ],
+  props: ['error'],
   data() {
     const data = this.$route.meta.data;
     const pubSearchResults = data.form.publications.choices;
-    const allPubs = data.scan ? pubSearchResults.concat(data.scan.publications) : pubSearchResults;
-    const publications = allPubs.reduce((o, pub) => Object.assign(o, { [pub.id]: pub }), {});
+    const allPubs = data.scan
+      ? pubSearchResults.concat(data.scan.publications)
+      : pubSearchResults;
+    const publications = allPubs.reduce(
+      (o, pub) => Object.assign(o, { [pub.id]: pub }),
+      {},
+    );
     const gbifResults = {
       species: [],
-      occurrence: []
+      occurrence: [],
     };
     const gbifSelectedId = {
       species: data.scan ? data.scan.gbif_species_id : null,
-      occurrence: data.scan ? data.scan.gbif_occurrence_id : null
+      occurrence: data.scan ? data.scan.gbif_occurrence_id : null,
     };
     const gbifSelectedEntry = {
       species: {},
-      occurrence: {}
+      occurrence: {},
     };
 
     return {
-      progress: null,         // Upload progress of the model file
-      status: null,           // Upload status of the model file
-      processing: false,      // Whether or not the upload is being processed
-      gbifResults,            // List of GBIF search results
-      gbifSelectedId,         // Selected GBIF results
-      gbifSelectedEntry,      // Selected GBIF result details (for display)
-      stillName: '',          // Contents of the Still Name text input
-      myPubs: true,           // Search only for publications created by current user
-      pubSearchResults,       // List of results for publication search
-      publications,           // Object containing all publications, keyed by ID
-      selectedPubIds: (data.form.publications.data || []).map(pub => pub.id), // Array of selected publication IDs
+      progress: null, // Upload progress of the model file
+      status: null, // Upload status of the model file
+      processing: false, // Whether or not the upload is being processed
+      gbifResults, // List of GBIF search results
+      gbifSelectedId, // Selected GBIF results
+      gbifSelectedEntry, // Selected GBIF result details (for display)
+      stillName: '', // Contents of the Still Name text input
+      myPubs: true, // Search only for publications created by current user
+      pubSearchResults, // List of results for publication search
+      publications, // Object containing all publications, keyed by ID
+      selectedPubIds: (data.form.publications.data || []).map((pub) => pub.id), // Array of selected publication IDs
       form: data.form,
       scan: data.scan,
       csrf: data.csrf_token,
-      errors: []
+      errors: [],
     };
   },
   mounted() {
@@ -380,70 +556,80 @@ export default {
     /* When we switch the publications tab, empty the list of search results until the user types */
     myPubs() {
       this.pubSearchResults = [];
-    }
+    },
   },
   computed: {
     /**
      * List of selected pub
      */
     selectedPubs() {
-      return this.selectedPubIds.map(id => this.publications[id]);
+      return this.selectedPubIds.map((id) => this.publications[id]);
     },
     stills() {
       return this.scan ? this.scan.stills : [];
     },
     formAction() {
-      return this.scan ? this.$router.resolve({ name: 'scan_edit', params: this.scan }).href : '';
-    }
+      return this.scan
+        ? this.$router.resolve({ name: 'scan_edit', params: this.scan }).href
+        : '';
+    },
   },
   methods: {
     formSet(key, value) {
       this.$set(this.form[key], 'data', value);
     },
     async searchGbifSpecies(term) {
-      if ((!term) || this.gbifSelectedId.species) {
+      if (!term || this.gbifSelectedId.species) {
         this.$set(this.gbifResults, 'species', []);
         return;
       }
 
       term = encodeURIComponent(term);
-      let res = await fetch(`//api.gbif.org/v1/species/suggest?q=${ term }&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&rank=SPECIES`);
+      let res = await fetch(
+        `//api.gbif.org/v1/species/suggest?q=${term}&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c&rank=SPECIES`,
+      );
       let results = await res.json();
       if (results.length === 0) {
         // be slightly more lenient if nothing is found
-        res = await fetch(`//api.gbif.org/v1/species/search?q=${ term }&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c`);
+        res = await fetch(
+          `//api.gbif.org/v1/species/search?q=${term}&datasetKey=d7dddbf4-2cf0-4f39-9b2a-bb099caae36c`,
+        );
         results = await res.json();
         results = results.results;
       }
-      this.$set(this.gbifResults, 'species', results.map(
-          entry => ({
-            id: entry.key,
-            entry: entry
-          })
-      ));
+      this.$set(
+        this.gbifResults,
+        'species',
+        results.map((entry) => ({
+          id: entry.key,
+          entry: entry,
+        })),
+      );
     },
     async searchGbifOcc(term) {
-      if ((!term) || this.gbifSelectedId.occurrence) {
+      if (!term || this.gbifSelectedId.occurrence) {
         this.$set(this.gbifResults, 'occurrence', []);
         return;
       }
 
       term = encodeURIComponent(term);
-      let url = `//api.gbif.org/v1/occurrence/search?q=${ term }&limit=5`;
+      let url = `//api.gbif.org/v1/occurrence/search?q=${term}&limit=5`;
       if (this.form.gbif_species_id.data) {
-        url += `&speciesKey=${ this.form.gbif_species_id.data }`;
+        url += `&speciesKey=${this.form.gbif_species_id.data}`;
       }
       const res = await fetch(url);
       const results = await res.json();
-      this.$set(this.gbifResults, 'occurrence', results.results.map(
-          entry => ({
-            id: entry.key,
-            entry: entry
-          })
-      ));
+      this.$set(
+        this.gbifResults,
+        'occurrence',
+        results.results.map((entry) => ({
+          id: entry.key,
+          entry: entry,
+        })),
+      );
     },
     async getGbifSpecies(speciesId) {
-      const res = await fetch(`//api.gbif.org/v1/species/${ speciesId }`);
+      const res = await fetch(`//api.gbif.org/v1/species/${speciesId}`);
       const results = await res.json();
       this.$set(this.gbifSelectedEntry, 'species', results);
 
@@ -455,22 +641,22 @@ export default {
       }
     },
     async getGbifOccurrence(occurrenceId) {
-      const res = await fetch(`//api.gbif.org/v1/occurrence/${ occurrenceId }`);
+      const res = await fetch(`//api.gbif.org/v1/occurrence/${occurrenceId}`);
       const results = await res.json();
       this.$set(this.gbifSelectedEntry, 'occurrence', results);
 
       // extra data
-      if ((!this.form.gbif_species_id.data) && results.acceptedTaxonKey) {
+      if (!this.form.gbif_species_id.data && results.acceptedTaxonKey) {
         this.selectGbifSpecies({
-          id: results.acceptedTaxonKey
+          id: results.acceptedTaxonKey,
         });
       }
 
-      if ((!this.form.specimen_location.data) && results.hostingOrganizationKey) {
+      if (!this.form.specimen_location.data && results.hostingOrganizationKey) {
         await this.getGbifOrg(results.hostingOrganizationKey);
       }
 
-      if ((!this.form.specimen_id.data) && results.catalogNumber) {
+      if (!this.form.specimen_id.data && results.catalogNumber) {
         let specimenId = '';
         if (results.institutionCode) {
           specimenId = results.institutionCode + ' ';
@@ -479,12 +665,18 @@ export default {
         this.formSet('specimen_id', specimenId);
       }
 
-      if ((!this.form.description.data) && (results.fieldNotes || results.identificationNotes)) {
-        this.formSet('description', (results.fieldNotes || results.identificationNotes));
+      if (
+        !this.form.description.data &&
+        (results.fieldNotes || results.identificationNotes)
+      ) {
+        this.formSet(
+          'description',
+          results.fieldNotes || results.identificationNotes,
+        );
       }
     },
     async getGbifOrg(orgId) {
-      const res = await fetch(`//api.gbif.org/v1/organization/${ orgId }`);
+      const res = await fetch(`//api.gbif.org/v1/organization/${orgId}`);
       const results = await res.json();
       this.formSet('specimen_location', results.title);
     },
@@ -521,27 +713,30 @@ export default {
         return '';
       }
       let name = entry.species || entry.genericName || entry.scientificName;
-      let label = [entry.key, entry.institutionCode, entry.catalogNumber].filter(x => x)
-                                                                         .join('; ');
-      return `${ name } (${ label })`;
+      let label = [entry.key, entry.institutionCode, entry.catalogNumber]
+        .filter((x) => x)
+        .join('; ');
+      return `${name} (${label})`;
     },
     formatSpecies(entry) {
       if (!entry) {
         return '';
       }
-      return `${ entry.canonicalName } ${ entry.authorship } (${ entry.kingdom })`;
+      return `${entry.canonicalName} ${entry.authorship} (${entry.kingdom})`;
     },
     async submit({ target }) {
       const data = new FormData(target);
       const res = await fetch(target.action, {
         method: 'POST',
         headers: { accept: 'application/json' },
-        body: data
+        body: data,
       });
 
       if (res.status >= 400) {
         const responseData = await jsonOrText(res);
-        this.errors = Array.isArray(responseData) ? responseData : [responseData];
+        this.errors = Array.isArray(responseData)
+          ? responseData
+          : [responseData];
       }
 
       const json = await res.json();
@@ -550,24 +745,26 @@ export default {
       const url = res.url.replace(new URL(res.url).origin, '');
       this.$router.push(url);
 
-      this.$nextTick(
-          () => {
-            const err = document.querySelector('.Errors:not(:empty)');
-            if (err) {
-              err.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-            } else {
-              window.scrollTo(0, 0);
-            }
-          }
-      );
+      this.$nextTick(() => {
+        const err = document.querySelector('.Errors:not(:empty)');
+        if (err) {
+          err.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center',
+          });
+        } else {
+          window.scrollTo(0, 0);
+        }
+      });
     },
     /**
      * Delete a still by its attachment id
      */
     async removeStill(id) {
-      const res = await fetch(`/files/stills/${ id }`, {
+      const res = await fetch(`/files/stills/${id}`, {
         method: 'DELETE',
-        headers: { accept: 'application/json' }
+        headers: { accept: 'application/json' },
       });
       const json = await res.json();
       if (json.scan) {
@@ -578,13 +775,17 @@ export default {
       this.form.stills.errors = [];
 
       if (!this.stillName) {
-        this.form.stills.errors = ['Please enter a name for the captured image'];
+        this.form.stills.errors = [
+          'Please enter a name for the captured image',
+        ];
         return;
       }
 
       // I don't know why the limit is six, it just is
       if (this.stills.length >= 6) {
-        this.form.stills.errors = ['There are too many stills, please remove a still.'];
+        this.form.stills.errors = [
+          'There are too many stills, please remove a still.',
+        ];
         return;
       }
 
@@ -596,8 +797,8 @@ export default {
       data.append('attachments', still, this.stillName);
       const res = await fetch(this.formAction, {
         method: 'POST',
-        headers: { 'accept': 'application/json' },
-        body: data
+        headers: { accept: 'application/json' },
+        body: data,
       });
 
       const json = await res.json();
@@ -606,13 +807,15 @@ export default {
     },
     async upload(form) {
       try {
-        const { responseText, responseURL } = await xhrUpload(form, p => {
+        const { responseText, responseURL } = await xhrUpload(form, (p) => {
           this.progress = p;
           if (p === 100) {
             this.status = 'Compressing...';
           }
         });
-        const { scan: { id } } = JSON.parse(responseText);
+        const {
+          scan: { id },
+        } = JSON.parse(responseText);
         const res = await this.processUpload(id);
         const scan = await res.json();
         if (scan) {
@@ -631,14 +834,14 @@ export default {
       this.status = 'Creating CTM file...';
 
       while (!this.scan || !this.scan.ctm) {
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await new Promise((resolve) => setTimeout(resolve, 3000));
 
         // if there is no / at the end of this, it ends up going through a http -> https
         // redirect and losing the session cookie, which loses the authentication
         const result = await fetch('/' + id + '/', {
           headers: {
-            Accept: 'application/json'
-          }
+            Accept: 'application/json',
+          },
         });
 
         if (result.status >= 400) {
@@ -660,7 +863,9 @@ export default {
     async pubSearch(event) {
       const query = encodeURIComponent(event.target.value);
       const mine = this.myPubs ? '&mine' : '';
-      const res = await fetch(`/publications?title=${ query }${ mine }`, { headers: { accept: 'application/json' } });
+      const res = await fetch(`/publications?title=${query}${mine}`, {
+        headers: { accept: 'application/json' },
+      });
       this.pubSearchResults = (await res.json()).publications;
       // Add to the big list of all publications in case we want to reference it later
       for (const pub of this.pubSearchResults) {
@@ -678,7 +883,7 @@ export default {
       cssClasses[this.$style.tab] = true;
       cssClasses[this.$style['tab--active']] = active;
       return cssClasses;
-    }
+    },
   },
   components: {
     TextInput,
@@ -687,8 +892,8 @@ export default {
     CtmViewer,
     Tree,
     Button,
-    Delete
-  }
+    Delete,
+  },
 };
 </script>
 
@@ -984,6 +1189,4 @@ fieldset {
     outline: 1px dotted;
   }
 }
-
-
 </style>

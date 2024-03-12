@@ -2,7 +2,9 @@
   <div :class="$style.main">
     <div :class="$style.title">
       <h1>{{ title }}</h1>
-      <span v-if="!scan.published" :class="$style.unpublished">(Not published)</span>
+      <span v-if="!scan.published" :class="$style.unpublished"
+        >(Not published)</span
+      >
     </div>
 
     <div :class="$style.sideLinks">
@@ -19,9 +21,15 @@
         <div>
           <div :class="$style.tags">
             <template v-for="(tag, ix) in scan.tags">
-              <router-link :key="tag.id"
-                           :to="{ name: 'scans_library', query: { [tag.category]: tag.taxonomy } }"
-                           :class="$style.tag">{{ tag.name }}</router-link>
+              <router-link
+                :key="tag.id"
+                :to="{
+                  name: 'scans_library',
+                  query: { [tag.category]: tag.taxonomy },
+                }"
+                :class="$style.tag"
+                >{{ tag.name }}</router-link
+              >
             </template>
           </div>
 
@@ -39,26 +47,44 @@
           <div :class="$style.scanDesc" v-html="scan.description" />
 
           <div :class="$style.links">
-            <a :href="externalLinks.gbifSpecies" v-if="externalLinks.gbifSpecies" target="_blank">
+            <a
+              :href="externalLinks.gbifSpecies"
+              v-if="externalLinks.gbifSpecies"
+              target="_blank"
+            >
               View <i>{{ scan.scientific_name }}</i> on GBIF
             </a>
-            <a :href="externalLinks.gbifOccurrence" v-if="externalLinks.gbifOccurrence" target="_blank">
+            <a
+              :href="externalLinks.gbifOccurrence"
+              v-if="externalLinks.gbifOccurrence"
+              target="_blank"
+            >
               View specimen {{ scan.specimen_id }} on GBIF
             </a>
             <a :href="nhmPortalLink" v-if="nhmPortalLink" target="_blank">
-              View specimen {{ scan.specimen_id }} on the Natural History Museum Data Portal
+              View specimen {{ scan.specimen_id }} on the Natural History Museum
+              Data Portal
             </a>
           </div>
 
-          <div v-for="publication in scan.publications.filter(pub=>pub.published)" :key="publication.id"
-               :class="$style.publicationDetails">
-
+          <div
+            v-for="publication in scan.publications.filter(
+              (pub) => pub.published,
+            )"
+            :key="publication.id"
+            :class="$style.publicationDetails"
+          >
             <h2>Related Publication</h2>
 
             <dl :class="$style.datalist">
               <dt>Title:</dt>
               <dd>
-                <router-link :to="{ name: 'publications_view', params: { id: publication.url_slug } }">
+                <router-link
+                  :to="{
+                    name: 'publications_view',
+                    params: { id: publication.url_slug },
+                  }"
+                >
                   {{ publication.title }}
                 </router-link>
               </dd>
@@ -82,12 +108,21 @@
           <h2>Files</h2>
 
           <Files title="Stills" :download="'/files/stills/' + scan.url_slug">
-            <div :class="$style.file" v-for="still in scan.stills" :key="still.id">
+            <div
+              :class="$style.file"
+              v-for="still in scan.stills"
+              :key="still.id"
+            >
               <div :class="$style.filePreview">
-                <input type="image" :src="still.file + '?w=80'" @click="viewStill=still" :alt="still.name" />
+                <input
+                  type="image"
+                  :src="still.file + '?w=80'"
+                  @click="viewStill = still"
+                  :alt="still.name"
+                />
               </div>
               <div :class="$style.fileInfo">
-                {{ still.name }}<br>
+                {{ still.name }}<br />
                 {{ size(still.size) }}
               </div>
             </div>
@@ -96,17 +131,29 @@
           <Files title="3D / Web GL" :download="scan.source">
             <div :class="$style.file">
               <div :class="$style.filePreview">
-                <input v-if="scan.thumbnail" type="image" :src="scan.thumbnail + '?w=80'" @click="viewStill=null"
-                       alt="Original file" />
+                <input
+                  v-if="scan.thumbnail"
+                  type="image"
+                  :src="scan.thumbnail + '?w=80'"
+                  @click="viewStill = null"
+                  alt="Original file"
+                />
               </div>
-              <div :class="$style.fileInfo">
-                (Scan)
-              </div>
+              <div :class="$style.fileInfo">(Scan)</div>
             </div>
           </Files>
 
-          <template v-for="publication in scan.publications.filter(pub => pub.published)">
-            <Files v-for="file in publication.files" :key="file.id" title="PDF" :download="file.file">
+          <template
+            v-for="publication in scan.publications.filter(
+              (pub) => pub.published,
+            )"
+          >
+            <Files
+              v-for="file in publication.files"
+              :key="file.id"
+              title="PDF"
+              :download="file.file"
+            >
               <div :class="$style.file">
                 <div :class="$style.filePreview">
                   <a :href="file.file" :title="`Download PDF`" download>
@@ -114,7 +161,7 @@
                   </a>
                 </div>
                 <div :class="$style.fileInfo">
-                  {{ file && file.name }}<br>
+                  {{ file && file.name }}<br />
                   {{ size(file.size) }}
                 </div>
               </div>
@@ -123,7 +170,6 @@
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
@@ -136,12 +182,12 @@ export default {
   extends: Page,
   components: {
     CtmViewer,
-    Files
+    Files,
   },
   data() {
     return {
       viewStill: null,
-      nhmPortalLink: null
+      nhmPortalLink: null,
     };
   },
   computed: {
@@ -149,9 +195,10 @@ export default {
       return this.routeData;
     },
     title() {
-      return this.scan.scientific_name ?
-          this.scan.scientific_name[0].toUpperCase() + this.scan.scientific_name.substr(1) :
-          'Unnamed Upload';
+      return this.scan.scientific_name
+        ? this.scan.scientific_name[0].toUpperCase() +
+            this.scan.scientific_name.substr(1)
+        : 'Unnamed Upload';
     },
     ctm() {
       return decodeURIComponent(this.scan.ctm);
@@ -160,14 +207,18 @@ export default {
       let links = {};
 
       if (this.scan.gbif_species_id) {
-        links['gbifSpecies'] = `https://gbif.org/species/${ this.scan.gbif_species_id }`;
+        links[
+          'gbifSpecies'
+        ] = `https://gbif.org/species/${this.scan.gbif_species_id}`;
       }
       if (this.scan.gbif_occurrence_id) {
-        links['gbifOccurrence'] = `https://gbif.org/occurrence/${ this.scan.gbif_occurrence_id }`;
+        links[
+          'gbifOccurrence'
+        ] = `https://gbif.org/occurrence/${this.scan.gbif_occurrence_id}`;
       }
 
       return links;
-    }
+    },
   },
   methods: {
     size(bytes) {
@@ -175,9 +226,12 @@ export default {
     },
     async getNHMPortalLink() {
       let searchBody = {
-        gbifID: this.scan.gbif_occurrence_id
+        gbifID: this.scan.gbif_occurrence_id,
       };
-      const res = await fetch('https://data.nhm.ac.uk/api/3/action/datastore_search?resource_id=05ff2255-c38a-40c9-b657-4ccb55ab2feb&filters=' + JSON.stringify(searchBody));
+      const res = await fetch(
+        'https://data.nhm.ac.uk/api/3/action/datastore_search?resource_id=05ff2255-c38a-40c9-b657-4ccb55ab2feb&filters=' +
+          JSON.stringify(searchBody),
+      );
       if (!res.ok) {
         console.log(res);
         return;
@@ -185,17 +239,17 @@ export default {
       const results = await res.json();
       let record = results.result.records[0];
       if (record) {
-        this.nhmPortalLink = `https://data.nhm.ac.uk/object/${ record.occurrenceID }`;
+        this.nhmPortalLink = `https://data.nhm.ac.uk/object/${record.occurrenceID}`;
       } else {
         this.nhmPortalLink = null;
       }
-    }
+    },
   },
   mounted() {
     if (this.scan.gbif_occurrence_id) {
       this.getNHMPortalLink();
     }
-  }
+  },
 };
 </script>
 
@@ -309,5 +363,3 @@ export default {
   overflow: hidden;
 }
 </style>
-
-

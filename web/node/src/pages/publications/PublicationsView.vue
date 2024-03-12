@@ -2,7 +2,9 @@
   <div :class="$style.main">
     <div :class="$style.title">
       <h1>{{ publication.title }}</h1>
-      <span v-if="!publication.published" :class="$style.unpublished">(Not published)</span>
+      <span v-if="!publication.published" :class="$style.unpublished"
+        >(Not published)</span
+      >
     </div>
 
     <div :class="$style.sideLinks">
@@ -11,39 +13,47 @@
 
     <div class="Body__content">
       <dl :class="$style.datalist">
-          <dt>Year:</dt>
-          <dd>{{ publication.pub_year }}</dd>
-          <dt>Authors:</dt>
-          <dd>{{ publication.authors }}</dd>
-          <dt>Journal:</dt>
-          <dd>{{ publication.journal }}</dd>
-          <dt>Scans:</dt>
-          <dd>
-            <template v-for="(scan, ix) in publication.scans">
-              <template v-if="ix > 0">,</template>
-              <router-link :key="scan.id"
-                           :to="{ name: 'scan_view', params: { id: scan.url_slug || scan.id } }"
-                           v-text="scan.scientific_name.trim()"
-                           :class="$style.link" />
-            </template>
-          </dd>
+        <dt>Year:</dt>
+        <dd>{{ publication.pub_year }}</dd>
+        <dt>Authors:</dt>
+        <dd>{{ publication.authors }}</dd>
+        <dt>Journal:</dt>
+        <dd>{{ publication.journal }}</dd>
+        <dt>Scans:</dt>
+        <dd>
+          <template v-for="(scan, ix) in publication.scans">
+            <template v-if="ix > 0">,</template>
+            <router-link
+              :key="scan.id"
+              :to="{
+                name: 'scan_view',
+                params: { id: scan.url_slug || scan.id },
+              }"
+              v-text="scan.scientific_name.trim()"
+              :class="$style.link"
+            />
+          </template>
+        </dd>
       </dl>
 
       <div :class="$style.abstract" v-html="publication.abstract" />
 
       <div>
-        <a v-if="publication.link" :href="publication.link">{{ publication.link }}</a>
+        <a v-if="publication.link" :href="publication.link">{{
+          publication.link
+        }}</a>
       </div>
 
       <div :class="$style.downloads">
         <b v-if="publication.files.length > 0">Download:</b>
         <ul>
           <li v-for="file in publication.files" :key="file.id">
-            <a :href="file.file" :download="file.filename"><img src="/static/download.png" alt="" /> {{ file.name }}</a>
+            <a :href="file.file" :download="file.filename"
+              ><img src="/static/download.png" alt="" /> {{ file.name }}</a
+            >
           </li>
         </ul>
       </div>
-
     </div>
   </div>
 </template>
@@ -57,8 +67,8 @@ export default {
   computed: {
     publication() {
       return this.routeData;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -81,5 +91,4 @@ export default {
     list-style: none;
   }
 }
-
 </style>

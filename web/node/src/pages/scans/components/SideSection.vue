@@ -4,11 +4,12 @@
       <button :class="$style.button">
         {{ title }}
       </button>
-      <img :src="'/static/' + (open ? 'minus' : 'plus') + '.png'" :class="$style.indicator"
-           :alt="(open ? 'Collapse' : 'Expand') + ` options for ${title}`">
-      <div v-if="count">
-        ({{ count }})
-      </div>
+      <img
+        :src="'/static/' + (open ? 'minus' : 'plus') + '.png'"
+        :class="$style.indicator"
+        :alt="(open ? 'Collapse' : 'Expand') + ` options for ${title}`"
+      />
+      <div v-if="count">({{ count }})</div>
     </div>
     <SlideOpen>
       <div v-show="open" :class="childClass">
@@ -27,7 +28,7 @@ export default {
   components: { SlideOpen },
   data() {
     return {
-      open: false
+      open: false,
     };
   },
   methods: {
@@ -74,13 +75,13 @@ export default {
       setTimeout(() => {
         element.style.height = 0;
       });
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style module lang="scss">
-@import "scss/palette";
+@import 'scss/palette';
 @import '../styles/common';
 
 .main {

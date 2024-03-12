@@ -30,6 +30,5 @@
   & > * {
     padding-left: 5px;
   }
-
 }
 </style>

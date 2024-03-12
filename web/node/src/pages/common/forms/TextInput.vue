@@ -3,9 +3,22 @@
     <div :class="labelClass">
       <slot />
     </div>
-    <textarea v-if="$attrs.type === 'textarea'" :class="$style.input" v-bind="$attrs" v-on="$listeners"
-              @input="setValue" :value="text"/>
-    <input v-else :class="$style.input" v-bind="$attrs" v-on="$listeners" :value="text" @input="setValue"/>
+    <textarea
+      v-if="$attrs.type === 'textarea'"
+      :class="$style.input"
+      v-bind="$attrs"
+      v-on="$listeners"
+      @input="setValue"
+      :value="text"
+    />
+    <input
+      v-else
+      :class="$style.input"
+      v-bind="$attrs"
+      v-on="$listeners"
+      :value="text"
+      @input="setValue"
+    />
     <Errors :errors="data.errors" />
   </label>
 </template>
@@ -15,7 +28,7 @@ import Errors from './Errors';
 
 export default {
   components: {
-    Errors
+    Errors,
   },
   inheritAttrs: false,
   props: ['data', 'labelClass'],
@@ -25,13 +38,13 @@ export default {
   computed: {
     text() {
       return this.data.data;
-    }
+    },
   },
   methods: {
     setValue(event) {
-      this.$set(this.data, 'data', event.target.value)
-    }
-  }
+      this.$set(this.data, 'data', event.target.value);
+    },
+  },
 };
 </script>
 

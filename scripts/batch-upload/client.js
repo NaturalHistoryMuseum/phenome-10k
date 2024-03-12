@@ -29,9 +29,13 @@ class Client {
           // Do this by finding all the iframes in the page and find where the frame with the given selector falls
           // However this is a thing we have to do in the actual browser
           await this.find(id);
-          id = await this.exec(selector =>
-            Array.from(document.querySelectorAll('iframe')).indexOf(document.querySelector(selector)),
-          id);
+          id = await this.exec(
+            (selector) =>
+              Array.from(document.querySelectorAll('iframe')).indexOf(
+                document.querySelector(selector),
+              ),
+            id,
+          );
         }
 
         await this.switchToFrame(id);
@@ -51,14 +55,14 @@ class Client {
           // Frames are tracked in frameStack; remove the last item
           this.frameStack.pop();
           // Descend down into the desired frame by iterating the frame stack and switching to each
-          for(const id of this.frameStack) {
+          for (const id of this.frameStack) {
             await this.switchToFrame(id);
           }
         }
       },
       async click(selector) {
         return (await this.find(selector)).click();
-      }
+      },
     });
   }
 }
@@ -72,6 +76,6 @@ Client.run = async function run(config, fn) {
   } finally {
     await client.deleteSession();
   }
-}
+};
 
 module.exports = Client;

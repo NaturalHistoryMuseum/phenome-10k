@@ -6,9 +6,9 @@ const Group = {
   render(h) {
     return h('div', [
       this.name,
-      h(Results, { props: { results: this.items } })
+      h(Results, { props: { results: this.items } }),
     ]);
-  }
+  },
 };
 
 export default Group;

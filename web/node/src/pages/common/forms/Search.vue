@@ -2,7 +2,13 @@
   <form :class="$style.main">
     <label :class="$style.label">
       <span :class="$style.labelText"><slot>Search:</slot></span>
-      <input :class="$style.input" type="search" :name="name" :value="value" @input="input" />
+      <input
+        :class="$style.input"
+        type="search"
+        :name="name"
+        :value="value"
+        @input="input"
+      />
     </label>
     <Button :class="$style.button">🔎&#xFE0E;</Button>
   </form>
@@ -13,14 +19,14 @@ import Button from './Button';
 
 export default {
   components: {
-    Button
+    Button,
   },
   props: ['value', 'name'],
   methods: {
     input($event) {
       this.$emit('input', $event.target.value);
-    }
-  }
+    },
+  },
 };
 </script>
 

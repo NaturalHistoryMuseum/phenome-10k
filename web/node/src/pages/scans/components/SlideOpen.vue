@@ -1,5 +1,10 @@
 <template>
-  <transition name="SlideOpen__main-" @enter="enter" @afterEnter="afterEnter" @leave="leave">
+  <transition
+    name="SlideOpen__main-"
+    @enter="enter"
+    @afterEnter="afterEnter"
+    @leave="leave"
+  >
     <slot />
   </transition>
 </template>
@@ -51,8 +56,8 @@ export default {
       setTimeout(() => {
         element.style.height = 0;
       });
-    }
-  }
+    },
+  },
 };
 </script>
 

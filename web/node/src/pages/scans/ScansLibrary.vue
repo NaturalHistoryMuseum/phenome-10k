@@ -5,14 +5,25 @@
     <div class="Body__sidesection">
       <div :class="$style.sidebarRow">
         <h3 :class="$style.filterHeader">Filter by:</h3>
-        <router-link v-if="showClearLink" :to="clearLink" :class="$style.sidebarClear">Clear All</router-link>
+        <router-link
+          v-if="showClearLink"
+          :to="clearLink"
+          :class="$style.sidebarClear"
+          >Clear All</router-link
+        >
       </div>
 
-      <SideSection title="Geologic Age" :count="selectedTagCount('geologic_age')">
+      <SideSection
+        title="Geologic Age"
+        :count="selectedTagCount('geologic_age')"
+      >
         <TagTree :tags="tags.geologic_age" />
       </SideSection>
 
-      <SideSection title="Ontogenetic Age" :count="selectedTagCount('ontogenic_age')">
+      <SideSection
+        title="Ontogenetic Age"
+        :count="selectedTagCount('ontogenic_age')"
+      >
         <TagTree :tags="tags.ontogenic_age" />
       </SideSection>
 
@@ -20,16 +31,36 @@
         <TagTree :tags="tags.elements" />
       </SideSection>
 
-      <SideSection title="Taxonomy" :count="selectedTagCount('taxonomy')" :childClass="$style.sidebarRow">
-        <Tree :items="tags.taxonomy" #node="taxonomy" childKey="children" :class="$style.taxonTree">
+      <SideSection
+        title="Taxonomy"
+        :count="selectedTagCount('taxonomy')"
+        :childClass="$style.sidebarRow"
+      >
+        <Tree
+          :items="tags.taxonomy"
+          #node="taxonomy"
+          childKey="children"
+          :class="$style.taxonTree"
+        >
           <li :class="getTaxonFilterClass($style.taxon, taxonomy.id)">
-            <router-link :class="getTaxonFilterClass($style.filter, taxonomy.id)"
-                         :to="getTaxonFilterLink(taxonomy.id)">{{ taxonomy.name }}
+            <router-link
+              :class="getTaxonFilterClass($style.filter, taxonomy.id)"
+              :to="getTaxonFilterLink(taxonomy.id)"
+              >{{ taxonomy.name }}
             </router-link>
-            <button v-if="taxonomy.hasChildren" :class="$style.taxExpand"
-                    @click="$set(open, taxonomy.id, !open[taxonomy.id])">
-              <img :src="'/static/' + (open[taxonomy.id] ? 'minus' : 'plus') + '.png'"
-                   :alt="(open[taxonomy.id] ? 'Collapse ' : 'Expand ') + taxonomy.name">
+            <button
+              v-if="taxonomy.hasChildren"
+              :class="$style.taxExpand"
+              @click="$set(open, taxonomy.id, !open[taxonomy.id])"
+            >
+              <img
+                :src="
+                  '/static/' + (open[taxonomy.id] ? 'minus' : 'plus') + '.png'
+                "
+                :alt="
+                  (open[taxonomy.id] ? 'Collapse ' : 'Expand ') + taxonomy.name
+                "
+              />
             </button>
             <component v-if="open[taxonomy.id]" :is="taxonomy.children" />
           </li>
@@ -37,31 +68,40 @@
       </SideSection>
     </div>
     <div :class="[$style.filterControls, 'Body__filters']">
-        <Search :class="$style.search" name="q" v-model="q" />
-        <div :class="$style.sort" v-if="routeData.showMine">
-          Viewing:
-          <ul :class="$style.sortList">
-            <li :class="getMineLinkClass(false)">
-              <router-link :to="getMineLink(false)">All</router-link>
-            </li>
-            <li :class="getMineLinkClass(true)">
-              <router-link :to="getMineLink(true)">Mine</router-link>
-            </li>
-          </ul>
-        </div>
+      <Search :class="$style.search" name="q" v-model="q" />
+      <div :class="$style.sort" v-if="routeData.showMine">
+        Viewing:
+        <ul :class="$style.sortList">
+          <li :class="getMineLinkClass(false)">
+            <router-link :to="getMineLink(false)">All</router-link>
+          </li>
+          <li :class="getMineLinkClass(true)">
+            <router-link :to="getMineLink(true)">Mine</router-link>
+          </li>
+        </ul>
       </div>
+    </div>
     <div class="Body__content">
       <div v-if="groups">
-        <Group v-for="group in populatedGroups" :key="group.name" :name="group.group" :items="group.items" />
+        <Group
+          v-for="group in populatedGroups"
+          :key="group.name"
+          :name="group.group"
+          :items="group.items"
+        />
       </div>
       <Results v-else :results="results" />
-      <Pagination :page="page"
-                  :total="totalPages"
-                  :to="page => ({
-                name: 'scans_library-paged',
-                params: { page },
-                query: this.$route.query
-              })" />
+      <Pagination
+        :page="page"
+        :total="totalPages"
+        :to="
+          (page) => ({
+            name: 'scans_library-paged',
+            params: { page },
+            query: this.$route.query,
+          })
+        "
+      />
     </div>
   </div>
 </template>
@@ -75,7 +115,6 @@ import SlideOpen from './components/SlideOpen.vue';
 import Group from './components/group';
 import Library from '../common/base/Library';
 
-
 export default {
   name: 'ScansLibrary',
   extends: Library,
@@ -85,14 +124,14 @@ export default {
     TagTree,
     Tree,
     SideSection,
-    SlideOpen
+    SlideOpen,
   },
   data() {
     return {
       open: {},
       menu: {
-        geologicAge: false
-      }
+        geologicAge: false,
+      },
     };
   },
   computed: {
@@ -106,18 +145,24 @@ export default {
       return this.routeData.tags;
     },
     populatedGroups() {
-      return this.groups.filter(group => group.items.length);
+      return this.groups.filter((group) => group.items.length);
     },
     showClearLink() {
-      return ['geologic_age', 'ontogenic_age', 'elements', 'taxonomy'].some(this.selectedTagCount);
+      return ['geologic_age', 'ontogenic_age', 'elements', 'taxonomy'].some(
+        this.selectedTagCount,
+      );
     },
     clearLink() {
       const query = Object.assign({}, this.$route.query);
-      query.geologic_age = query.ontogenic_age = query.elements = query.taxonomy = [];
+      query.geologic_age =
+        query.ontogenic_age =
+        query.elements =
+        query.taxonomy =
+          [];
       return {
-        query
+        query,
       };
-    }
+    },
   },
   methods: {
     selectedTagCount(tag) {
@@ -127,7 +172,9 @@ export default {
     getTaxonFilterLink(tag) {
       const query = Object.assign({}, this.$route.query);
 
-      const values = new Set([].concat(query.taxonomy || []).map(str => parseInt(str, 10)));
+      const values = new Set(
+        [].concat(query.taxonomy || []).map((str) => parseInt(str, 10)),
+      );
 
       if (values.has(tag)) {
         values.delete(tag);
@@ -141,12 +188,14 @@ export default {
     },
     getTaxonFilterClass(cls, tag) {
       const current = this.$route.query.taxonomy || [];
-      const categories = new Set([].concat(current).map(str => parseInt(str, 10)));
+      const categories = new Set(
+        [].concat(current).map((str) => parseInt(str, 10)),
+      );
       return {
         [cls]: true,
-        [`${ cls }--active`]: categories.has(tag)
+        [`${cls}--active`]: categories.has(tag),
       };
-    }
+    },
   },
 };
 </script>
@@ -177,8 +226,18 @@ export default {
 }
 
 .taxon {
-  background-image: linear-gradient(to left, transparent 0px, $palette-grey-5 1px, transparent 1px),
-  linear-gradient(to bottom, transparent 6px, $palette-grey-5 7px, transparent 7px);
+  background-image: linear-gradient(
+      to left,
+      transparent 0px,
+      $palette-grey-5 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 6px,
+      $palette-grey-5 7px,
+      transparent 7px
+    );
   background-repeat: no-repeat;
   background-size: 7px auto, 7px auto, auto;
   background-position-x: right;
@@ -187,12 +246,12 @@ export default {
   text-align: right;
   display: grid;
   grid-template-columns: auto 12px;
-  grid-template-areas: 'filter expand'
-                       'tree   tree  ';
+  grid-template-areas:
+    'filter expand'
+    'tree   tree  ';
   grid-gap: 5px;
   justify-items: end;
   align-items: center;
-
 
   &:last-child {
     background-size: 7px 6px, 7px auto, auto;
@@ -213,16 +272,25 @@ export default {
   }
 
   &--active {
-    $bg: change-color($palette-primary, $alpha:0.2);
+    $bg: change-color($palette-primary, $alpha: 0.2);
 
-    background-image: linear-gradient(to left, transparent 0px, $palette-grey-5 1px, transparent 1px),
-    linear-gradient(to bottom, transparent 6px, $palette-grey-5 7px, transparent 7px),
-    linear-gradient(to bottom, $bg, $bg 100%, transparent 100%);
+    background-image: linear-gradient(
+        to left,
+        transparent 0px,
+        $palette-grey-5 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        to bottom,
+        transparent 6px,
+        $palette-grey-5 7px,
+        transparent 7px
+      ),
+      linear-gradient(to bottom, $bg, $bg 100%, transparent 100%);
   }
 }
 
 .taxonTree {
-
 }
 
 .filterHeader {

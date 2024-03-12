@@ -14,7 +14,7 @@
 
 .filter {
   &:hover {
-    background: change-color($palette-primary, $alpha:0.2);
+    background: change-color($palette-primary, $alpha: 0.2);
     text-decoration: none;
   }
 

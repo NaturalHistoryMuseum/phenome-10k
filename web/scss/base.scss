@@ -6,24 +6,31 @@
 
 .Grid {
   display: grid;
-  grid-template-areas: 'sidebar header .'
-                       'sidebar .      .';
+  grid-template-areas:
+    'sidebar header .'
+    'sidebar .      .';
   grid-template-rows: [header-start] $logo-height [header-end body-start] 1fr [body-end];
-  grid-template-columns: [sidebar-start] $sidebar-width [sidebar-end primary-start] minmax(auto, 1089px) [primary-end vspace-start] minmax(50px, auto) [vspace-end];
+  grid-template-columns:
+    [sidebar-start] $sidebar-width [sidebar-end primary-start] minmax(
+      auto,
+      1089px
+    )
+    [primary-end vspace-start] minmax(50px, auto) [vspace-end];
 
   & .Grid__sidebar {
     grid-area: sidebar;
     display: grid;
     grid-template-rows: [logo-start] $logo-height [logo-end body-start] 1fr [body-end];
-    grid-template-areas: 'logo'
-                       'body';
+    grid-template-areas:
+      'logo'
+      'body';
     background: linear-gradient(
-        to right,
-        transparent,
-        transparent $line-position,
-        $palette-grey-4 $line-position,
-        $palette-grey-4 ($line-position+1),
-        transparent ($line-position+1)
+      to right,
+      transparent,
+      transparent $line-position,
+      $palette-grey-4 $line-position,
+      $palette-grey-4 ($line-position + 1),
+      transparent ($line-position + 1)
     );
   }
 }
@@ -33,8 +40,9 @@
 .Grid__header {
   grid-area: header;
   display: grid;
-  grid-template-areas: 'subnav user'
-                       'nav    auth';
+  grid-template-areas:
+    'subnav user'
+    'nav    auth';
   grid-template-rows: [row1] 55px [row2] auto;
   grid-template-columns: [nav-start] auto [nav-end user-start] auto [user-end space-start];
   grid-gap: 0 40px;
@@ -73,11 +81,8 @@ $middle-padding: 10px;
   }
 
   & li:not(:first-child) {
-    background: linear-gradient(
-        to right,
-        $palette-grey-5,
-        transparent 1px
-    ) no-repeat center;
+    background: linear-gradient(to right, $palette-grey-5, transparent 1px)
+      no-repeat center;
     background-size: 100% 50%;
   }
 }
@@ -176,7 +181,8 @@ $nav-item-padding: 10px;
   & .nav__item {
     text-decoration: none;
 
-    &:hover, &.nav__item--selected {
+    &:hover,
+    &.nav__item--selected {
       color: $palette-primary;
     }
   }
@@ -193,7 +199,6 @@ $nav-item-padding: 10px;
   left: 100px;
 }
 
-
 // END SIDEBAR =======================================================
 
 // BODY ==============================================================
@@ -202,12 +207,15 @@ $nav-item-padding: 10px;
   grid-row: body-start / body-end;
   grid-column: sidebar-start / primary-end;
   display: grid;
-  grid-template-areas: '.     .     title      '
-                       'side1 side2 top-filters'
-                       'side1 side2 content    '
-                       'side1 side2 pagination ';
+  grid-template-areas:
+    '.     .     title      '
+    'side1 side2 top-filters'
+    'side1 side2 content    '
+    'side1 side2 pagination ';
   grid-template-columns: [sidesection-start] ($line-position + 1) $sidebar-margin-right [sidesection-end content-start] 1fr [content-end];
-  grid-template-rows: [headers-start] auto auto [headers-end content-start] minmax(0, 1fr) [content-end] auto [page-end];
+  grid-template-rows:
+    [headers-start] auto auto [headers-end content-start] minmax(0, 1fr)
+    [content-end] auto [page-end];
   grid-gap: 20px 0;
   position: relative;
 }
@@ -234,7 +242,8 @@ $nav-item-padding: 10px;
   grid-area: pagination;
 }
 
-.Body__messages, .flashes {
+.Body__messages,
+.flashes {
   position: absolute;
   grid-column: content;
   bottom: 100%;
