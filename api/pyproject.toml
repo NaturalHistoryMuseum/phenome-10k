@@ -1,0 +1,103 @@
+[project]
+name = "phenome10k"
+version = "1.0.0"
+description = "Hosting of 3D biological models for the academic and educational community."
+requires-python = ">=3.8"
+license = { text = "GPL-3.0-or-later" }
+authors = [
+    { name = "Paul Kiddle" },
+    { name = "Ginger Butcher", email = "phenome10k@nhm.ac.uk" }
+]
+keywords = []
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only"
+]
+dependencies = [
+    "alembic==1.7.7",
+    "apispec[marshmallow]==5.2.1",
+    "apispec-webframeworks==0.5.2",
+    "argon2-cffi==21.3.0",
+    "asn1crypto==1.5.1",
+    "celery[redis]==5.2.2",
+    "click",
+    "cryptography==37.0.2",
+    "email-validator==1.2.1",
+    "Flask==2.0.3",
+    "flask-hcaptcha==0.6.0",
+    "Flask-Mail==0.9.1",
+    "Flask-Migrate==3.1.0",
+    "flask-security-too==5.0.1",
+    "Flask-SQLAlchemy==2.5.1",
+    "Flask-WTF==1.0.1",
+    "Flask-Marshmallow==0.14.0",
+    "flower==1.0.0",
+    "gunicorn==20.1.0",
+    "importlib-metadata==4.11.3",
+    "marshmallow-sqlalchemy==0.28.0",
+    "numpy==1.22.3",
+    "numpy-stl==2.16.3",
+    "passlib==1.7.4",
+    "Pillow==9.1.0",
+    "PyMySQL==1.0.2",
+    "python-dotenv==0.20.0",
+    "python-magic==0.4.25",
+    "python-openctm==1.0.12",
+    "requests==2.27.1",
+    "SQLAlchemy==1.4.36",
+    "trimesh==3.12.0",
+    "urllib3==1.26.9",
+    "wcwidth==0.2.5",
+    "Werkzeug==2.1.2",
+    "wheel==0.37.1",
+    "zipp==3.8.0"
+]
+
+[project.optional-dependencies]
+test = [
+    "mock",
+    "pytest",
+    "pytest-cov",
+    "coveralls"
+]
+
+[project.urls]
+repository = "https://github.com/NaturalHistoryMuseum/phenome-10k"
+changelog = "https://github.com/NaturalHistoryMuseum/phenome-10k/blob/main/CHANGELOG.md"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool]
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.packages.find]
+exclude = ["tests", "docs"]
+
+[tool.commitizen]
+name = "cz_nhm"
+version = "1.0.0"
+tag_format = "v$version"
+update_changelog_on_bump = true
+changelog_incremental = true
+version_files = [
+    "pyproject.toml:version"
+]
+
+[tool.black]
+line-length = 88
+skip_string_normalization = true
+
+[tool.pylint]
+max-line-length = 88
+disable = ["C0114", "R0903"]
+
+[tool.docformatter]
+wrap-summaries = 88
+wrap-descriptions = 88
+pre-summary-newline = true
+make-summary-multi-line = true
