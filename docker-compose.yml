@@ -2,13 +2,13 @@ version: '3'
 
 services:
   data:
-    image: mysql:8
+    image: mariadb:jammy
     command: --default-authentication-plugin=mysql_native_password
     environment:
-      MYSQL_ROOT_PASSWORD: plaEee2eer34@
-      MYSQL_DATABASE: phenome10k
-      MYSQL_USER: phenome10k
-      MYSQL_PASSWORD: Aei0_rr2rr2r2r2r
+      MARIADB_ROOT_PASSWORD: plaEee2eer34@
+      MARIADB_DATABASE: phenome10k
+      MARIADB_USER: phenome10k
+      MARIADB_PASSWORD: Aei0_rr2rr2r2r2r
     networks:
       - phenome10k_net
     ports:
