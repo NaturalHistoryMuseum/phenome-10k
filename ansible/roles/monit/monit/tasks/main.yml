@@ -1,71 +1,70 @@
 ---
+- name: Install monit
+  yum:
+    name: monit
+  become: true
 
-  - name: Install monit
-    yum:
-      name: monit
-    become: yes
+- name: Create monit dir
+  file:
+    state: directory
+    path: '{{ monit_dir }}'
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
 
-  - name: Create monit dir
-    file:
-      state: directory
-      path: "{{ monit_dir }}"
-      owner: root
-      group: root
-      mode: '0600'
-    become: yes
+- name: Copy conf template
+  template:
+    src: monitrc.j2
+    dest: '{{ monit_dir }}/monitrc'
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+  notify:
+    - restart monit
 
-  - name: Copy conf template
-    template:
-      src: monitrc.j2
-      dest: "{{ monit_dir }}/monitrc"
-      owner: root
-      group: root
-      mode: '0600'
-    become: yes
-    notify:
-      - restart monit
+- name: Link upstream default config
+  file:
+    state: link
+    src: '{{ monit_dir }}/monitrc'
+    dest: /etc/monitrc
+    force: true
+  become: true
+  notify:
+    - restart monit
 
-  - name: Link upstream default config
-    file:
-      state: link
-      src: "{{ monit_dir }}/monitrc"
-      dest: /etc/monitrc
-      force: true
-    become: yes
-    notify:
-      - restart monit
+- name: Create confd dir
+  file:
+    state: directory
+    dest: '{{ monit_confd_dir }}'
+  become: true
 
-  - name: Create confd dir
-    file:
-      state: directory
-      dest: "{{ monit_confd_dir }}"
-    become: yes
+- name: Add monit checks
+  template:
+    src: monit.check.j2
+    dest: /etc/monit/conf.d/{{ item }}.conf
+  vars:
+    config: '{{ monit_services_conf[item] }}'
+    name: '{{ item }}'
+  with_items: '{{ monit_services }}'
+  when: config.skip is not defined or config.skip == ''
+  notify:
+    - restart monit
+  become: true
 
-  - name: Add monit checks
-    template:
-      src: monit.check.j2
-      dest: '/etc/monit/conf.d/{{ item }}.conf'
-    vars:
-      config: "{{ monit_services_conf[item] }}"
-      name: "{{ item }}"
-    with_items: '{{ monit_services }}'
-    when: "config.skip is not defined or config.skip == ''"
-    notify:
-      - restart monit
-    become: yes
+- name: Allow mmonit to connect from lb
+  firewalld:
+    zone: dmz
+    port: '{{ monit_port }}/tcp'
+    permanent: true
+    state: enabled
+    immediate: true
+  become: true
 
-  - name: Allow mmonit to connect from lb
-    firewalld:
-      zone: dmz
-      port: "{{ monit_port }}/tcp"
-      permanent: true
-      state: enabled
-      immediate: y
-    become: y
-
-  - name: enable & start monit
-    service:
-      name: monit
-      state: started
-      enabled: yes
-    become: y
+- name: enable & start monit
+  service:
+    name: monit
+    state: started
+    enabled: true
+  become: true

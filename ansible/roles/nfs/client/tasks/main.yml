@@ -1,20 +1,20 @@
 ---
-  - name: Install nfs utils
-    yum:
-      name: 'nfs-utils'
-    become: yes
+- name: Install nfs utils
+  yum:
+    name: nfs-utils
+  become: true
 
-  - name: Create the directory mounts
-    file:
-      path: "{{ nfs_path }}"
-      state: directory
-    become: yes
+- name: Create the directory mounts
+  file:
+    path: '{{ nfs_path }}'
+    state: directory
+  become: true
 
-  - name: Mount the folder from the file server
-    mount:
-      path: '{{ nfs_path }}'
-      src: '{{ nfs_server }}:{{ nfs_path }}'
-      fstype: nfs
-      opts: 'rw,noacl,nocto,bg,ac,noatime,nodiratime,intr,hard'
-      state: mounted
-    become: yes
+- name: Mount the folder from the file server
+  mount:
+    path: '{{ nfs_path }}'
+    src: '{{ nfs_server }}:{{ nfs_path }}'
+    fstype: nfs
+    opts: rw,noacl,nocto,bg,ac,noatime,nodiratime,intr,hard
+    state: mounted
+  become: true

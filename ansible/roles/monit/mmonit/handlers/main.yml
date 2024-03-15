@@ -1,6 +1,6 @@
 ---
-  - name: restart mmonit
-    service:
-      name: mmonit
-      state: restarted
-    become: y
+- name: restart mmonit
+  service:
+    name: mmonit
+    state: restarted
+  become: true

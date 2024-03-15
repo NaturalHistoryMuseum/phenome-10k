@@ -1,3 +1,4 @@
+---
 p10k_home: /var/phenome-10k
 p10k_logs: /var/log/phenome10k
 p10k_src_dir: '{{ p10k_home }}/www'
@@ -10,28 +11,30 @@ virtualenv_location: '{{ p10k_home }}/production'
 venv_bin: '{{ virtualenv_location }}/bin'
 gunicorn_binary: '{{ venv_bin }}/gunicorn'
 celery_binary: '{{ venv_bin }}/celery'
-python_version: '3.8.13'
-node_version: '14.x'
-node_binary: '/usr/bin/node'
+python_version: 3.8.13
+node_version: 14.x
+node_binary: /usr/bin/node
 node_source: '{{ frontend_root_dir }}/node'
 mysql_root_password: plaEee2eer34@
 p10k_db_user: phenome10k
 p10k_db_password: Aei0_rr2rr2r2r2r
 p10k_db_name: phenome10k
 p10k_db_host: data
-p10k_db_url: "mysql+pymysql://{{ p10k_db_user }}:{{ p10k_db_password|urlencode() }}@{{ p10k_db_host }}:3306/{{ p10k_db_name }}"
+p10k_db_url: mysql+pymysql://{{ p10k_db_user }}:{{ p10k_db_password|urlencode() }}@{{
+  p10k_db_host }}:3306/{{ p10k_db_name }}
 p10k_linux_user: phenome10k
 p10k_linux_group: phenome10k
 p10k_admin_password: pass
 gunicorn_port: 8000
 node_port: 8080
 mmonit_admin_password: ilovemonit
-mmonit_client_password: "{{ mmonit_admin_password }}"
+mmonit_client_password: '{{ mmonit_admin_password }}'
 hostname: phenome10k.localhost
 monit_hostname: monit.phenome10k.localhost
-virtual_ip: '192.168.10.21'
-monit_mmonit_url: http://monit:{{ mmonit_client_password|urlencode() }}@{{ virtual_ip }}:8080/collector
-nfs_path: '/var/files'
+virtual_ip: 192.168.10.21
+monit_mmonit_url: http://monit:{{ mmonit_client_password|urlencode() }}@{{ virtual_ip
+  }}:8080/collector
+nfs_path: /var/files
 uploads_dir: '{{ nfs_path }}/uploads'
 models_dir: '{{ nfs_path }}/models'
 tmp_upload_dir: '{{ nfs_path }}/tmp-uploads'
@@ -39,16 +42,16 @@ thumbnail_dir: '{{ p10k_home }}/thumbnails'
 mmonit_license_owner: Vincent Smith
 mmonit_license: "{{ lookup('hashi_vault', 'secret=phenome10k/mmonit:license url=https://man-vault-2.nhm.ac.uk:8200')}}"
 vrrp_password: pass123
-flask_secret_key: "G}<Ci&XWqSqA/mF7ZCWI7JJ.:QuuZF"
+flask_secret_key: G}<Ci&XWqSqA/mF7ZCWI7JJ.:QuuZF
 trusted_networks:
-  - '192.168.0.0/16'
-  - '127.0.0.0/16'
+  - 192.168.0.0/16
+  - 127.0.0.0/16
 max_upload_size_mb: 500
-skip_git_checkout: yes
+skip_git_checkout: true
 mysql_monit:
   user_name: monit
-  password: 'Monit_mysql_password.8'
-use_ssl: no
+  password: Monit_mysql_password.8
+use_ssl: false
 
 # To gain access to this inbox, look up the phenome10k/mailtrap:invite_url secret
 mail_host: smtp.mailtrap.io
@@ -59,9 +62,11 @@ mail_password: "{{ lookup('hashi_vault', 'secret=phenome10k/mailtrap:password ur
 # celery
 rabbitmq_host: localhost
 redis_host: localhost
-flower_broker_api: "http://{{ p10k_db_user }}:{{ p10k_db_password|urlencode() }}@{{ rabbitmq_host }}:15672/api/"
-celery_broker_url: "amqp://{{ p10k_db_user }}:{{ p10k_db_password|urlencode() }}@{{ rabbitmq_host }}:5672"
-celery_backend_url: "redis://{{ redis_host }}:6379"
+flower_broker_api: http://{{ p10k_db_user }}:{{ p10k_db_password|urlencode() }}@{{
+  rabbitmq_host }}:15672/api/
+celery_broker_url: amqp://{{ p10k_db_user }}:{{ p10k_db_password|urlencode() }}@{{
+  rabbitmq_host }}:5672
+celery_backend_url: redis://{{ redis_host }}:6379
 rabbitmq_setup_script: https://packagecloud.io/install/repositories/rabbitmq/rabbitmq-server/script.rpm.sh
 erlang_setup_script: https://packagecloud.io/install/repositories/rabbitmq/erlang/script.rpm.sh
 

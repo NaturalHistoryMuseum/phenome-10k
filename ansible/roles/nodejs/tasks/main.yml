@@ -1,48 +1,48 @@
 ---
-  - name: Download node installer
-    get_url:
-      url: https://rpm.nodesource.com/setup_{{node_version}}
-      dest: /tmp/setup_{{node_version}}.sh
-      mode: 755
-    become: y
+- name: Download node installer
+  get_url:
+    url: https://rpm.nodesource.com/setup_{{node_version}}
+    dest: /tmp/setup_{{node_version}}.sh
+    mode: 755
+  become: true
 
-  - name: Clear yum cache
-    command: yum clean all
-    args:
-      creates: "{{ p10k_home }}/.node-{{node_version}}-installed"
-    become: y
+- name: Clear yum cache
+  command: yum clean all
+  args:
+    creates: '{{ p10k_home }}/.node-{{node_version}}-installed'
+  become: true
 
-  - file:
-      path: /tmp/setup_{{node_version}}.sh
-      mode: '0777'
-    become: y
+- file:
+    path: /tmp/setup_{{node_version}}.sh
+    mode: '0777'
+  become: true
 
-  - name: Install node rpm
-    shell: /tmp/setup_{{node_version}}.sh
-    args:
-      creates: "{{ p10k_home }}/.node-{{node_version}}-installed"
-    become: y
+- name: Install node rpm
+  shell: /tmp/setup_{{node_version}}.sh
+  args:
+    creates: '{{ p10k_home }}/.node-{{node_version}}-installed'
+  become: true
 
-  - name: Mark node modules as needing rebuild
-    command: "touch {{ p10k_home }}/.node-{{node_version}}-rebuild"
-    args:
-      creates: "{{ p10k_home }}/.node-{{node_version}}-installed"
-    become: y
+- name: Mark node modules as needing rebuild
+  command: touch {{ p10k_home }}/.node-{{node_version}}-rebuild
+  args:
+    creates: '{{ p10k_home }}/.node-{{node_version}}-installed'
+  become: true
 
-  - name: Mark node {{ node_version }} as installed
-    copy:
-      content: ""
-      dest: "{{ p10k_home }}/.node-{{node_version}}-installed"
-      force: no
-      owner: phenome10k
-    become: y
+- name: Mark node {{ node_version }} as installed
+  copy:
+    content: ''
+    dest: '{{ p10k_home }}/.node-{{node_version}}-installed'
+    force: false
+    owner: phenome10k
+  become: true
 
-  - name: Install node
-    yum:
-      name:
-        - nodejs
-      state: latest
-    become: y
-    notify:
-      - rebuild front end
-      - restart node
+- name: Install node
+  yum:
+    name:
+      - nodejs
+    state: latest
+  become: true
+  notify:
+    - rebuild front end
+    - restart node

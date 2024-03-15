@@ -1,104 +1,120 @@
 ---
-  - name: Install percona rpm
-    yum:
-      name: "https://repo.percona.com/yum/percona-release-latest.noarch.rpm"
-    become: yes
-  - name: Enable the percona repo
-    command: percona-release setup ps80
-    args:
-      creates: /etc/yum.repos.d/percona-ps-80-release.repo
-    become: yes
-  - name: Install percona database server
-    yum:
-      name:
-        - percona-server-server
-        - percona-server-client
-        - percona-toolkit
-        - bc
-    become: yes
-  - name: Install pymysql, cryptography
-    pip:
-      name:
-        - "PyMySQL<1"
-        - "cryptography<3.4"
-    become: y
-  - name: Enable the service
-    service:
-      name: mysqld
-      enabled: yes
-      state: started
-    become: yes
-  - name: Get temporary password
-    shell: grep "A temporary password is generated" /var/log/mysqld.log | awk '{print $NF}'
-    become: y
-    register: mysql_temp_pass
-    changed_when: false
-    failed_when: mysql_temp_pass.stdout == ""
-  - name: set db root user password
-    command: mysql --user root --password={{ mysql_temp_pass.stdout }} --connect-expired-password --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';"
-    failed_when: false
-    register: chpw
-    changed_when: chpw.rc == 0
-  - name: Create database
-    mysql_db:
-      login_user: root
-      login_password: '{{ mysql_root_password }}'
-      name: '{{ p10k_db_name }}'
-  - name: Create p10k users
-    mysql_user:
-      login_user: root
-      login_password: '{{ mysql_root_password }}'
-      name: '{{ p10k_db_user }}'
-      password: '{{ p10k_db_password }}'
-      host: '{{ item }}'
-      priv: '{{ p10k_db_name }}.*:ALL'
-    loop: '{{ app_servers }}'
-  - name: Create the user for monit to ping the mysql server
-    mysql_user:
-      login_user: root
-      login_password: '{{ mysql_root_password }}'
-      name: '{{ mysql_monit.user_name }}'
-      password: '{{ mysql_monit.password }}'
-      host: 'localhost'
-  - name: Enable trusted connections
-    firewalld:
-      zone: dmz
-      service: mysql
-      permanent: true
-      state: enabled
-      immediate: y
-    become: y
-  - name: Create root my.cnf
-    template:
-      src: my.cnf.root.j2
-      dest: /root/.my.cnf
-      owner: root
-      group: root
-      mode: '0600'
-    become: yes
-  - name: Create backup script
-    template:
-      src: backup-db.j2
-      dest: /usr/local/sbin/backup-db
-      owner: 'root'
-      group: 'root'
-      mode: '0700'
-    become: yes
-  - name: Set backup script to run on cron
-    cron:
-      cron_file: db_backup
-      name: db_backup
-      minute: 33
-      hour: 1
-      day: '*'
-      month: '*'
-      weekday: '*'
-      job: "/usr/local/sbin/backup-db"
-      user: root
-    become: y
-  - name: Set cron mailto
-    cronvar:
-      cron_file: db_backup
-      name: MAILTO
-      value: "{{ sysadmin_email }}"
-    become: y
+- name: Install percona rpm
+  yum:
+    name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
+  become: true
+
+- name: Enable the percona repo
+  command: percona-release setup ps80
+  args:
+    creates: /etc/yum.repos.d/percona-ps-80-release.repo
+  become: true
+
+- name: Install percona database server
+  yum:
+    name:
+      - percona-server-server
+      - percona-server-client
+      - percona-toolkit
+      - bc
+  become: true
+
+- name: Install pymysql, cryptography
+  pip:
+    name:
+      - PyMySQL<1
+      - cryptography<3.4
+  become: true
+
+- name: Enable the service
+  service:
+    name: mysqld
+    enabled: true
+    state: started
+  become: true
+
+- name: Get temporary password
+  shell: grep "A temporary password is generated" /var/log/mysqld.log | awk '{print
+    $NF}'
+  become: true
+  register: mysql_temp_pass
+  changed_when: false
+  failed_when: mysql_temp_pass.stdout == ""
+
+- name: set db root user password
+  command: mysql --user root --password={{ mysql_temp_pass.stdout }} --connect-expired-password
+    --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';"
+  failed_when: false
+  register: chpw
+  changed_when: chpw.rc == 0
+
+- name: Create database
+  mysql_db:
+    login_user: root
+    login_password: '{{ mysql_root_password }}'
+    name: '{{ p10k_db_name }}'
+
+- name: Create p10k users
+  mysql_user:
+    login_user: root
+    login_password: '{{ mysql_root_password }}'
+    name: '{{ p10k_db_user }}'
+    password: '{{ p10k_db_password }}'
+    host: '{{ item }}'
+    priv: '{{ p10k_db_name }}.*:ALL'
+  loop: '{{ app_servers }}'
+
+- name: Create the user for monit to ping the mysql server
+  mysql_user:
+    login_user: root
+    login_password: '{{ mysql_root_password }}'
+    name: '{{ mysql_monit.user_name }}'
+    password: '{{ mysql_monit.password }}'
+    host: localhost
+
+- name: Enable trusted connections
+  firewalld:
+    zone: dmz
+    service: mysql
+    permanent: true
+    state: enabled
+    immediate: true
+  become: true
+
+- name: Create root my.cnf
+  template:
+    src: my.cnf.root.j2
+    dest: /root/.my.cnf
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+
+- name: Create backup script
+  template:
+    src: backup-db.j2
+    dest: /usr/local/sbin/backup-db
+    owner: root
+    group: root
+    mode: '0700'
+  become: true
+
+- name: Set backup script to run on cron
+  cron:
+    cron_file: db_backup
+    name: db_backup
+    minute: 33
+    hour: 1
+    day: '*'
+    month: '*'
+    weekday: '*'
+    job: /usr/local/sbin/backup-db
+    user: root
+  become: true
+
+- name: Set cron mailto
+  cronvar:
+    cron_file: db_backup
+    name: MAILTO
+    value: '{{ sysadmin_email }}'
+  become: true

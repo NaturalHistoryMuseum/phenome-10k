@@ -13,37 +13,37 @@
   shell: |
     curl -LsS "{{ rabbitmq_setup_script }}" | bash -s --
   args:
-    executable: "/bin/bash"
+    executable: /bin/bash
   when: not rabbitmq_repofile.stat.exists
-  become: y
+  become: true
 
 - name: Create Erlang repofile
   shell: |
     curl -LsS "{{ erlang_setup_script }}" | bash -s --
   args:
-    executable: "/bin/bash"
+    executable: /bin/bash
   when: not erlang_repofile.stat.exists
-  become: y
+  become: true
 
 - name: install Erlang
   yum:
     name: erlang
     state: present
     enablerepo: rabbitmq_erlang
-  become: y
+  become: true
 
 - name: install RabbitMQ
   yum:
     name: rabbitmq-server
     state: present
     enablerepo: rabbitmq_rabbitmq-server
-  become: y
+  become: true
 
 - name: Copy RabbitMQ config file
   template:
     src: rabbitmq.conf.j2
-    dest: '/etc/rabbitmq/rabbitmq.conf'
-  become: y
+    dest: /etc/rabbitmq/rabbitmq.conf
+  become: true
   notify:
     - restart rabbitmq
 
@@ -51,14 +51,14 @@
   systemd:
     name: rabbitmq-server.service
     state: started
-    enabled: y
-  become: y
+    enabled: true
+  become: true
 
 - name: Enable RabbitMQ management plugin
   rabbitmq_plugin:
     names: rabbitmq_management
     state: enabled
-  become: y
+  become: true
 
 - name: Add RabbitMQ user
   rabbitmq_user:
@@ -69,20 +69,20 @@
     read_priv: .*
     write_priv: .*
     state: present
-  become: y
+  become: true
 
 - name: Delete RabbitMQ guest user
   rabbitmq_user:
     user: guest
     state: absent
-  become: y
+  become: true
 
 - name: Install Redis
   yum:
     name:
       - redis
     state: present
-  become: yes
+  become: true
   notify:
     - restart redis
 
@@ -90,14 +90,14 @@
   systemd:
     name: redis.service
     state: started
-    enabled: y
-  become: y
+    enabled: true
+  become: true
 
 - name: Create the celery service
   template:
     src: celery.service.j2
     dest: /etc/systemd/system/celery.service
-  become: y
+  become: true
   notify:
     - restart celery
 
@@ -105,14 +105,14 @@
   systemd:
     name: celery.service
     state: started
-    enabled: y
-  become: y
+    enabled: true
+  become: true
 
 - name: Create the flower service
   template:
     src: flower.service.j2
     dest: /etc/systemd/system/flower.service
-  become: y
+  become: true
   notify:
     - restart flower
 
@@ -120,5 +120,5 @@
   systemd:
     name: flower.service
     state: started
-    enabled: y
-  become: y
+    enabled: true
+  become: true

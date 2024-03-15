@@ -3,5 +3,5 @@
   service:
     name: monit
     state: restarted
-    enabled: yes
-  become: y
+    enabled: true
+  become: true

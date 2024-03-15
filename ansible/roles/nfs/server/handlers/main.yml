@@ -1,4 +1,4 @@
 ---
-  - name: restart nfs
-    service: "name=nfs state=restarted"
-    become: yes
+- name: restart nfs
+  service: name=nfs state=restarted
+  become: true

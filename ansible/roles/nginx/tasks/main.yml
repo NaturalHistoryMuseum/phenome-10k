@@ -1,55 +1,57 @@
 ---
-  - name: Install nginx
-    yum:
-      name: nginx
-    become: y
+- name: Install nginx
+  yum:
+    name: nginx
+  become: true
 
-  - name: Copy nginx base config file
-    template:
-      src: nginx.conf.j2
-      dest: /etc/nginx/nginx.conf
-    notify:
-      - restart nginx
-    become: y
+- name: Copy nginx base config file
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+  notify:
+    - restart nginx
+  become: true
 
-  - name: Copy nginx non-ssl config
-    template:
-      src: phenome10k.org.conf.j2
-      dest: /etc/nginx/conf.d/phenome10k.org.conf
-    notify:
-      - restart nginx
-    become: y
-    when: not use_ssl
+- name: Copy nginx non-ssl config
+  template:
+    src: phenome10k.org.conf.j2
+    dest: /etc/nginx/conf.d/phenome10k.org.conf
+  notify:
+    - restart nginx
+  become: true
+  when: not use_ssl
 
-  - name: Copy nginx ssl config
-    template:
-      src: phenome10k.org.ssl.conf.j2
-      dest: /etc/nginx/conf.d/phenome10k.org.conf
-    notify:
-      - restart nginx
-    become: y
-    when: use_ssl
+- name: Copy nginx ssl config
+  template:
+    src: phenome10k.org.ssl.conf.j2
+    dest: /etc/nginx/conf.d/phenome10k.org.conf
+  notify:
+    - restart nginx
+  become: true
+  when: use_ssl
 
-  - name: Enable reverse proxy on selinux
-    seboolean:
-      name: httpd_can_network_connect
-      state: yes
-      persistent: yes
-    become: y
-  - name: Start nginx
-    systemd:
-      name: nginx
-      state: started
-      enabled: true
-    become: y
-  - name: Open port 80 on firewall
-    firewalld:
-      zone: public
-      service: '{{ item }}'
-      permanent: true
-      state: enabled
-      immediate: true
-    loop:
-      - http
-      - https
-    become: true
+- name: Enable reverse proxy on selinux
+  seboolean:
+    name: httpd_can_network_connect
+    state: true
+    persistent: true
+  become: true
+
+- name: Start nginx
+  systemd:
+    name: nginx
+    state: started
+    enabled: true
+  become: true
+
+- name: Open port 80 on firewall
+  firewalld:
+    zone: public
+    service: '{{ item }}'
+    permanent: true
+    state: enabled
+    immediate: true
+  loop:
+    - http
+    - https
+  become: true
