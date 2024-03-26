@@ -4,8 +4,6 @@
     name: pip
     extra_args: --upgrade
     virtualenv: '{{ virtualenv_location }}'
-    virtualenv_python: /usr/local/bin/python3.8
-    virtualenv_command: /usr/local/bin/virtualenv
   become: true
   become_user: phenome10k
 
@@ -14,8 +12,6 @@
     name: numpy
     extra_args: --upgrade
     virtualenv: '{{ virtualenv_location }}'
-    virtualenv_python: /usr/local/bin/python3.8
-    virtualenv_command: /usr/local/bin/virtualenv
   become: true
   become_user: phenome10k
 
@@ -25,7 +21,7 @@
     owner: phenome10k
     group: phenome10k
     mode: '0770'
-    recurse: true
+    recurse: y
   become: true
 
 - name: Install phenome10k
@@ -71,14 +67,5 @@
   systemd:
     name: gunicorn.service
     state: started
-    enabled: true
-  become: true
-
-- name: Open gunicorn port on firewall
-  firewalld:
-    zone: dmz
-    port: '{{ gunicorn_port }}/tcp'
-    permanent: true
-    state: enabled
-    immediate: true
+    enabled: y
   become: true

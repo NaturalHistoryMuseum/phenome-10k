@@ -1,6 +1,6 @@
 ---
 - name: Install keepalived
-  yum:
+  apt:
     name: keepalived
     state: present
   become: true
@@ -26,19 +26,3 @@
     state: started
     enabled: true
   become: true
-
-- name: Add firewall rules
-  command: firewall-cmd --direct --permanent --add-rule ipv4 filter {{ item | upper }}PUT
-    0 --{{ item }}-interface {{ vrrp_interface }} --destination 224.0.0.18 --protocol
-    vrrp -j ACCEPT
-  loop:
-    - in
-    - out
-  register: firewall_result
-  changed_when: firewall_result.stderr.find('ALREADY_ENABLED') < 0
-  become: true
-
-- name: Reload firewall
-  command: firewall-cmd --reload
-  become: true
-  when: firewall_result.changed

@@ -1,60 +1,14 @@
 ---
-- name: Install git, epel repository, etc
-  yum:
-    name:
-      - git
-      - epel-release
-      - python-setuptools
-      - libsemanage-python
-      - policycoreutils-python
-  become: true
-
-- name: Install packages for building python
-  yum:
-    name:
-      - '@development'
-      - zlib-devel
-      - gcc
-      - openssl-devel
-      - bzip2-devel
-      - libffi-devel
-      - python-pip
-  become: true
-
-- name: Download Python 3.8
-  get_url:
-    url: https://www.python.org/ftp/python/{{python_version}}/Python-{{python_version}}.tgz
-    dest: /tmp/python-{{python_version}}.tgz
-    mode: 777
-  become: true
-
-- name: Extract Python
-  unarchive:
-    src: /tmp/python-{{python_version}}.tgz
-    dest: /tmp/
-    remote_src: true
-  become: true
-
-- name: Configure Python
-  command:
-    chdir: /tmp/Python-{{python_version}}
-    cmd: ./configure --with-ensurepip=install
-  become: true
-
-- name: Make Python
-  command:
-    chdir: /tmp/Python-{{python_version}}
-    cmd: make -j 8
-  become: true
-
-- name: Install Python
-  command:
-    chdir: /tmp/Python-{{python_version}}
-    cmd: make altinstall
-  become: true
-
 - name: Install virtualenv
-  pip:
-    name: virtualenv
-    executable: /usr/local/bin/pip3.8
+  apt:
+    name:
+      - python3-venv
+    state: present
   become: true
+
+- name: Create virtualenv
+  command: python3 -m venv {{ virtualenv_location }}
+  args:
+    creates: '{{ virtualenv_location }}/bin'
+  become: true
+  become_user: phenome10k

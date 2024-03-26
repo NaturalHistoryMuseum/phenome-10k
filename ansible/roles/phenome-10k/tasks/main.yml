@@ -1,10 +1,17 @@
 ---
+- name: Install git
+  apt:
+    name:
+      - git
+    state: present
+  become: true
+
 - name: Check out source
   git:
     repo: https://github.com/NaturalHistoryMuseum/phenome-10k.git
     dest: '{{ p10k_src_dir }}'
     version: main
-    force: true
+    force: y
   become: true
   become_user: phenome10k
   when: not skip_git_checkout
@@ -22,6 +29,7 @@
     path: '{{ p10k_src_dir }}'
     group: phenome10k
     mode: '0770'
+    recurse: true
   become: true
 
 - name: And the backend folder
@@ -29,6 +37,7 @@
     path: '{{ app_root_dir }}'
     group: phenome10k
     mode: '0770'
+    recurse: true
   become: true
 
 - name: And the frontend folder
@@ -36,19 +45,8 @@
     path: '{{ frontend_root_dir }}'
     group: phenome10k
     mode: '0770'
+    recurse: true
   become: true
-
-- name: Allow nginx to read from static files dir
-  sefcontext:
-    target: '{{ static_files_dir }}(/.*)?'
-    setype: httpd_sys_content_t
-  become: true
-
-- name: Apply new SELinux file context to filesystem
-  command: restorecon -Rv {{ static_files_dir }}
-  become: true
-  register: restorecon
-  changed_when: restorecon.stdout !=  ""
 
 - name: Copy env variables
   template:

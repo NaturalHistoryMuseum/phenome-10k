@@ -27,6 +27,12 @@
   become: true
   when: download_monit.changed
 
+- name: Install sqlite3
+  apt:
+    name: sqlite3
+    state: present
+  become: true
+
   # Update default passwords - can only be done in the database before it starts
 
 - name: Update M/Monit admin user
@@ -81,15 +87,6 @@
   systemd:
     name: mmonit
     enabled: true
-  become: true
-
-- name: Allow monit to connect from app servers
-  firewalld:
-    zone: dmz
-    port: 8080/tcp
-    permanent: true
-    state: enabled
-    immediate: true
   become: true
 
 - meta: flush_handlers

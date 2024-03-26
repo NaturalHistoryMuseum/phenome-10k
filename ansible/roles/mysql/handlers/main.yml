@@ -1,6 +1,6 @@
 ---
-- name: restart nfs
+- name: restart mysql
   service:
-    name: nfs-server
+    name: mariadb
     state: restarted
   become: true

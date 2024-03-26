@@ -1,4 +1,11 @@
 ---
+- name: Remove node bin because it keeps causing issues
+  file:
+    path: '{{ frontend_root_dir }}/node_modules'
+    state: absent
+  become: true
+  become_user: phenome10k
+
 - name: Install node dependencies
   npm:
     path: '{{ frontend_root_dir }}'
@@ -41,5 +48,5 @@
   systemd:
     name: node.service
     state: started
-    enabled: true
+    enabled: y
   become: true

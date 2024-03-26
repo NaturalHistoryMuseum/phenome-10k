@@ -1,8 +1,9 @@
 ---
 - hosts: data
   roles:
-    - python
-    - firewalld
+    - core
+    - firewall
+    - users
     - nfs/server
     - mysql
     - monit/monit
@@ -12,12 +13,12 @@
       - 50gb-root-partition
       - data-partition
       - mysql
-
 - hosts: app
   roles:
-    - python
+    - core
+    - firewall
     - users
-    - firewalld
+    - python
     - nfs/client
     - {role: nodejs, tags: nodejs}
     - {role: phenome-10k, tags: phenome-10k}
@@ -31,11 +32,11 @@
     # Cron gbif
     # Email
     # Backups
-
 - hosts: lb
   roles:
-    - python
-    - firewalld
+    - core
+    - firewall
+    - users
     - nginx
     - monit/monit
     - monit/mmonit

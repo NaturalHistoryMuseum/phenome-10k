@@ -2,7 +2,7 @@
 
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 import json
 import sys
 import getpass

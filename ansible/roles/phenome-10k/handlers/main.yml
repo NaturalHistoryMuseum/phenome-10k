@@ -41,7 +41,22 @@
     state: restarted
   become: true
 
-- name: restart rabbitmq
+- name: restart rabbitmq 1 - stop rabbitmq
+  listen: restart rabbitmq
+  service:
+    name: rabbitmq-server
+    state: stopped
+  become: true
+
+- name: restart rabbitmq 2 - restart epmd
+  listen: restart rabbitmq
+  service:
+    name: epmd
+    state: restarted
+  become: true
+
+- name: restart rabbitmq 3 - restart rabbitmq
+  listen: restart rabbitmq
   service:
     name: rabbitmq-server
     state: restarted

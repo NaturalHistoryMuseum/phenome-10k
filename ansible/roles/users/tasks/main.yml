@@ -19,6 +19,7 @@
     mode: '0750'
     owner: '{{ p10k_linux_user }}'
     group: '{{ p10k_linux_group }}'
+      # recurse: y
   become: true
 
 - name: Add nginx user to phenome10k group

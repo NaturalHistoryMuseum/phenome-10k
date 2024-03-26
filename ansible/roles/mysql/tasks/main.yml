@@ -1,22 +1,16 @@
 ---
-- name: Install percona rpm
-  yum:
-    name: https://repo.percona.com/yum/percona-release-latest.noarch.rpm
-  become: true
-
-- name: Enable the percona repo
-  command: percona-release setup ps80
-  args:
-    creates: /etc/yum.repos.d/percona-ps-80-release.repo
-  become: true
-
-- name: Install percona database server
-  yum:
+- name: Install mariadb
+  apt:
     name:
-      - percona-server-server
-      - percona-server-client
-      - percona-toolkit
-      - bc
+      - mariadb-server
+      - mariadb-client
+  become: true
+
+- name: Comment out bind address (use skip-networking default)
+  replace:
+    path: /etc/mysql/mariadb.conf.d/50-server.cnf
+    regexp: ^bind-address
+    replace: '#bind-address'
   become: true
 
 - name: Install pymysql, cryptography
@@ -33,20 +27,14 @@
     state: started
   become: true
 
-- name: Get temporary password
-  shell: grep "A temporary password is generated" /var/log/mysqld.log | awk '{print
-    $NF}'
-  become: true
-  register: mysql_temp_pass
-  changed_when: false
-  failed_when: mysql_temp_pass.stdout == ""
-
 - name: set db root user password
-  command: mysql --user root --password={{ mysql_temp_pass.stdout }} --connect-expired-password
-    --execute="ALTER USER 'root'@'localhost' IDENTIFIED BY '{{ mysql_root_password }}';"
-  failed_when: false
-  register: chpw
-  changed_when: chpw.rc == 0
+  mysql_user:
+    name: root
+    password: '{{ mysql_root_password }}'
+    host: localhost
+    check_implicit_admin: true
+    login_unix_socket: /run/mysqld/mysqld.sock
+  become: true
 
 - name: Create database
   mysql_db:
@@ -71,20 +59,14 @@
     name: '{{ mysql_monit.user_name }}'
     password: '{{ mysql_monit.password }}'
     host: localhost
+  notify:
+    - restart mysql
 
-- name: Enable trusted connections
-  firewalld:
-    zone: dmz
-    service: mysql
-    permanent: true
-    state: enabled
-    immediate: true
-  become: true
-
+  # not sure if this actually does anything
 - name: Create root my.cnf
   template:
     src: my.cnf.root.j2
-    dest: /root/.my.cnf
+    dest: /etc/mysql/conf.d/root.cnf
     owner: root
     group: root
     mode: '0600'
@@ -118,3 +100,5 @@
     name: MAILTO
     value: '{{ sysadmin_email }}'
   become: true
+
+- meta: flush_handlers

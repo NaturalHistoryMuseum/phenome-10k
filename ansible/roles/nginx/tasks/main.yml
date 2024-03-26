@@ -1,6 +1,6 @@
 ---
 - name: Install nginx
-  yum:
+  apt:
     name: nginx
   become: true
 
@@ -30,28 +30,9 @@
   become: true
   when: use_ssl
 
-- name: Enable reverse proxy on selinux
-  seboolean:
-    name: httpd_can_network_connect
-    state: true
-    persistent: true
-  become: true
-
 - name: Start nginx
   systemd:
     name: nginx
     state: started
     enabled: true
-  become: true
-
-- name: Open port 80 on firewall
-  firewalld:
-    zone: public
-    service: '{{ item }}'
-    permanent: true
-    state: enabled
-    immediate: true
-  loop:
-    - http
-    - https
   become: true

@@ -1,26 +1,21 @@
 ---
-- name: Download node installer
+# TODO: stop using this script
+- name: Download nodejs setup script
   get_url:
-    url: https://rpm.nodesource.com/setup_{{node_version}}
-    dest: /tmp/setup_{{node_version}}.sh
-    mode: 755
+    url: https://deb.nodesource.com/setup_14.x
+    dest: /tmp/setup_node.sh
   become: true
 
-- name: Clear yum cache
-  command: yum clean all
-  args:
-    creates: '{{ p10k_home }}/.node-{{node_version}}-installed'
+- name: Remove sleeps for deprecation warnings we can't see
+  replace:
+    path: /tmp/setup_node.sh
+    regexp: sleep \d+
   become: true
 
-- file:
-    path: /tmp/setup_{{node_version}}.sh
-    mode: '0777'
-  become: true
-
-- name: Install node rpm
-  shell: /tmp/setup_{{node_version}}.sh
-  args:
-    creates: '{{ p10k_home }}/.node-{{node_version}}-installed'
+- name: Make nodejs setup script executable
+  file:
+    dest: /tmp/setup_node.sh
+    mode: a+x
   become: true
 
 - name: Mark node modules as needing rebuild
@@ -37,12 +32,21 @@
     owner: phenome10k
   become: true
 
+- name: Execute the node setup script
+  shell: /tmp/setup_node.sh
+  become: true
+
 - name: Install node
-  yum:
-    name:
-      - nodejs
-    state: latest
+  apt:
+    name: nodejs
+    state: present
   become: true
   notify:
     - rebuild front end
     - restart node
+
+- name: Remove node setup script
+  file:
+    path: /tmp/setup_node.sh
+    state: absent
+  become: true

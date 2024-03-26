@@ -1,7 +1,9 @@
 ---
-- name: Install nfs utils
-  yum:
-    name: nfs-utils
+- name: Install nfs dependencies
+  apt:
+    name:
+      - nfs-common
+    state: present
   become: true
 
 - name: Create the directory mounts
@@ -13,7 +15,7 @@
 - name: Mount the folder from the file server
   mount:
     path: '{{ nfs_path }}'
-    src: '{{ nfs_server }}:{{ nfs_path }}'
+    src: '{{ data_server }}:{{ nfs_path }}'
     fstype: nfs
     opts: rw,noacl,nocto,bg,ac,noatime,nodiratime,intr,hard
     state: mounted

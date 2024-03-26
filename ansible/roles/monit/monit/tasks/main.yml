@@ -1,6 +1,6 @@
 ---
 - name: Install monit
-  yum:
+  apt:
     name: monit
   become: true
 
@@ -51,15 +51,6 @@
   when: config.skip is not defined or config.skip == ''
   notify:
     - restart monit
-  become: true
-
-- name: Allow mmonit to connect from lb
-  firewalld:
-    zone: dmz
-    port: '{{ monit_port }}/tcp'
-    permanent: true
-    state: enabled
-    immediate: true
   become: true
 
 - name: enable & start monit

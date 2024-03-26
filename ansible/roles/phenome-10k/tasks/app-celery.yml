@@ -1,51 +1,38 @@
 ---
-- name: Check for RabbitMQ repofile
-  stat:
-    path: /etc/yum.repos.d/rabbitmq_rabbitmq-server.repo
-  register: rabbitmq_repofile
-
-- name: Check for Erlang repofile
-  stat:
-    path: /etc/yum.repos.d/rabbitmq_erlang.repo
-  register: erlang_repofile
-
-- name: Create RabbitMQ repofile
-  shell: |
-    curl -LsS "{{ rabbitmq_setup_script }}" | bash -s --
-  args:
-    executable: /bin/bash
-  when: not rabbitmq_repofile.stat.exists
+- name: Copy RabbitMQ setup script
+  copy:
+    src: rabbitmq-setup-20240322.sh
+    dest: /tmp/rabbitmq-setup.sh
+    mode: a+x
   become: true
 
-- name: Create Erlang repofile
-  shell: |
-    curl -LsS "{{ erlang_setup_script }}" | bash -s --
-  args:
-    executable: /bin/bash
-  when: not erlang_repofile.stat.exists
+- name: Run RabbitMQ setup script
+  shell: /tmp/rabbitmq-setup.sh
   become: true
 
-- name: install Erlang
-  yum:
-    name: erlang
-    state: present
-    enablerepo: rabbitmq_erlang
+- name: Remove RabbitMQ setup script
+  file:
+    path: /tmp/rabbitmq-setup.sh
+    state: absent
   become: true
 
-- name: install RabbitMQ
-  yum:
-    name: rabbitmq-server
-    state: present
-    enablerepo: rabbitmq_rabbitmq-server
-  become: true
-
-- name: Copy RabbitMQ config file
+- name: Copy RabbitMQ advanced config file
   template:
-    src: rabbitmq.conf.j2
-    dest: /etc/rabbitmq/rabbitmq.conf
+    src: rabbitmq-advanced.config
+    dest: /etc/rabbitmq/advanced.config
   become: true
   notify:
     - restart rabbitmq
+
+- name: Copy RabbitMQ config file
+  template:
+    src: rabbitmq-env.conf.j2
+    dest: /etc/rabbitmq/rabbitmq-env.conf
+  become: true
+  notify:
+    - restart rabbitmq
+
+- meta: flush_handlers
 
 - name: Start/enable RabbitMQ
   systemd:
@@ -64,6 +51,7 @@
   rabbitmq_user:
     user: '{{ p10k_db_user }}'
     password: '{{ p10k_db_password }}'
+    node: rabbit@localhost
     vhost: /
     configure_priv: .*
     read_priv: .*
@@ -75,10 +63,11 @@
   rabbitmq_user:
     user: guest
     state: absent
+    node: rabbit@localhost
   become: true
 
 - name: Install Redis
-  yum:
+  apt:
     name:
       - redis
     state: present
