@@ -131,7 +131,7 @@ networks:
   phenome10k_net:
     ipam:
       config:
-        - subnet: "10.0.10.1/24"
+        - subnet: "10.0.10.0/24"
 
 volumes:
   app_data:
