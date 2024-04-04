@@ -16,8 +16,11 @@ class ScanStore:
         self.db = db
 
     def zip_upload(self, file, owner_id):
-        """ Save the uploaded file as a zip file """
+        """
+        Save the uploaded file as a zip file.
+        """
         from ..models import File
+
         # Allow uploading zip file.
         if file.filename.endswith('.zip'):
             # app.logger.warn('zip file, validate contents')
@@ -31,7 +34,9 @@ class ScanStore:
 
         # Zip source file & save to large file storage
         # app.logger.warn('create empty zip')
-        zip_file = File.from_name(file.filename + '.zip', File.MODELS_DIR, owner_id=owner_id)
+        zip_file = File.from_name(
+            file.filename + '.zip', File.MODELS_DIR, owner_id=owner_id
+        )
         zip_file.mime_type = 'application/zip'
 
         filename, file_ext = os.path.splitext(file.filename)
@@ -58,13 +63,12 @@ class ScanStore:
     def new(self, author_uri):
         # Create instance of scan
         from ..models import User, Scan
+
         author = User.query.filter_by(email=author_uri).first()
         if author is None:
             raise NoAuthor('No author for ' + author_uri)
 
-        scan = Scan(
-            author_id=author.id
-        )
+        scan = Scan(author_id=author.id)
 
         self.db.session.add(scan)
 
@@ -74,6 +78,7 @@ class ScanStore:
         from .slugs import generate_slug
         from ..models import Taxonomy, Attachment, File
         from .gbif import pull_tags, validate_id
+
         attachments = attachments or []
         author_id = scan.author_id
         # Save upload to temporary file
@@ -95,16 +100,18 @@ class ScanStore:
         scan.publications = data.get('publications')
         scan.published = data.get('published')
 
-        scan.tags = (data.get('geologic_age')
-                     + data.get('ontogenic_age')
-                     + data.get('elements'))
+        scan.tags = (
+            data.get('geologic_age') + data.get('ontogenic_age') + data.get('elements')
+        )
 
         gbif_occurrence_id = data.get('gbif_occurrence_id')
         if validate_id('occurrence', gbif_occurrence_id):
             scan.gbif_occurrence_id = gbif_occurrence_id
 
         gbif_species_id = data.get('gbif_species_id')
-        if gbif_species_id != scan.gbif_species_id and validate_id('species', gbif_species_id):
+        if gbif_species_id != scan.gbif_species_id and validate_id(
+            'species', gbif_species_id
+        ):
             scan.gbif_species_id = gbif_species_id
             tags = pull_tags(gbif_species_id)
             tag_ids = [tag.id for tag in tags]
@@ -130,10 +137,7 @@ class ScanStore:
                 raise InvalidAttachment('Stills must be png files')
             else:
                 file.save(file_model.get_absolute_path())
-                attachment = Attachment(
-                    name=label,
-                    file=file_model
-                )
+                attachment = Attachment(name=label, file=file_model)
                 self.db.session.add(attachment)
                 scan.attachments.append(attachment)
         self.db.session.commit()
@@ -158,11 +162,15 @@ class ScanStore:
 
     def get(self, scan_uri):
         from ..models import Scan
+
         return Scan.find_by_slug(scan_uri)
 
     def create_ctm(self, scan):
-        """ Convert an uploaded model file to a ctm file """
+        """
+        Convert an uploaded model file to a ctm file.
+        """
         from ..models import Scan, File
+
         if not isinstance(scan, Scan):
             scan = self.get(scan)
 

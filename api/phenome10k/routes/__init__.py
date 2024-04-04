@@ -5,7 +5,15 @@ from ..extensions import spec
 
 
 def init_routes(app):
-    blueprints = [home.bp, user.bp, admin.bp, *scans.bps, *publications.bps, files.bp, query.bp]
+    blueprints = [
+        home.bp,
+        user.bp,
+        admin.bp,
+        *scans.bps,
+        *publications.bps,
+        files.bp,
+        query.bp,
+    ]
 
     app.url_map.converters['scan'] = ScanConverter
     app.url_map.converters['publication'] = PublicationConverter
@@ -23,7 +31,7 @@ def init_routes(app):
         'query.scan_by_id',
         'query.scan_search',
         'query.pub_by_id',
-        'query.pub_search'
+        'query.pub_search',
     ]
     with app.app_context():
         for rule in documented_routes:

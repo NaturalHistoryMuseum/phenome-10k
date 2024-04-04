@@ -1,6 +1,7 @@
-FROM node:14.5
+FROM node:14
 
-RUN apt-get update -y && apt-get install mysql-client -y
+RUN apt-get -q -y update && DEBIAN_FRONTEND=noninteractive apt-get -q -y upgrade
+RUN apt-get -q -y install mariadb-client
 
 COPY ./docker/app-node/entrypoint /deploy/entrypoint
 COPY ./web/package.json /var/phenome-10k/www/web/package.json

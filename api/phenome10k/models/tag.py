@@ -10,7 +10,9 @@ class Tag(db.Model):
 
     @property
     def children(self):
-        return Tag.query.filter(db.and_(Tag.parent_id == self.id, Tag.category == self.category))
+        return Tag.query.filter(
+            db.and_(Tag.parent_id == self.id, Tag.category == self.category)
+        )
 
     def serialize_tree(self):
         data = self.serialize()
@@ -24,7 +26,7 @@ class Tag(db.Model):
             'id': self.id,
             'category': self.category,
             'name': self.name,
-            'taxonomy': self.taxonomy
+            'taxonomy': self.taxonomy,
         }
 
     @staticmethod

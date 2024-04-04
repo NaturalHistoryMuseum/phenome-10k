@@ -11,7 +11,7 @@ echo "MYSQL started."
 if [ "${RUN_INIT}" == "TRUE" ]
 then
   echo "Running flask init"
-  flask db upgrade
+  p10k db upgrade
   p10k set-admin-pw pass
   p10k update-gbif-tags
 fi

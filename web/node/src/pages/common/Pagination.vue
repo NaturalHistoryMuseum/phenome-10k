@@ -6,9 +6,13 @@
         <router-link v-bind="link(1)">1</router-link>
         …
       </template>
-      <router-link v-bind="link(page - 1)" v-if="page > 1">{{ page - 1 }}</router-link>
+      <router-link v-bind="link(page - 1)" v-if="page > 1">{{
+        page - 1
+      }}</router-link>
       <router-link v-bind="link(page)">{{ page }}</router-link>
-      <router-link v-bind="link(page + 1)" v-if="page < total">{{ page + 1 }}</router-link>
+      <router-link v-bind="link(page + 1)" v-if="page < total">{{
+        page + 1
+      }}</router-link>
       <template v-if="page < total - 1">
         …
         <router-link v-bind="link(total)">{{ total }}</router-link>
@@ -22,7 +26,7 @@ export default {
   props: [
     'to', // Function that returns the router-link object for a page, given page number as argument
     'page', // The current page number
-    'total' // The total number of pages
+    'total', // The total number of pages
   ],
   methods: {
     /**
@@ -35,10 +39,10 @@ export default {
 
       return {
         to: this.to(page),
-        class: cssClasses
+        class: cssClasses,
       };
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -67,7 +71,7 @@ export default {
 
   &:hover {
     transition: 0.2s background-color;
-    background-color: change-color($palette-grey-5, $alpha:0.3);
+    background-color: change-color($palette-grey-5, $alpha: 0.3);
   }
 }
 </style>

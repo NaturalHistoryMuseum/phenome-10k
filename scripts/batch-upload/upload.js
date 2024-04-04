@@ -25,41 +25,41 @@ const { waitFor } = require('./utils');
  * To zip each file, run .zip {$directory}
  */
 
-const sleep = ms => new Promise(r => setTimeout(r, ms));
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const config = {
   path: '/',
   capabilities: {
     browserName: 'firefox',
     timeouts: {
-      implicit: 5000
-    }
+      implicit: 5000,
+    },
   },
-  logLevel: 'debug'
-}
+  logLevel: 'debug',
+};
 
-const readIx = (() => {
+const readIx = () => {
   try {
-    return require('./ix.json')
-  } catch(e) {
+    return require('./ix.json');
+  } catch (e) {
     return 0;
   }
-});
+};
 
-const saveIx = ix => fs.writeFileSync('./ix.json', String(ix));
+const saveIx = (ix) => fs.writeFileSync('./ix.json', String(ix));
 
 const delIx = () => fs.unlinkSync('./ix.json');
 
-const ucfirst = s=>s.replace(/./, a=>a.toUpperCase());
+const ucfirst = (s) => s.replace(/./, (a) => a.toUpperCase());
 
-const host = 'http://app-p10k-1:8000'
+const host = 'http://app-p10k-1:8000';
 
 Client.run(config, async (window) => {
   await window.maximizeWindow();
   await window.navigateTo(host + '/login');
 
   const adminUser = 'admin';
-  const adminPassword = process.env.ADMIN /* get this from vault */;
+  const adminPassword = process.env.ADMIN; /* get this from vault */
 
   await window.find(css('input[name=email]')).sendKeys(adminUser);
   await window.find(css('input[name=password]')).sendKeys(adminPassword);
@@ -68,13 +68,14 @@ Client.run(config, async (window) => {
   const records = require('./records.json');
 
   console.log('loop for');
-  for(let ix = readIx(); ix < records.length; saveIx(++ix)) {
+  for (let ix = readIx(); ix < records.length; saveIx(++ix)) {
     await window.navigateTo(host + '/scans/create/');
     const record = records[ix];
     const fileInput = await window.find(css('input[name=file]'));
-    const filename = './files/' + record['source filename'].replace(/(\.stl)?$/, '.stl.zip');
+    const filename =
+      './files/' + record['source filename'].replace(/(\.stl)?$/, '.stl.zip');
     console.log(filename);
-    const zip = require.resolve(filename)
+    const zip = require.resolve(filename);
 
     await fileInput.sendKeys(zip);
 
@@ -83,28 +84,66 @@ Client.run(config, async (window) => {
     // Wait for CTM to actually render
     await sleep(10000);
 
-    await window.find(css('.Upload__still-capture-name input')).sendKeys('Preview');
+    await window
+      .find(css('.Upload__still-capture-name input'))
+      .sendKeys('Preview');
     await window.find(css('.Upload__still-capture-name button')).click();
     await window.find(css('.Upload__still-image'));
 
-    await window.find(css('input[name=scientific_name]')).sendKeys(record['scientific name']);
+    await window
+      .find(css('input[name=scientific_name]'))
+      .sendKeys(record['scientific name']);
 
     // Make sure any Vue rendering doesn't mess things up
     await sleep(1000);
 
-    await window.find(css('input[name=specimen_id]')).sendKeys(record["specimen id (optional)"]);
-    await window.find(css('input[name=specimen_location]')).sendKeys(record["specimen location (optional)"]);
-    await window.find(css('input[name=specimen_url]')).sendKeys(record["specimen url (optional)"]);
-    await window.find(css('textarea[name=description]')).sendKeys(record["description"]);
+    await window
+      .find(css('input[name=specimen_id]'))
+      .sendKeys(record['specimen id (optional)']);
+    await window
+      .find(css('input[name=specimen_location]'))
+      .sendKeys(record['specimen location (optional)']);
+    await window
+      .find(css('input[name=specimen_url]'))
+      .sendKeys(record['specimen url (optional)']);
+    await window
+      .find(css('textarea[name=description]'))
+      .sendKeys(record['description']);
 
-    await window.find(xpath(`//input[@name='geologic_age']/following-sibling::label[text() = '${ucfirst(record['geologic age'])}']`)).click();
-    await window.find(xpath(`//input[@name='ontogenic_age']/following-sibling::label[text() = '${ucfirst(record['ontogenetic age'])}']`)).click();
-    await window.find(xpath(`//input[@name='elements']/following-sibling::label[text() = '${ucfirst(record['elements'])}']`)).click();
-    await window.find(xpath(`//input[@name='published']/following-sibling::label`)).click();
+    await window
+      .find(
+        xpath(
+          `//input[@name='geologic_age']/following-sibling::label[text() = '${ucfirst(
+            record['geologic age'],
+          )}']`,
+        ),
+      )
+      .click();
+    await window
+      .find(
+        xpath(
+          `//input[@name='ontogenic_age']/following-sibling::label[text() = '${ucfirst(
+            record['ontogenetic age'],
+          )}']`,
+        ),
+      )
+      .click();
+    await window
+      .find(
+        xpath(
+          `//input[@name='elements']/following-sibling::label[text() = '${ucfirst(
+            record['elements'],
+          )}']`,
+        ),
+      )
+      .click();
+    await window
+      .find(xpath(`//input[@name='published']/following-sibling::label`))
+      .click();
 
     try {
       await window.find(css('.Upload__submit button')).click().waitUntilStale();
-    } catch(e){
+    } catch (e) {
       await sleep(15000);
       throw e;
     }

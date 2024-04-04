@@ -1,11 +1,13 @@
 <template>
-  <canvas :class="cssClass"
-          ref="canvas"
-          :height="height" :width="width"
-          @dblclick="toggleFullscreen"
-          @click.alt="doubleSided = !doubleSided"
-          title="Use ctrl to pan, shift to zoom"
-          :data-loaded="loaded"
+  <canvas
+    :class="cssClass"
+    ref="canvas"
+    :height="height"
+    :width="width"
+    @dblclick="toggleFullscreen"
+    @click.alt="doubleSided = !doubleSided"
+    title="Use ctrl to pan, shift to zoom"
+    :data-loaded="loaded"
   ></canvas>
 </template>
 
@@ -24,11 +26,11 @@ export default {
     src: String,
     width: {
       type: [String, Number],
-      default: 720
+      default: 720,
     },
     height: {
       type: [String, Number],
-      default: 500
+      default: 500,
     },
   },
   data() {
@@ -37,25 +39,28 @@ export default {
       doubleSided: true,
       keyStates: {
         [CTRL_KEY]: false,
-        [SHIFT_KEY]: false
+        [SHIFT_KEY]: false,
       },
       buttonStates: {
-        0: false
-      }
+        0: false,
+      },
     };
   },
   computed: {
     cssClass() {
       const cls = this.$style.main;
 
-      return this.cursor ? [cls, `${ cls }--${ this.cursor }`] : cls;
+      return this.cursor ? [cls, `${cls}--${this.cursor}`] : cls;
     },
     cursor() {
-      return this.keyStates[SHIFT_KEY] ? 'zoom'
-          : this.keyStates[CTRL_KEY] ?
-              this.buttonStates[0] ? 'moving' : 'move'
-              : null;
-    }
+      return this.keyStates[SHIFT_KEY]
+        ? 'zoom'
+        : this.keyStates[CTRL_KEY]
+        ? this.buttonStates[0]
+          ? 'moving'
+          : 'move'
+        : null;
+    },
   },
   $viewer: null,
   mounted() {
@@ -100,9 +105,7 @@ export default {
     setDoubleSided(doubleSided = true) {
       const scene = this.viewer && this.viewer.getScene();
       if (scene) {
-        scene.forEachChild(mesh =>
-            mesh.isDoubleSided = doubleSided
-        );
+        scene.forEachChild((mesh) => (mesh.isDoubleSided = doubleSided));
         this.viewer.update();
       }
     },
@@ -112,10 +115,8 @@ export default {
      * @param name The filename for the captured image
      */
     captureStill(name) {
-      return new Promise(resolve =>
-          this.$refs.canvas.toBlob(blob =>
-              resolve(new File([blob], name))
-          )
+      return new Promise((resolve) =>
+        this.$refs.canvas.toBlob((blob) => resolve(new File([blob], name))),
       );
     },
     /**
@@ -137,7 +138,7 @@ export default {
       const width = canvas.clientWidth;
       const height = canvas.clientHeight;
 
-      if (!force && (width === canvas.width)) {
+      if (!force && width === canvas.width) {
         return;
       }
 
@@ -149,7 +150,7 @@ export default {
 
       // If we're in full screen, use the full height of the content rect,
       // otherwise just use the ratio given by the props
-      canvas.height = document.fullscreenElement ? height : (width / ratio);
+      canvas.height = document.fullscreenElement ? height : width / ratio;
 
       // Stop re-init creating new webGL instance (reuse the old one)
       if (this.viewer.webglBackend) {
@@ -158,13 +159,13 @@ export default {
 
       // Re-initialise the viewer to take into account the new size
       this.viewer.init();
-    }
+    },
   },
   watch: {
     doubleSided(value) {
       this.setDoubleSided(value);
-    }
-  }
+    },
+  },
 };
 </script>
 

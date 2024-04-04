@@ -1,0 +1,48 @@
+---
+- name: Allow trusted network IPs
+  ufw:
+    rule: allow
+    from_ip: '{{ item }}'
+  loop: '{{ trusted_networks }}'
+  become: true
+
+- name: Allow inbound connections from internal servers
+  ufw:
+    rule: allow
+    from_ip: '{{ item }}'
+    proto: any
+  loop: '{{ server_ips }}'
+  become: true
+
+- name: Allow outbound connections to internal servers
+  ufw:
+    rule: allow
+    to_ip: '{{ item }}'
+    proto: any
+  loop: '{{ server_ips }}'
+  become: true
+
+- name: Open ssh port
+  ufw:
+    rule: allow
+    port: ssh
+  become: true
+
+- name: Open http port on load balancers
+  ufw:
+    port: http
+    rule: allow
+  become: yes
+  when: "'lb' in group_names"
+
+- name: Open https port on load balancers
+  ufw:
+    port: https
+    rule: allow
+  become: yes
+  when: "'lb' in group_names"
+
+- name: Enable ufw
+  ufw:
+    state: enabled
+  become: true

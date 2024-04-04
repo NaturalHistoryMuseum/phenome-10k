@@ -27,7 +27,9 @@ class ScanAttachment(db.Model):
     attachment_id = db.Column(db.Integer, db.ForeignKey('attachment.id'))
 
     def is_owned_by(self, user):
-        """ Return true if the given user owns this model """
+        """
+        Return true if the given user owns this model.
+        """
         return self.scan.is_owned_by(user)
 
 
@@ -37,5 +39,7 @@ class PublicationFile(db.Model):
     attachment_id = db.Column(db.Integer, db.ForeignKey('attachment.id'))
 
     def is_owned_by(self, user):
-        """ Return true if the given user owns this model """
+        """
+        Return true if the given user owns this model.
+        """
         return self.publication.is_owned_by(user)

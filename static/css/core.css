@@ -1,60 +1,75 @@
-@import url("https://fonts.googleapis.com/css2?family=Red+Hat+Text&family=Titillium+Web&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Text&family=Titillium+Web&display=swap');
 * {
-  box-sizing: border-box; }
+  box-sizing: border-box;
+}
 
 html {
-  height: 100%; }
+  height: 100%;
+}
 
 body {
-  font-family: "Red Hat Text", "Helvetica", Arial, sans-serif;
+  font-family: 'Red Hat Text', 'Helvetica', Arial, sans-serif;
   font-size: 15px;
   line-height: 1.7em;
   margin: 0;
   padding: 0;
-  min-height: 100%; }
+  min-height: 100%;
+}
 
 a {
-  color: #008558; }
+  color: #008558;
+}
 
 a:link {
-  text-decoration: none; }
+  text-decoration: none;
+}
 
 a:link:hover {
-  text-decoration: underline; }
+  text-decoration: underline;
+}
 
 h1 {
-  font-family: "Titillium Web", "Helvetica", Arial, sans-serif;
+  font-family: 'Titillium Web', 'Helvetica', Arial, sans-serif;
   color: #008558;
   font-weight: normal;
   font-size: 2em;
   line-height: 1.3em;
-  margin: 0; }
+  margin: 0;
+}
 
 h2 {
-  font-family: "Titillium Web", "Helvetica", Arial, sans-serif;
+  font-family: 'Titillium Web', 'Helvetica', Arial, sans-serif;
   font-size: 1.5em;
-  color: #1F1F1F; }
+  color: #1f1f1f;
+}
 
 .error {
-  color: red; }
+  color: red;
+}
 
 .mb {
-  margin-bottom: 1em; }
+  margin-bottom: 1em;
+}
 
 .mt {
-  margin-top: 1em; }
+  margin-top: 1em;
+}
 
 .ml {
-  margin-left: 1em; }
+  margin-left: 1em;
+}
 
 .mr {
-  margin-right: 1em; }
+  margin-right: 1em;
+}
 
 .m0 {
-  margin: 0; }
+  margin: 0;
+}
 
 .m1 {
-  margin: 1em; }
+  margin: 1em;
+}
 
 .p10k__button {
   font-weight: bold;
@@ -62,23 +77,33 @@ h2 {
   color: white;
   padding: 10px 25px;
   border: none;
-  font-family: "Red Hat Text", "Helvetica", Arial, sans-serif;
-  font-size: 12px; }
+  font-family: 'Red Hat Text', 'Helvetica', Arial, sans-serif;
+  font-size: 12px;
+}
 
 .p10k__citation {
   background: #f5f5f5;
-  padding: 15px 20px; }
+  padding: 15px 20px;
+}
 
-.p10k__form > .p10k__form_row, .p10k__form > .p10k__form_row_stack {
-  display: flex;
-  margin-bottom: 1em; }
-  .p10k__form > .p10k__form_row input, .p10k__form > .p10k__form_row select, .p10k__form > .p10k__form_row_stack input, .p10k__form > .p10k__form_row_stack select {
-    font-size: 15px;
-    padding: 5px; }
+.p10k__form > .p10k__form_row,
 .p10k__form > .p10k__form_row_stack {
-  flex-direction: column; }
+  display: flex;
+  margin-bottom: 1em;
+}
+.p10k__form > .p10k__form_row input,
+.p10k__form > .p10k__form_row select,
+.p10k__form > .p10k__form_row_stack input,
+.p10k__form > .p10k__form_row_stack select {
+  font-size: 15px;
+  padding: 5px;
+}
+.p10k__form > .p10k__form_row_stack {
+  flex-direction: column;
+}
 
 .p10k__smalltext {
-  font-size: 12px; }
+  font-size: 12px;
+}
 
 /*# sourceMappingURL=core.css.map */

@@ -1,0 +1,20 @@
+---
+- name: Update package repo
+  apt:
+    update_cache: true
+  become: true
+
+- name: Install core packages
+  apt:
+    name:
+      - acl
+    state: present
+  become: true
+
+- name: Install core python packages
+  apt:
+    name:
+      - python-setuptools
+      - python3-pip
+    state: present
+  become: true

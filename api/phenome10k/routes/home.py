@@ -17,9 +17,10 @@ def about():
 
 @bp.route('/feed')
 def feed():
-    """ Generate the RSS feed """
+    """
+    Generate the RSS feed.
+    """
     scans = Scan.query.filter(Scan.published).order_by(Scan.date_created)
     resp = make_response(render_template('rss.xml', scans=scans))
     resp.headers['Content-type'] = 'application/rss+xml'
     return resp
-

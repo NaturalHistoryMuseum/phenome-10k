@@ -1,6 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import (StringField, FileField,
-                     TextAreaField, MultipleFileField)
+from wtforms import StringField, FileField, TextAreaField, MultipleFileField
 from wtforms.validators import DataRequired
 
 
@@ -19,6 +18,7 @@ class PublicationUploadForm(FlaskForm):
         return {
             k: {
                 'data': None if isinstance(self[k], FileField) else v,
-                'errors': self[k].errors
-            } for k, v in self.data.items()
+                'errors': self[k].errors,
+            }
+            for k, v in self.data.items()
         }

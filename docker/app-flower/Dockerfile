@@ -1,8 +1,7 @@
-FROM python:3.8
+FROM python:3.10
 
 COPY ./api/requirements.txt /deploy/requirements.txt
 RUN pip install -r /deploy/requirements.txt
-RUN pip install flower
 
 WORKDIR /var/phenome-10k/www/api
 

@@ -1,0 +1,61 @@
+[project]
+name = "phenome10k"
+version = "1.0.0"
+description = "Hosting of 3D biological models for the academic and educational community."
+requires-python = ">=3.8"
+license = { text = "GPL-3.0-or-later" }
+authors = [
+    { name = "Paul Kiddle" },
+    { name = "Ginger Butcher", email = "phenome10k@nhm.ac.uk" }
+]
+keywords = []
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only"
+]
+dynamic = ["dependencies"]
+
+[project.optional-dependencies]
+test = [
+    "mock",
+    "pytest",
+    "pytest-cov",
+    "coveralls"
+]
+
+[project.urls]
+repository = "https://github.com/NaturalHistoryMuseum/phenome-10k"
+changelog = "https://github.com/NaturalHistoryMuseum/phenome-10k/blob/main/CHANGELOG.md"
+
+[project.scripts]
+p10k = "phenome10k.cli:cli"
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool]
+[tool.setuptools]
+zip-safe = false
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+exclude = ["tests", "docs"]
+
+[tool.black]
+line-length = 88
+skip_string_normalization = true
+
+[tool.pylint]
+max-line-length = 88
+disable = ["C0114", "R0903"]
+
+[tool.docformatter]
+wrap-summaries = 88
+wrap-descriptions = 88
+pre-summary-newline = true
+make-summary-multi-line = true

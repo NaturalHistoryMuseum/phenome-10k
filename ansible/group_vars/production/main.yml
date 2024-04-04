@@ -1,34 +1,52 @@
+---
+# servers
+data_server: fls-p10k-u1.nhm.ac.uk
+app_servers:
+  - app-p10k-u1.nhm.ac.uk
+  - app-p10k-u2.nhm.ac.uk
+lb_servers:
+  - nlb-p10k-u1.nhm.ac.uk
+  - nlb-p10k-u2.nhm.ac.uk
+server_ips: "{{ lookup('hashi_vault', 'secret=phenome10k/p10k:server_ips url=https://man-vault-2.nhm.ac.uk:8200')}}"
+
+# folders
+nfs_path: /data
+thumbnail_dir: '{{ p10k_src_dir }}/thumbnails'
+
+# firewall
+trusted_networks:
+  - 157.140.0.0/16
+  - 127.0.0.0/16
+
+# keepalived
+virtual_ip: 157.140.2.106
+vrrp_interface: ens160
+vrrp_password: "{{ lookup('hashi_vault', 'secret=phenome10k/vrrp:password url=https://man-vault-2.nhm.ac.uk:8200')}}"
+
+# monit
+mmonit_admin_password: "{{ lookup('hashi_vault', 'secret=phenome10k/mmonit:password url=https://man-vault-2.nhm.ac.uk:8200')}}"
+monit_hostname: monit.phenome10k.org
+
+# database
 mysql_root_password: "{{ lookup('hashi_vault', 'secret=phenome10k/mysql:root_password url=https://man-vault-2.nhm.ac.uk:8200')}}"
 p10k_db_password: "{{ lookup('hashi_vault', 'secret=phenome10k/mysql:p10k_password url=https://man-vault-2.nhm.ac.uk:8200')}}"
-p10k_db_name: phenome10k
-p10k_db_host: fls-p10k-1
-nfs_server: fls-p10k-1
-nfs_path: /data
-app_servers:
-  - app-p10k-1.nhm.ac.uk
-  - app-p10k-2.nhm.ac.uk
-p10k_db_url: "mysql+pymysql://{{ p10k_db_user }}:{{ p10k_db_password | urlencode | replace('/','%2F') }}@{{ p10k_db_host }}:3306/{{ p10k_db_name }}"
-p10k_linux_user: phenome10k
-p10k_linux_group: phenome10k
-p10k_admin_password: "{{ lookup('hashi_vault', 'secret=phenome10k/p10k:admin_password url=https://man-vault-2.nhm.ac.uk:8200')}}"
-mmonit_admin_password: "{{ lookup('hashi_vault', 'secret=phenome10k/mmonit:password url=https://man-vault-2.nhm.ac.uk:8200')}}"
-hostname: phenome10k.org
-monit_hostname: monit.phenome10k.org
-virtual_ip: '157.140.2.106'
-mmonit_license: "{{ lookup('hashi_vault', 'secret=phenome10k/mmonit:license url=https://man-vault-2.nhm.ac.uk:8200')}}"
-vrrp_password: "{{ lookup('hashi_vault', 'secret=phenome10k/vrrp:password url=https://man-vault-2.nhm.ac.uk:8200')}}"
-vrrp_interface: ens160
-flask_secret_key: "{{ lookup('hashi_vault', 'secret=phenome10k/p10k:flask_secret url=https://man-vault-2.nhm.ac.uk:8200')}}"
-trusted_networks:
-  - '157.140.0.0/16'
-  - '127.0.0.0/16'
-skip_git_checkout: no
-thumbnail_dir: '{{ p10k_src_dir }}/thumbnails'
+p10k_db_url: mysql+pymysql://{{ p10k_db_user }}:{{ p10k_db_password | urlencode |
+  replace('/','%2F') }}@{{ p10k_db_host }}:3306/{{ p10k_db_name }}
 mysql_monit:
   user_name: monit
   password: "{{ lookup('hashi_vault', 'secret=phenome10k/mysql:monit_password url=https://man-vault-2.nhm.ac.uk:8200')}}"
-use_ssl: yes
+
+# nginx
 letsencrypt_dir: /etc/letsencrypt/live/www.phenome10k.org
+use_ssl: true
+
+# p10k: flask
+flask_secret_key: "{{ lookup('hashi_vault', 'secret=phenome10k/p10k:flask_secret url=https://man-vault-2.nhm.ac.uk:8200')}}"
+p10k_admin_password: "{{ lookup('hashi_vault', 'secret=phenome10k/p10k:admin_password url=https://man-vault-2.nhm.ac.uk:8200')}}"
 password_salt: "{{ lookup('hashi_vault', 'secret=phenome10k/p10k:password_salt url=https://man-vault-2.nhm.ac.uk:8200')}}"
 
+# p10k: mail
 mail_host: mta-smtprelay-2.nhm.ac.uk
+
+# p10k: setup
+skip_git_checkout: false

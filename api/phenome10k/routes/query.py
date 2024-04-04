@@ -3,7 +3,12 @@ from flask import Blueprint, jsonify, request, render_template
 from ._utils import Query
 from ..extensions import spec
 from ..models import Scan, Publication
-from ..schemas import ScanSchema, PublicationSchema, ScanSearchResponse, PublicationSearchResponse
+from ..schemas import (
+    ScanSchema,
+    PublicationSchema,
+    ScanSearchResponse,
+    PublicationSearchResponse,
+)
 
 bp = Blueprint('query', __name__, url_prefix='/api/v1')
 

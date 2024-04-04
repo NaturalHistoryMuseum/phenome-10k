@@ -19,41 +19,56 @@
     </div>
     <table :class="$style.table">
       <thead>
-      <tr>
-        <th>Year</th>
-        <th>Name of Publication</th>
-      </tr>
+        <tr>
+          <th>Year</th>
+          <th>Name of Publication</th>
+        </tr>
       </thead>
       <tbody>
-      <tr v-for="(pub, ix) in publications" :key="pub.id">
-        <td>
-          {{ !publications[ix - 1] || publications[ix - 1].pub_year !== pub.pub_year ? pub.pub_year : '' }}
-        </td>
-        <td>
-          <router-link :class="$style.link"
-                       :to="{ name: 'publications_view', params: { id: pub.url_slug || pub.id } }">
-            {{ pub.title }}
-          </router-link>
-          <div :class="$style.details">
-            <div :class="$style.authors">
-              {{ pub.authors }}
+        <tr v-for="(pub, ix) in publications" :key="pub.id">
+          <td>
+            {{
+              !publications[ix - 1] ||
+              publications[ix - 1].pub_year !== pub.pub_year
+                ? pub.pub_year
+                : ''
+            }}
+          </td>
+          <td>
+            <router-link
+              :class="$style.link"
+              :to="{
+                name: 'publications_view',
+                params: { id: pub.url_slug || pub.id },
+              }"
+            >
+              {{ pub.title }}
+            </router-link>
+            <div :class="$style.details">
+              <div :class="$style.authors">
+                {{ pub.authors }}
+              </div>
+              <div :class="$style.files">
+                No. of Files:
+                <span :class="$style.filesCount">{{ pub.scans.length }}</span>
+              </div>
             </div>
-            <div :class="$style.files">
-              No. of Files: <span :class="$style.filesCount">{{ pub.scans.length }}</span>
-            </div>
-          </div>
-        </td>
-      </tr>
+          </td>
+        </tr>
       </tbody>
     </table>
-    <Pagination :page="page"
-                :total="totalPages"
-                :to="page => ({
-                    name: 'publications_library-paged',
-                    params: { page },
-                    query: this.$route.query
-                  })"
-                class="Body__pagination" />
+    <Pagination
+      :page="page"
+      :total="totalPages"
+      :to="
+        (page) => ({
+          name: 'publications_library-paged',
+          params: { page },
+          query: this.$route.query,
+        })
+      "
+      class="Body__pagination"
+    />
   </div>
 </template>
 
@@ -70,8 +85,8 @@ export default {
   computed: {
     publications() {
       return this.routeData.publications;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -106,5 +121,6 @@ export default {
   color: $palette-grey-1;
 }
 
-.search {}
+.search {
+}
 </style>

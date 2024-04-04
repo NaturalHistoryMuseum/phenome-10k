@@ -1,54 +1,69 @@
 ---
-  - name: rebuild node modules
-    command: npm rebuild
-    args:
-      chdir: '{{ frontend_root_dir }}'
-    environment:
-      NODE_ENV: production
-    become: y
-    become_user: phenome10k
+- name: rebuild node modules
+  command: npm rebuild
+  args:
+    chdir: '{{ frontend_root_dir }}'
+  environment:
+    NODE_ENV: production
+  become: true
+  become_user: phenome10k
 
-  - name: rebuild front end
-    command: npm build
-    args:
-      chdir: '{{ frontend_root_dir }}'
-    environment:
-      NODE_ENV: production
-    become: y
-    become_user: phenome10k
+- name: rebuild front end
+  command: npm build
+  args:
+    chdir: '{{ frontend_root_dir }}'
+  environment:
+    NODE_ENV: production
+  become: true
+  become_user: phenome10k
 
-  - name: restart gunicorn
-    service:
-      name: gunicorn
-      state: restarted
-    become: y
+- name: restart gunicorn
+  service:
+    name: gunicorn
+    state: restarted
+  become: true
 
-  - name: restart node
-    service:
-      name: node
-      state: restarted
-    become: y
+- name: restart node
+  service:
+    name: node
+    state: restarted
+  become: true
 
-  - name: restart celery
-    service:
-      name: celery
-      state: restarted
-    become: y
+- name: restart celery
+  service:
+    name: celery
+    state: restarted
+  become: true
 
-  - name: restart flower
-    service:
-      name: flower
-      state: restarted
-    become: y
+- name: restart flower
+  service:
+    name: flower
+    state: restarted
+  become: true
 
-  - name: restart rabbitmq
-    service:
-      name: rabbitmq-server
-      state: restarted
-    become: y
+- name: restart rabbitmq 1 - stop rabbitmq
+  listen: restart rabbitmq
+  service:
+    name: rabbitmq-server
+    state: stopped
+  become: true
 
-  - name: restart redis
-    service:
-      name: redis
-      state: restarted
-    become: y
+- name: restart rabbitmq 2 - restart epmd
+  listen: restart rabbitmq
+  service:
+    name: epmd
+    state: restarted
+  become: true
+
+- name: restart rabbitmq 3 - restart rabbitmq
+  listen: restart rabbitmq
+  service:
+    name: rabbitmq-server
+    state: restarted
+  become: true
+
+- name: restart redis
+  service:
+    name: redis
+    state: restarted
+  become: true

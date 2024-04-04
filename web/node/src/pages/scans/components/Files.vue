@@ -4,7 +4,7 @@
       <h3 :class="$style.subheader">{{ title }}</h3>
       <a :href="download" :class="$style.downloadLink">
         <span>Download</span>
-        <img src="/static/download.png" alt="Download file">
+        <img src="/static/download.png" alt="Download file" />
       </a>
     </div>
     <div :class="$style.list">
@@ -15,7 +15,7 @@
 
 <script>
 export default {
-  props: ['title', 'download']
+  props: ['title', 'download'],
 };
 </script>
 
@@ -54,6 +54,5 @@ export default {
 .list {
   width: 100%;
   margin: 10px 0;
-
 }
 </style>

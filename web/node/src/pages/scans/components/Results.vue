@@ -1,8 +1,15 @@
 <template>
   <ul :class="$style.main">
     <li v-for="scan in results" :key="scan.url_slug">
-      <router-link :to="{name: 'scan_view', params: {id: scan.url_slug}}" :class="$style.link">
-        <img :src="scan.thumbnail + '?w=155'" :alt="scan.url_slug" :class="$style.thumbnail"/>
+      <router-link
+        :to="{ name: 'scan_view', params: { id: scan.url_slug } }"
+        :class="$style.link"
+      >
+        <img
+          :src="scan.thumbnail + '?w=155'"
+          :alt="scan.url_slug"
+          :class="$style.thumbnail"
+        />
         <span :class="$style.title">{{ scan.scientific_name }}</span>
       </router-link>
     </li>
@@ -12,7 +19,7 @@
 <script>
 export default {
   name: 'Results',
-  props: ['results']
+  props: ['results'],
 };
 </script>
 

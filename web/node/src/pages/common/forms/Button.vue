@@ -1,5 +1,9 @@
 <template>
-  <button v-bind="$attrs" v-on="$listeners" :class="{ [$style.main]: true, [$style.big]: 'big' in $attrs }">
+  <button
+    v-bind="$attrs"
+    v-on="$listeners"
+    :class="{ [$style.main]: true, [$style.big]: 'big' in $attrs }"
+  >
     <slot />
   </button>
 </template>

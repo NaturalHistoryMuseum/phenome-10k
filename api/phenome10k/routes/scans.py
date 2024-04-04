@@ -7,7 +7,14 @@ from werkzeug.datastructures import FileStorage
 from werkzeug.exceptions import NotFound, Unauthorized
 
 from ._decorators import requires_contributor
-from ._utils import hide_scan_files, render_vue, ensure_editable, render_content, rpc_call, make_aliases
+from ._utils import (
+    hide_scan_files,
+    render_vue,
+    ensure_editable,
+    render_content,
+    rpc_call,
+    make_aliases,
+)
 from ..data.scan_store import ScanException
 from ..extensions import db, scan_store, upload_store
 from ..forms import ScanUploadForm
@@ -38,9 +45,7 @@ def library(page=1):
     mine = 'mine' in request.args.keys()
     search = request.args.get('q')
 
-    scan_conditions = [
-        Scan.published
-    ]
+    scan_conditions = [Scan.published]
 
     if search:
         search_query = '%{0}%'.format(search)
@@ -50,7 +55,7 @@ def library(page=1):
             Scan.alt_name.ilike(search_query),
             Scan.specimen_id.ilike(search_query),
             Scan.specimen_location.ilike(search_query),
-            Scan.description.ilike(search_query)
+            Scan.description.ilike(search_query),
         )
 
         scan_conditions.append(text_search)
@@ -59,8 +64,11 @@ def library(page=1):
         if len(search_tags) > 0:
             scan_conditions.append(
                 Scan.tags.any(
-                    Tag.taxonomy.startswith(search_tags[0]) if len(search_tags) == 1 else db.or_(
-                        *[Tag.taxonomy.startswith(term) for term in search_tags])
+                    Tag.taxonomy.startswith(search_tags[0])
+                    if len(search_tags) == 1
+                    else db.or_(
+                        *[Tag.taxonomy.startswith(term) for term in search_tags]
+                    )
                 )
             )
 
@@ -76,28 +84,29 @@ def library(page=1):
     # but if we're sorting by tag we need to group it all.
     # Put it under the `groups` key so the view knows it needs to render differently
     if sort in ('geologic_age', 'ontogenic_age'):
-        results = [(tag, tag.scans.filter(scan_conditions).all()) for tag in Tag.query.filter_by(category=sort).all()]
+        results = [
+            (tag, tag.scans.filter(scan_conditions).all())
+            for tag in Tag.query.filter_by(category=sort).all()
+        ]
 
         data = {
             'groups': [
-                {
-                    'group': tag.name,
-                    'items': [
-                        s.serialize(full=False) for s in scans
-                    ]
-                }
-                for (tag, scans) in results if len(scans) > 0
+                {'group': tag.name, 'items': [s.serialize(full=False) for s in scans]}
+                for (tag, scans) in results
+                if len(scans) > 0
             ]
         }
     else:
         query = Scan.scientific_name
 
-        results = Scan.query.filter(scan_conditions).order_by(query).paginate(page, per_page)
+        results = (
+            Scan.query.filter(scan_conditions).order_by(query).paginate(page, per_page)
+        )
 
         data = {
             'scans': [s.serialize(full=False) for s in results.items],
             'page': page,
-            'total_pages': math.ceil(results.total / per_page)
+            'total_pages': math.ceil(results.total / per_page),
         }
 
     data['tags'] = Tag.tree()
@@ -112,7 +121,9 @@ def library(page=1):
 @bp.route('/manage-uploads/page/<int:page>', methods=['GET', 'POST'])
 @requires_contributor
 def manage(page=1):
-    """View a list of uploads with publish, edit, delete actions"""
+    """
+    View a list of uploads with publish, edit, delete actions.
+    """
 
     # Process delete request
     if request.method == 'POST':
@@ -143,7 +154,7 @@ def manage(page=1):
                 Scan.alt_name.ilike(search_query),
                 Scan.specimen_id.ilike(search_query),
                 Scan.specimen_location.ilike(search_query),
-                Scan.description.ilike(search_query)
+                Scan.description.ilike(search_query),
             )
         )
 
@@ -155,7 +166,7 @@ def manage(page=1):
         'page': page,
         'total_pages': math.ceil(scans.total / per_page),
         'csrf_token': g.csrf_token,
-        'q': search
+        'q': search,
     }
     return render_vue(data, title='Manage Uploads')
 
@@ -214,7 +225,9 @@ def edit(scan_object=None):
             form.file.data = FileStorage(f, filename)
 
         try:
-            url = scan_store.update(scan_object, form.file.data, form.data, form.attachments.data)
+            url = scan_store.update(
+                scan_object, form.file.data, form.data, form.attachments.data
+            )
             if form.file.data is not None:
                 create_ctm.delay(scan_object.id)
 
@@ -231,12 +244,15 @@ def edit(scan_object=None):
                 form.file.data.close()
 
         if form_valid and not request.args.get('noredirect'):
-            return redirect(request.args.get('redirect') or url_for('scan.view', scan_object=scan_object))
+            return redirect(
+                request.args.get('redirect')
+                or url_for('scan.view', scan_object=scan_object)
+            )
 
     data = {
         'form': form.serialize(),
         'scan': scan_object.serialize() if scan_object else None,
-        'csrf_token': g.csrf_token
+        'csrf_token': g.csrf_token,
     }
 
     return render_vue(data, title='Edit' if scan_object else 'Upload New')
@@ -245,7 +261,9 @@ def edit(scan_object=None):
 @single_scan.route('/stills')
 @login_required
 def stills(scan_object):
-    """Deprecated route"""
+    """
+    Deprecated route.
+    """
     return redirect(url_for('files.get_stills', scan_object=scan_object))
 
 
@@ -259,7 +277,4 @@ def upload_multi():
 
     data = rpc_call('views.batchUpload', [{'inputName': 'source', 'files': files}])
 
-    return render_content(
-        data.get('content'),
-        data.get('title')
-    )
+    return render_content(data.get('content'), data.get('title'))

@@ -2,10 +2,13 @@
   <Tree :items="tags" #node="tag" childKey="children" :class="$style.main">
     <li :class="$style.listItem">
       <span :class="$style.sidebarRow">
-        <router-link :class="getFilterClass(tag.category, tag.taxonomy)"
-                     :to="getFilterLink(tag.category, tag.taxonomy)">{{ tag.name }}</router-link>
+        <router-link
+          :class="getFilterClass(tag.category, tag.taxonomy)"
+          :to="getFilterLink(tag.category, tag.taxonomy)"
+          >{{ tag.name }}</router-link
+        >
       </span>
-      <component :is="tag.children"/>
+      <component :is="tag.children" />
     </li>
   </Tree>
 </template>
@@ -40,8 +43,8 @@ export default {
       classDict[this.$style.link] = true;
       classDict[this.$style['filter--active']] = categories.has(tag);
       return classDict;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -65,6 +68,5 @@ export default {
 }
 
 .listItem {
-
 }
 </style>

@@ -4,14 +4,13 @@ from phenome10k.extensions import db
 from sqlalchemy.sql import func
 
 # Allow decoding phpasswords, but deprecate all but argon2
-crypt_ctx = CryptContext(
-    schemes=['argon2', 'phpass'],
-    deprecated=['auto']
-)
+crypt_ctx = CryptContext(schemes=['argon2', 'phpass'], deprecated=['auto'])
 
-roles_users = db.Table('roles_users',
-                       db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
-                       db.Column('role_id', db.Integer(), db.ForeignKey('role.id')))
+roles_users = db.Table(
+    'roles_users',
+    db.Column('user_id', db.Integer(), db.ForeignKey('user.id')),
+    db.Column('role_id', db.Integer(), db.ForeignKey('role.id')),
+)
 
 
 class Role(db.Model, RoleMixin):
@@ -33,13 +32,20 @@ class User(db.Model, UserMixin):
     fs_uniquifier = db.Column(db.String(255), unique=True, nullable=False)
     confirmed_at = db.Column(db.DateTime(), nullable=True)
 
-    roles = db.relationship('Role', secondary=roles_users,
-                            backref=db.backref('users', lazy='dynamic'))
+    roles = db.relationship(
+        'Role', secondary=roles_users, backref=db.backref('users', lazy='dynamic')
+    )
     scans = db.relationship('Scan', backref='author')
 
     @property
     def highest_role(self):
-        highest_role = db.session.query(roles_users).filter_by(user_id=self.id).join(Role).order_by(Role.priority).first()
+        highest_role = (
+            db.session.query(roles_users)
+            .filter_by(user_id=self.id)
+            .join(Role)
+            .order_by(Role.priority)
+            .first()
+        )
         if highest_role is None:
             return None
         return Role.query.get(highest_role.role_id)
@@ -70,7 +76,9 @@ class User(db.Model, UserMixin):
         return False
 
     def can_edit(self, item):
-        """ Returns true if the user can edit the given model """
+        """
+        Returns true if the user can edit the given model.
+        """
         return self.is_admin() or item.is_owned_by(self)
 
     def __repr__(self):
@@ -85,7 +93,7 @@ class User(db.Model, UserMixin):
             'admin': self.is_admin(),
             'contributor': self.is_contributor(),
             'country_code': self.country_code,
-            'user_type': self.user_type
+            'user_type': self.user_type,
         }
 
 

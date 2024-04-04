@@ -1,37 +1,28 @@
 ---
-  - name: Install keepalived
-    yum:
-      name: keepalived
-      state: present
-    become: y
-  - name: Create template
-    template:
-      src: keepalived.conf.j2
-      dest: /etc/keepalived/keepalived.conf
-    become: y
-    notify:
-      - restart keepalived
-  - name: Create Health script
-    template:
-      src: health.sh
-      dest: /etc/keepalived/health.sh
-      mode: preserve
-    become: y
-  - name: Start keepalived
-    service:
-      name: keepalived
-      state: started
-      enabled: yes
-    become: y
-  - name: Add firewall rules
-    command: "firewall-cmd --direct --permanent --add-rule ipv4 filter {{ item | upper }}PUT 0 --{{ item }}-interface {{ vrrp_interface }} --destination 224.0.0.18 --protocol vrrp -j ACCEPT"
-    loop:
-      - in
-      - out
-    register: firewall_result
-    changed_when: "firewall_result.stderr.find('ALREADY_ENABLED') < 0"
-    become: yes
-  - name: Reload firewall
-    command: "firewall-cmd --reload"
-    become: yes
-    when: firewall_result.changed
+- name: Install keepalived
+  apt:
+    name: keepalived
+    state: present
+  become: true
+
+- name: Create template
+  template:
+    src: keepalived.conf.j2
+    dest: /etc/keepalived/keepalived.conf
+  become: true
+  notify:
+    - restart keepalived
+
+- name: Create Health script
+  template:
+    src: health.sh
+    dest: /etc/keepalived/health.sh
+    mode: preserve
+  become: true
+
+- name: Start keepalived
+  service:
+    name: keepalived
+    state: started
+    enabled: true
+  become: true
