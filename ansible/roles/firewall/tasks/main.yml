@@ -11,7 +11,7 @@
     rule: allow
     from_ip: '{{ item }}'
     proto: any
-  loop: '{{ app_servers + lb_servers + [data_server] }}'
+  loop: '{{ server_ips }}'
   become: true
 
 - name: Allow outbound connections to internal servers
@@ -19,7 +19,7 @@
     rule: allow
     to_ip: '{{ item }}'
     proto: any
-  loop: '{{ app_servers + lb_servers + [data_server] }}'
+  loop: '{{ server_ips }}'
   become: true
 
 - name: Open ssh port

@@ -1,4 +1,12 @@
 ---
+# servers
+server_ips:
+  - '{{ data_server }}'
+  - '{{ app_servers[0] }}'
+  - '{{ app_servers[1] }}'
+  - '{{ lb_servers[0] }}'
+  - '{{ lb_servers[1] }}'
+
 # folders
 p10k_home: /var/phenome-10k
 p10k_src_dir: '{{ p10k_home }}/www'

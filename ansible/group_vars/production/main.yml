@@ -7,6 +7,7 @@ app_servers:
 lb_servers:
   - nlb-p10k-u1.nhm.ac.uk
   - nlb-p10k-u2.nhm.ac.uk
+server_ips: "{{ lookup('hashi_vault', 'secret=phenome10k/p10k:server_ips url=https://man-vault-2.nhm.ac.uk:8200')}}"
 
 # folders
 nfs_path: /data
