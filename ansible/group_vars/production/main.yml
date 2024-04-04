@@ -1,12 +1,12 @@
 ---
 # servers
-data_server: fls-p10k-1.nhm.ac.uk
+data_server: fls-p10k-u1.nhm.ac.uk
 app_servers:
-  - app-p10k-1.nhm.ac.uk
-  - app-p10k-2.nhm.ac.uk
+  - app-p10k-u1.nhm.ac.uk
+  - app-p10k-u2.nhm.ac.uk
 lb_servers:
-  - nlb-p10k-1.nhm.ac.uk
-  - nlb-p10k-2.nhm.ac.uk
+  - nlb-p10k-u1.nhm.ac.uk
+  - nlb-p10k-u2.nhm.ac.uk
 
 # folders
 nfs_path: /data
