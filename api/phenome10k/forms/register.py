@@ -4,7 +4,7 @@ import urllib.request
 from flask_security import ConfirmRegisterForm
 from phenome10k.extensions import captcha
 from phenome10k.models import User
-from wtforms import (StringField, SelectField)
+from wtforms import StringField, SelectField
 from wtforms.validators import DataRequired, ValidationError
 
 data = urllib.request.urlopen('http://country.io/names.json').read()
@@ -22,8 +22,8 @@ class P10KRegisterForm(ConfirmRegisterForm):
             ('University', 'University'),
             ('Museum', 'Museum'),
             ('Teacher', 'Teacher'),
-            ('Student', 'Student')
-        ]
+            ('Student', 'Student'),
+        ],
     )
 
     # Todo: Use input & datalist instead of country select field

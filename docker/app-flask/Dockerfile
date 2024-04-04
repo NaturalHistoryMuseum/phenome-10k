@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.10
 
 RUN apt-get update -y && apt-get install mariadb-client -y
 
@@ -13,4 +13,4 @@ RUN pip install -e .
 # run any initialisation or pre-run checks
 ENTRYPOINT ["/bin/bash", "/deploy/entrypoint"]
 
-CMD ["flask", "run", "--host", "0.0.0.0"]
+CMD ["p10k", "run", "--host", "0.0.0.0"]

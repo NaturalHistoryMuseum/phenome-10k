@@ -1,4 +1,5 @@
-!/bin/bash
+#!/bin/bash
+
 SERVICE='nginx'
 STATUS=$(ps ax | grep -v grep | grep $SERVICE)
 

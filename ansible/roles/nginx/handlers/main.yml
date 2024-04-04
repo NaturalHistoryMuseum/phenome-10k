@@ -1,6 +1,6 @@
 ---
-  - name: restart nginx
-    service:
-      name: nginx
-      state: restarted
-    become: y
+- name: restart nginx
+  service:
+    name: nginx
+    state: restarted
+  become: true

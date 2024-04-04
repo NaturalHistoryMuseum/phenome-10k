@@ -1,15 +1,29 @@
 <template>
-  <div :class="$style.main" @dragover="dragOver" @dragleave="dragEnd" @drop="drop">
+  <div
+    :class="$style.main"
+    @dragover="dragOver"
+    @dragleave="dragEnd"
+    @drop="drop"
+  >
     <label :class="labelClass" v-show="progress == null && status == null">
       <h1 :class="$style.dropText">Drop scan or zip here</h1>
       <div :class="$style.or">or</div>
       <div :class="$style.select">Select File</div>
-      <input type="file" name="file" @change="fileChange" :class="$style.file" />
+      <input
+        type="file"
+        name="file"
+        @change="fileChange"
+        :class="$style.file"
+      />
     </label>
     <div v-if="progress != null || status != null" :class="$style.progress">
-      <progress :class="$style.progressBar" :value="progress || 100" max="100"></progress>
+      <progress
+        :class="$style.progressBar"
+        :value="progress || 100"
+        max="100"
+      ></progress>
       <div :class="$style.progressText">
-        {{ status || (progress + '%') }}
+        {{ status || progress + '%' }}
       </div>
     </div>
     <Errors :errors="errors" />
@@ -22,12 +36,12 @@ import Errors from '../../common/forms/Errors';
 export default {
   name: 'Upload3D',
   components: {
-    Errors
+    Errors,
   },
   props: ['progress', 'status', 'errors'],
   data() {
     return {
-      dragging: false
+      dragging: false,
     };
   },
   computed: {
@@ -37,7 +51,7 @@ export default {
         cls.push(this.$style['input--hovered']);
       }
       return cls.join(' ');
-    }
+    },
   },
   methods: {
     fileChange(e) {
@@ -63,8 +77,8 @@ export default {
         return;
       }
       this.$emit('change', form);
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -134,7 +148,8 @@ export default {
   -moz-appearance: none;
   appearance: none;
 
-  &::-webkit-progress-value, &::-moz-progress-bar {
+  &::-webkit-progress-value,
+  &::-moz-progress-bar {
     background-color: $palette-primary;
   }
 }

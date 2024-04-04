@@ -1,84 +1,71 @@
 ---
-  - name: Upgrade virtualenv pip
-    pip:
-      name: pip
-      extra_args: "--upgrade"
-      virtualenv: '{{ virtualenv_location }}'
-      virtualenv_python: /usr/local/bin/python3.8
-      virtualenv_command: /usr/local/bin/virtualenv
-    become: y
-    become_user: phenome10k
+- name: Upgrade virtualenv pip
+  pip:
+    name: pip
+    extra_args: --upgrade
+    virtualenv: '{{ virtualenv_location }}'
+  become: true
+  become_user: phenome10k
 
-  - name: Install numpy first
-    pip:
-      name: numpy
-      extra_args: "--upgrade"
-      virtualenv: '{{ virtualenv_location }}'
-      virtualenv_python: /usr/local/bin/python3.8
-      virtualenv_command: /usr/local/bin/virtualenv
-    become: y
-    become_user: phenome10k
+- name: Install numpy first
+  pip:
+    name: numpy
+    extra_args: --upgrade
+    virtualenv: '{{ virtualenv_location }}'
+  become: true
+  become_user: phenome10k
 
-  - name: Check ownership of phenome10k folder
-    file:
-      path: '{{ app_root_dir }}'
-      owner: phenome10k
-      group: phenome10k
-      mode: '0770'
-      recurse: y
-    become: y
+- name: Check ownership of phenome10k folder
+  file:
+    path: '{{ app_root_dir }}'
+    owner: phenome10k
+    group: phenome10k
+    mode: '0770'
+    recurse: y
+  become: true
 
-  - name: Install phenome10k
-    command:
-      chdir: '{{ app_root_dir }}'
-      cmd: '{{ venv_bin }}/pip install -e .'
-    become: y
-    become_user: phenome10k
+- name: Install phenome10k
+  command:
+    chdir: '{{ app_root_dir }}'
+    cmd: '{{ venv_bin }}/pip install -e .'
+  become: true
+  become_user: phenome10k
 
-  - name: Migrate database
-    command: '{{ venv_bin }}/p10k db upgrade -d {{ app_root_dir }}/migrations'
-    environment:
-      P10K_ENV: '{{ p10k_home }}/.env'
-    args:
-      chdir: '{{ app_root_dir }}'
-    become: y
-    become_user: phenome10k
-    register: upgrade_db
-    changed_when: upgrade_db.stdout.find('Running upgrade') >= 0
-    run_once: true
+- name: Migrate database
+  command: '{{ venv_bin }}/p10k db upgrade -d {{ app_root_dir }}/migrations'
+  environment:
+    P10K_ENV: '{{ p10k_home }}/.env'
+  args:
+    chdir: '{{ app_root_dir }}'
+  become: true
+  become_user: phenome10k
+  register: upgrade_db
+  changed_when: upgrade_db.stdout.find('Running upgrade') >= 0
+  run_once: true
 
-  - name: Set admin password
-    command: '{{ venv_bin }}/p10k set-admin-pw {{ p10k_admin_password }}'
-    environment:
-      P10K_ENV: '{{ p10k_home }}/.env'
-    args:
-      chdir: '{{ app_root_dir }}'
-    register: set_pw
-    changed_when: set_pw.stdout.find('Password changed') >= 0
-    become: y
-    become_user: phenome10k
-    run_once: true
+- name: Set admin password
+  command: '{{ venv_bin }}/p10k set-admin-pw {{ p10k_admin_password }}'
+  environment:
+    P10K_ENV: '{{ p10k_home }}/.env'
+  args:
+    chdir: '{{ app_root_dir }}'
+  register: set_pw
+  changed_when: set_pw.stdout.find('Password changed') >= 0
+  become: true
+  become_user: phenome10k
+  run_once: true
 
-  - name: Create the gunicorn service
-    template:
-      src: gunicorn.service.j2
-      dest: /etc/systemd/system/gunicorn.service
-    become: y
-    notify:
-      - restart gunicorn
+- name: Create the gunicorn service
+  template:
+    src: gunicorn.service.j2
+    dest: /etc/systemd/system/gunicorn.service
+  become: true
+  notify:
+    - restart gunicorn
 
-  - name: Enable gunicorn service
-    systemd:
-      name: gunicorn.service
-      state: started
-      enabled: y
-    become: y
-
-  - name: Open gunicorn port on firewall
-    firewalld:
-      zone: dmz
-      port: '{{ gunicorn_port }}/tcp'
-      permanent: true
-      state: enabled
-      immediate: true
-    become: true
+- name: Enable gunicorn service
+  systemd:
+    name: gunicorn.service
+    state: started
+    enabled: y
+  become: true

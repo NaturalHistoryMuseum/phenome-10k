@@ -6,7 +6,12 @@
   </ul>
   <div :class="classes" v-else @click.self="dismiss" v-show="!dismissed">
     <button :class="$style.close" @click="dismiss" type="button">Close</button>
-    <iframe :class="$style.iframe" v-for="error in errors" :key="error" :srcdoc="error.message || error" />
+    <iframe
+      :class="$style.iframe"
+      v-for="error in errors"
+      :key="error"
+      :srcdoc="error.message || error"
+    />
   </div>
 </template>
 
@@ -16,17 +21,17 @@ export default {
   props: ['errors'],
   data: () => {
     return {
-      dismissed: false
+      dismissed: false,
     };
   },
   methods: {
     dismiss() {
       this.dismissed = true;
-    }
+    },
   },
   computed: {
     modal() {
-      return this.errors.some(e => typeof e === 'string' && e[0] === '<');
+      return this.errors.some((e) => typeof e === 'string' && e[0] === '<');
     },
     classes() {
       let cssClasses = {};
@@ -34,13 +39,13 @@ export default {
       cssClasses[this.$style.modal] = this.modal;
       cssClasses[this.$style.list] = !this.modal;
       return cssClasses;
-    }
+    },
   },
   watch: {
     errors() {
       this.dismissed = false;
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -62,7 +67,7 @@ export default {
 }
 
 .modal {
-  background: change-color($palette-grey-0, $alpha:0.9);
+  background: change-color($palette-grey-0, $alpha: 0.9);
   position: fixed;
   top: 0;
   left: 0;

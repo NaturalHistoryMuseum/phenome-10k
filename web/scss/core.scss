@@ -3,7 +3,6 @@
 
 // =======================================================================================
 
-
 * {
   box-sizing: border-box;
 }
@@ -27,7 +26,6 @@ a {
 
 a:link {
   text-decoration: none;
-
 }
 
 a:link:hover {
@@ -52,7 +50,6 @@ h2 {
 .error {
   color: $palette-error;
 }
-
 
 // UTILITIES =========================================================
 
@@ -100,11 +97,13 @@ $margin-size: 1em;
 }
 
 .p10k__form {
-  & > .p10k__form_row, & > .p10k__form_row_stack {
+  & > .p10k__form_row,
+  & > .p10k__form_row_stack {
     display: flex;
     margin-bottom: $margin-size;
 
-    & input, & select {
+    & input,
+    & select {
       font-size: $body-font-size;
       padding: 5px;
     }

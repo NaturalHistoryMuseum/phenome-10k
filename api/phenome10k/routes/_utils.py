@@ -12,7 +12,10 @@ from ..schemas.response import QueryResponse
 
 def hide_scan_files(data):
     if not current_user.is_authenticated:
-        login_url = url_for('security.login', next=url_for('scan.view', scan_object=Scan.query.get(data['id'])))
+        login_url = url_for(
+            'security.login',
+            next=url_for('scan.view', scan_object=Scan.query.get(data['id'])),
+        )
         data['source'] = login_url
         for pub in data['publications']:
             for file in pub['files']:
@@ -21,7 +24,10 @@ def hide_scan_files(data):
 
 
 def ensure_editable(item):
-    """Throw Forbidden exception if the current user is not allowed to edit the given model """
+    """
+    Throw Forbidden exception if the current user is not allowed to edit the given
+    model.
+    """
     if not current_user.can_edit(item):
         raise Forbidden('You cannot edit this item as you are not the original author.')
 
@@ -55,7 +61,9 @@ class PublicationConverter(SlugConverter):
 # This is just a one-way converter, to turn a File object into a router path. Doesn't work the other way.
 class FileConverter(PathConverter):
     def to_url(self, value):
-        return PathConverter.to_url(self, value if isinstance(value, str) else value.location)
+        return PathConverter.to_url(
+            self, value if isinstance(value, str) else value.location
+        )
 
 
 def render_vue(data, title, menu=None):
@@ -113,11 +121,11 @@ class Query(object):
 
     def search(self, **kwargs):
         """
-        Search a model on its attributes.
-        Additional kwargs:
-            - q
-            - exact
-            - offset
+        Search a model on its attributes. Additional kwargs:
+
+        - q
+        - exact
+        - offset
         """
         r = QueryResponse(valid_query=False, query_success=False)
         query_args = {k: v for k, v in kwargs.items() if k in self._columns}

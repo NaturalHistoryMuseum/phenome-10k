@@ -1,15 +1,26 @@
-@import url("https://fonts.googleapis.com/css2?family=Red+Hat+Text&family=Titillium+Web&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Text&family=Titillium+Web&display=swap');
 .Grid {
   display: grid;
   grid-template-areas: 'sidebar header .' 'sidebar .      .';
   grid-template-rows: [header-start] 150px [header-end body-start] 1fr [body-end];
-  grid-template-columns: [sidebar-start] 389px [sidebar-end primary-start] minmax(auto, 1089px) [primary-end vspace-start] minmax(50px, auto) [vspace-end]; }
-  .Grid .Grid__sidebar {
-    grid-area: sidebar;
-    display: grid;
-    grid-template-rows: [logo-start] 150px [logo-end body-start] 1fr [body-end];
-    grid-template-areas: 'logo' 'body';
-    background: linear-gradient(to right, transparent, transparent 228px, #999999 228px, #999999 229px, transparent 229px); }
+  grid-template-columns:
+    [sidebar-start] 389px [sidebar-end primary-start] minmax(auto, 1089px)
+    [primary-end vspace-start] minmax(50px, auto) [vspace-end];
+}
+.Grid .Grid__sidebar {
+  grid-area: sidebar;
+  display: grid;
+  grid-template-rows: [logo-start] 150px [logo-end body-start] 1fr [body-end];
+  grid-template-areas: 'logo' 'body';
+  background: linear-gradient(
+    to right,
+    transparent,
+    transparent 228px,
+    #999999 228px,
+    #999999 229px,
+    transparent 229px
+  );
+}
 
 .Grid__header {
   grid-area: header;
@@ -18,19 +29,24 @@
   grid-template-rows: [row1] 55px [row2] auto;
   grid-template-columns: [nav-start] auto [nav-end user-start] auto [user-end space-start];
   grid-gap: 0 40px;
-  margin-top: 5px; }
+  margin-top: 5px;
+}
 
 .Header__subnav {
   grid-area: subnav;
   align-self: end;
   justify-self: start;
   align-items: center;
-  font-size: 12px; }
-  .Header__subnav .nav__item {
-    color: black; }
-  .Header__subnav li:not(:first-child) {
-    background: linear-gradient(to right, #c2c2c2, transparent 1px) no-repeat center;
-    background-size: 100% 50%; }
+  font-size: 12px;
+}
+.Header__subnav .nav__item {
+  color: black;
+}
+.Header__subnav li:not(:first-child) {
+  background: linear-gradient(to right, #c2c2c2, transparent 1px) no-repeat
+    center;
+  background-size: 100% 50%;
+}
 
 .Header__user {
   grid-area: user;
@@ -38,40 +54,51 @@
   justify-self: end;
   text-align: right;
   font-size: 12px;
-  color: #4C4C4C;
+  color: #4c4c4c;
   padding-bottom: 10px;
-  display: grid; }
-  .Header__user > * {
-    margin-top: -5px; }
-  .Header__user > a {
-    line-height: 1.1;
-    padding-top: 5px; }
+  display: grid;
+}
+.Header__user > * {
+  margin-top: -5px;
+}
+.Header__user > a {
+  line-height: 1.1;
+  padding-top: 5px;
+}
 
 .Header__divider {
   grid-row: row2;
   grid-column: nav-start / user-end;
-  border-top: 1px solid #008558; }
+  border-top: 1px solid #008558;
+}
 
 .Header__nav {
   grid-area: nav;
   align-self: start;
-  justify-self: start; }
-  .Header__nav .nav__item {
-    padding: 5px 5px 10px;
-    color: #4C4C4C; }
-    .Header__nav .nav__item:hover {
-      text-decoration: underline;
-      background: rgba(194, 194, 194, 0.3);
-      transition: all 0.2s; }
-  .Header__nav .nav__item--selected {
-    font-weight: bold; }
-  .Header__nav--dark .nav__item {
-    color: #c2c2c2; }
-    .Header__nav--dark .nav__item:hover {
-      background: rgba(103, 103, 103, 0.3);
-      color: white !important; }
-    .Header__nav--dark .nav__item--selected {
-      color: white !important; }
+  justify-self: start;
+}
+.Header__nav .nav__item {
+  padding: 5px 5px 10px;
+  color: #4c4c4c;
+}
+.Header__nav .nav__item:hover {
+  text-decoration: underline;
+  background: rgba(194, 194, 194, 0.3);
+  transition: all 0.2s;
+}
+.Header__nav .nav__item--selected {
+  font-weight: bold;
+}
+.Header__nav--dark .nav__item {
+  color: #c2c2c2;
+}
+.Header__nav--dark .nav__item:hover {
+  background: rgba(103, 103, 103, 0.3);
+  color: white !important;
+}
+.Header__nav--dark .nav__item--selected {
+  color: white !important;
+}
 
 .Header__auth {
   grid-area: auth;
@@ -80,32 +107,40 @@
   text-align: right;
   font-size: 12px;
   padding-top: 10px;
-  line-height: 1.1; }
-  .Header__auth a:hover {
-    color: #008558; }
+  line-height: 1.1;
+}
+.Header__auth a:hover {
+  color: #008558;
+}
 
 .nav__list {
-  font-family: "Red Hat Text", "Helvetica", Arial, sans-serif;
+  font-family: 'Red Hat Text', 'Helvetica', Arial, sans-serif;
   list-style: none;
   display: flex;
   padding: 0;
   margin: 10px -10px;
-  text-transform: uppercase; }
-  .nav__list > li {
-    padding-left: 10px;
-    padding-right: 10px;
-    line-height: 1.1;
-    text-align: center; }
-  .nav__list .nav__item {
-    text-decoration: none; }
-    .nav__list .nav__item:hover, .nav__list .nav__item.nav__item--selected {
-      color: #008558; }
+  text-transform: uppercase;
+}
+.nav__list > li {
+  padding-left: 10px;
+  padding-right: 10px;
+  line-height: 1.1;
+  text-align: center;
+}
+.nav__list .nav__item {
+  text-decoration: none;
+}
+.nav__list .nav__item:hover,
+.nav__list .nav__item.nav__item--selected {
+  color: #008558;
+}
 
 .Sidebar__logo {
   grid-area: logo;
   position: absolute;
   top: 0;
-  left: 100px; }
+  left: 100px;
+}
 
 .Grid__body {
   grid-row: body-start / body-end;
@@ -113,28 +148,37 @@
   display: grid;
   grid-template-areas: '.     .     title      ' 'side1 side2 top-filters' 'side1 side2 content    ' 'side1 side2 pagination ';
   grid-template-columns: [sidesection-start] 229px 161px [sidesection-end content-start] 1fr [content-end];
-  grid-template-rows: [headers-start] auto auto [headers-end content-start] minmax(0, 1fr) [content-end] auto [page-end];
+  grid-template-rows:
+    [headers-start] auto auto [headers-end content-start] minmax(0, 1fr)
+    [content-end] auto [page-end];
   grid-gap: 20px 0;
-  position: relative; }
+  position: relative;
+}
 
 .Body__sidesection {
   grid-column: sidesection-start / sidesection-end;
   grid-row: 2 / page-end;
-  font-size: 12px; }
+  font-size: 12px;
+}
 
 .Body__content {
-  grid-area: content; }
+  grid-area: content;
+}
 
 .Body__title {
-  grid-area: title; }
+  grid-area: title;
+}
 
 .Body__filters {
-  grid-area: top-filters; }
+  grid-area: top-filters;
+}
 
 .Body__pagination {
-  grid-area: pagination; }
+  grid-area: pagination;
+}
 
-.Body__messages, .flashes {
+.Body__messages,
+.flashes {
   position: absolute;
   grid-column: content;
   bottom: 100%;
@@ -142,6 +186,7 @@
   background-color: #f2f2f2;
   padding: 2px 5px;
   width: 100%;
-  text-align: center; }
+  text-align: center;
+}
 
 /*# sourceMappingURL=base.css.map */

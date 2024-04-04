@@ -1,22 +1,20 @@
-const VueLoaderPlugin = require('vue-loader/lib/plugin')
+const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 module.exports = {
   mode: 'none',
   output: {
-    filename: '[name].[hash].bundle.js'
+    filename: '[name].[hash].bundle.js',
   },
   resolve: {
-    extensions: ['.js', '.json', '.vue']
+    extensions: ['.js', '.json', '.vue'],
   },
   module: {
     rules: [
       {
         test: /\.vue$/,
-        loader: 'vue-loader'
-      }
-    ]
+        loader: 'vue-loader',
+      },
+    ],
   },
-  plugins: [
-    new VueLoaderPlugin()
-  ]
-}
+  plugins: [new VueLoaderPlugin()],
+};

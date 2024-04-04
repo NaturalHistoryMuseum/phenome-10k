@@ -3,7 +3,7 @@ const { cast } = require('./selectors');
 
 class Element {
   constructor(client, id) {
-    if(client instanceof Element) {
+    if (client instanceof Element) {
       id = client.id;
       client = client.client;
     }
@@ -26,7 +26,9 @@ class Element {
   async find(selectorObject, Constructor = Element) {
     const { selector, strategy } = cast(selectorObject);
 
-    const id = await waitFor(() => this.client.findElementFromElement(this.id, strategy, selector))
+    const id = await waitFor(() =>
+      this.client.findElementFromElement(this.id, strategy, selector),
+    );
     return new Constructor(this.client, id);
   }
 
@@ -47,7 +49,7 @@ class Element {
         await this.client.getElementTagName(this.id);
         console.log('Element not stale');
         return false;
-      } catch(e) {
+      } catch (e) {
         console.log('Element stale');
         return true;
       }

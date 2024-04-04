@@ -5,12 +5,8 @@
       <div>{{ routeData.error }}</div>
       <div v-if="userFilters" :class="$style.sort">
         <ul :class="$style.sortList">
-          <li @click="$router.replace({query: {}})">
-            Clear all
-          </li>
-          <li v-for="(value, name) in userFilters">
-            {{ name }}: {{ value }}
-          </li>
+          <li @click="$router.replace({ query: {} })">Clear all</li>
+          <li v-for="(value, name) in userFilters">{{ name }}: {{ value }}</li>
         </ul>
       </div>
     </div>
@@ -30,21 +26,40 @@
           <div>{{ user.email }}</div>
           <div>{{ date(user.date_registered) }}</div>
           <div>
-            <i class="fas" :class="user.admin ? 'fa-check' : 'fa-times'" @click="toggleRole('ADMIN', !user.admin, user.id)"></i>
+            <i
+              class="fas"
+              :class="user.admin ? 'fa-check' : 'fa-times'"
+              @click="toggleRole('ADMIN', !user.admin, user.id)"
+            ></i>
           </div>
           <div>
-            <i class="fas" :class="user.contributor ? 'fa-check' : 'fa-times'" @click="toggleRole('CONTRIBUTOR', !user.contributor, user.id)"></i>
+            <i
+              class="fas"
+              :class="user.contributor ? 'fa-check' : 'fa-times'"
+              @click="toggleRole('CONTRIBUTOR', !user.contributor, user.id)"
+            ></i>
           </div>
-          <div :class="$style.flag" @click="addParam('country_code', user.country_code)">
-            <CountryFlag v-if="user.country_code" :country="user.country_code" size="normal" />
+          <div
+            :class="$style.flag"
+            @click="addParam('country_code', user.country_code)"
+          >
+            <CountryFlag
+              v-if="user.country_code"
+              :country="user.country_code"
+              size="normal"
+            />
           </div>
-          <div @click="addParam('user_type', user.user_type)">{{ user.user_type }}</div>
+          <div @click="addParam('user_type', user.user_type)">
+            {{ user.user_type }}
+          </div>
         </div>
       </div>
-      <Pagination :page="page"
-                  :total="totalPages"
-                  :to="changePage"
-                  class="Body__pagination" />
+      <Pagination
+        :page="page"
+        :total="totalPages"
+        :to="changePage"
+        class="Body__pagination"
+      />
     </div>
   </div>
 </template>
@@ -56,7 +71,7 @@ import CountryFlag from 'vue-country-flag';
 export default {
   extends: Page,
   components: {
-    CountryFlag
+    CountryFlag,
   },
   data() {
     return {};
@@ -66,14 +81,20 @@ export default {
       return this.$route.meta.data.users;
     },
     totalPages() {
-      return Math.ceil(this.$route.meta.data.total / this.$route.meta.data.pageSize);
+      return Math.ceil(
+        this.$route.meta.data.total / this.$route.meta.data.pageSize,
+      );
     },
     page() {
-      return Math.ceil(this.$route.meta.data.offset / this.$route.meta.data.pageSize) + 1;
+      return (
+        Math.ceil(
+          this.$route.meta.data.offset / this.$route.meta.data.pageSize,
+        ) + 1
+      );
     },
     userFilters() {
       return this.$route.meta.data.filters;
-    }
+    },
   },
   methods: {
     date(strDate) {
@@ -94,14 +115,18 @@ export default {
         method: 'POST',
         mode: 'same-origin',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role: roleName, action: addRole ? 'ADD' : 'REMOVE', user_id: userId })
+        body: JSON.stringify({
+          role: roleName,
+          action: addRole ? 'ADD' : 'REMOVE',
+          user_id: userId,
+        }),
       }).then((r) => {
         if (r.ok) {
-          window.location.reload()
+          window.location.reload();
         }
       });
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -139,19 +164,23 @@ export default {
   & > * {
     padding: 2px;
 
-    &:nth-child(1), &:nth-child(2) {
+    &:nth-child(1),
+    &:nth-child(2) {
       // wrap the long strings (name and email)
       word-break: break-all;
     }
 
-    &:nth-child(4), &:nth-child(5), &:nth-child(6) {
+    &:nth-child(4),
+    &:nth-child(5),
+    &:nth-child(6) {
       // center the flag and ticks/crosses
       justify-self: center;
       cursor: pointer;
     }
   }
 
-  & select, & option {
+  & select,
+  & option {
     @include font-body;
     font-size: $small-font-size;
   }

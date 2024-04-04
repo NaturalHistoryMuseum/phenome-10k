@@ -1,14 +1,17 @@
-@import url("https://fonts.googleapis.com/css2?family=Red+Hat+Text&family=Titillium+Web&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Red+Hat+Text&family=Titillium+Web&display=swap');
 .Contribute__form {
   background: #ddd;
-  padding: 10px; }
+  padding: 10px;
+}
 
 .Contribute__form-row {
-  display: block; }
+  display: block;
+}
 
 textarea.Contribute__form-row {
   min-width: 100%;
   margin-bottom: 5px;
-  padding: 5px; }
+  padding: 5px;
+}
 
 /*# sourceMappingURL=contribute.css.map */

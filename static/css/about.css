@@ -1,18 +1,23 @@
 .About a {
-  text-decoration: none; }
-  .About a:hover {
-    text-decoration: underline; }
+  text-decoration: none;
+}
+.About a:hover {
+  text-decoration: underline;
+}
 .About section {
   border: none;
   border-bottom: 1px solid #c2c2c2;
   margin: 0;
-  padding: 20px 0; }
+  padding: 20px 0;
+}
 
 .About__images {
   display: flex;
   justify-content: center;
-  margin: 40px 0 10px; }
-  .About__images > * {
-    padding: 2px; }
+  margin: 40px 0 10px;
+}
+.About__images > * {
+  padding: 2px;
+}
 
 /*# sourceMappingURL=about.css.map */

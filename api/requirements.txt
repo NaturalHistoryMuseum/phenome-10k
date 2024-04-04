@@ -24,11 +24,9 @@ numpy-stl==2.16.3
 passlib==1.7.4
 Pillow==9.1.0
 PyMySQL==1.0.2
-pytest==7.1.2
-pytest-cov==3.0.0
 python-dotenv==0.20.0
 python-magic==0.4.25
-python-openctm==1.0.11
+python-openctm==1.0.12
 requests==2.27.1
 SQLAlchemy==1.4.36
 trimesh==3.12.0

@@ -1,12 +1,12 @@
 const fs = require('fs');
 
-const readIx = (() => {
+const readIx = () => {
   try {
     return require('./ix.json');
-  } catch(e) {
+  } catch (e) {
     return 0;
   }
-});
+};
 
 const ix = readIx();
 

@@ -1,47 +1,48 @@
 ---
-  - hosts: data
-    roles:
-      - python
-      - firewalld
-      - nfs/server
+- hosts: data
+  roles:
+    - core
+    - firewall
+    - users
+    - nfs/server
+    - mysql
+    - monit/monit
+  vars:
+    monit_services:
+      - systems
+      - 50gb-root-partition
+      - data-partition
       - mysql
-      - monit/monit
-    vars:
-      monit_services:
-        - systems
-        - 50gb-root-partition
-        - data-partition
-        - mysql
-
-  - hosts: app
-    roles:
-      - python
-      - users
-      - firewalld
-      - nfs/client
-      - { role: nodejs, tags: nodejs }
-      - { role: phenome-10k, tags: phenome-10k }
-      - monit/monit
-    vars:
-      monit_services:
-        - gunicorn
-        - systems
-        - 50gb-root-partition
+- hosts: app
+  roles:
+    - core
+    - firewall
+    - users
+    - python
+    - nfs/client
+    - {role: nodejs, tags: nodejs}
+    - {role: phenome-10k, tags: phenome-10k}
+    - monit/monit
+  vars:
+    monit_services:
+      - gunicorn
+      - systems
+      - 50gb-root-partition
 
     # Cron gbif
     # Email
     # Backups
-
-  - hosts: lb
-    roles:
-      - python
-      - firewalld
+- hosts: lb
+  roles:
+    - core
+    - firewall
+    - users
+    - nginx
+    - monit/monit
+    - monit/mmonit
+    - keepalived
+  vars:
+    monit_services:
       - nginx
-      - monit/monit
-      - monit/mmonit
-      - keepalived
-    vars:
-      monit_services:
-        - nginx
-        - systems
-        - 50gb-root-partition
+      - systems
+      - 50gb-root-partition

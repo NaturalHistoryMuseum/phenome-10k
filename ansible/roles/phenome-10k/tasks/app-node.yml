@@ -1,45 +1,52 @@
 ---
-  - name: Install node dependencies
-    npm:
-      path: '{{ frontend_root_dir }}'
-    become: y
-    become_user: phenome10k
+- name: Remove node bin because it keeps causing issues
+  file:
+    path: '{{ frontend_root_dir }}/node_modules'
+    state: absent
+  become: true
+  become_user: phenome10k
 
-  - name: Rebuild node modules
-    command: npm rebuild
-    args:
-      chdir: '{{ frontend_root_dir }}'
-      removes: "{{ p10k_home }}/.node-{{node_version}}-rebuild"
-    become: y
-    become_user: phenome10k
+- name: Install node dependencies
+  npm:
+    path: '{{ frontend_root_dir }}'
+  become: true
+  become_user: phenome10k
 
-  - name: Remove rebuild flag
-    command: "rm {{ p10k_home }}/.node-{{node_version}}-rebuild"
-    args:
-      removes: "{{ p10k_home }}/.node-{{node_version}}-rebuild"
-    become: y
+- name: Rebuild node modules
+  command: npm rebuild
+  args:
+    chdir: '{{ frontend_root_dir }}'
+    removes: '{{ p10k_home }}/.node-{{node_version}}-rebuild'
+  become: true
+  become_user: phenome10k
 
-  - name: Build front end
-    command: npm run build
-    args:
-      chdir: '{{ frontend_root_dir }}'
-      creates: '{{ static_files_dir }}/dist'
-    environment:
-      NODE_ENV: production
-    become: y
-    become_user: phenome10k
+- name: Remove rebuild flag
+  command: rm {{ p10k_home }}/.node-{{node_version}}-rebuild
+  args:
+    removes: '{{ p10k_home }}/.node-{{node_version}}-rebuild'
+  become: true
 
-  - name: Create the node service
-    template:
-      src: node.service.j2
-      dest: /etc/systemd/system/node.service
-    become: y
-    notify:
-      - restart node
+- name: Build front end
+  command: npm run build
+  args:
+    chdir: '{{ frontend_root_dir }}'
+    creates: '{{ static_files_dir }}/dist'
+  environment:
+    NODE_ENV: production
+  become: true
+  become_user: phenome10k
 
-  - name: Enable node service
-    systemd:
-      name: node.service
-      state: started
-      enabled: y
-    become: y
+- name: Create the node service
+  template:
+    src: node.service.j2
+    dest: /etc/systemd/system/node.service
+  become: true
+  notify:
+    - restart node
+
+- name: Enable node service
+  systemd:
+    name: node.service
+    state: started
+    enabled: y
+  become: true

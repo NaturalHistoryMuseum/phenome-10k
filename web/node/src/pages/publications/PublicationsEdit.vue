@@ -9,26 +9,60 @@
         <div :class="$style.sectionHead">
           <h2 :class="$style.sectionTitle">Information</h2>
         </div>
-        <input type="hidden" name="csrf_token" :value="csrf_token">
-        <TextInput name="title" :data="form.title" :class="$style.field"
-                   :labelClass="[$style.required, $style['required--first']]" type="text">
+        <input type="hidden" name="csrf_token" :value="csrf_token" />
+        <TextInput
+          name="title"
+          :data="form.title"
+          :class="$style.field"
+          :labelClass="[$style.required, $style['required--first']]"
+          type="text"
+        >
           Title
         </TextInput>
-        <TextInput name="pub_year" :data="form.pub_year" :class="$style.field" :labelClass="$style.required"
-                   type="text">
+        <TextInput
+          name="pub_year"
+          :data="form.pub_year"
+          :class="$style.field"
+          :labelClass="$style.required"
+          type="text"
+        >
           Publication Year
         </TextInput>
-        <TextInput name="authors" :data="form.authors" :class="$style.field" :labelClass="$style.required" type="text">
+        <TextInput
+          name="authors"
+          :data="form.authors"
+          :class="$style.field"
+          :labelClass="$style.required"
+          type="text"
+        >
           Authors
         </TextInput>
-        <TextInput name="journal" :data="form.journal" :class="$style.field" :labelClass="$style.required" type="text">
+        <TextInput
+          name="journal"
+          :data="form.journal"
+          :class="$style.field"
+          :labelClass="$style.required"
+          type="text"
+        >
           Journal, Volume and Page
         </TextInput>
-        <TextInput type="textarea" rows="12" name="abstract" :data="form.abstract" :class="$style.field"
-                   :labelClass="$style.required">
+        <TextInput
+          type="textarea"
+          rows="12"
+          name="abstract"
+          :data="form.abstract"
+          :class="$style.field"
+          :labelClass="$style.required"
+        >
           Abstract
         </TextInput>
-        <TextInput name="link" placeholder="http://" :data="form.link" :class="$style.field" type="text">
+        <TextInput
+          name="link"
+          placeholder="http://"
+          :data="form.link"
+          :class="$style.field"
+          type="text"
+        >
           URL Link
         </TextInput>
       </div>
@@ -39,13 +73,26 @@
         <ul :class="$style.fileList">
           <li v-for="file in files" :key="file.id">
             <a :href="file.file" :class="$style.label">{{ file.filename }}</a>
-            <Delete name="delete" type="button" @click="removeFile(file.id)">Remove</Delete>
+            <Delete name="delete" type="button" @click="removeFile(file.id)"
+              >Remove</Delete
+            >
           </li>
         </ul>
         <label :class="$style.fileInput">
-          <input type="file" multiple accept=".pdf" name="files" ref="fileInput" @change="selectFiles"/>
+          <input
+            type="file"
+            multiple
+            accept=".pdf"
+            name="files"
+            ref="fileInput"
+            @change="selectFiles"
+          />
           <span :class="$style.button">Browse</span>
-          <span :class="$style.text">{{ selectedFiles.length === 1 ? selectedFiles[0].name : `${ selectedFiles.length || 'No' } files selected.` }}</span>
+          <span :class="$style.text">{{
+            selectedFiles.length === 1
+              ? selectedFiles[0].name
+              : `${selectedFiles.length || 'No'} files selected.`
+          }}</span>
         </label>
         <Errors :errors="form.files.errors" />
         <div :class="$style.controls">
@@ -66,14 +113,14 @@ export default {
     TextInput,
     Errors,
     Button,
-    Delete
+    Delete,
   },
   data() {
     return {
       selectedFiles: [],
       csrf_token: this.$route.meta.data.csrf_token,
       form: this.$route.meta.data.form,
-      publication: this.$route.meta.data.publication
+      publication: this.$route.meta.data.publication,
     };
   },
   computed: {
@@ -82,7 +129,7 @@ export default {
      */
     files() {
       return this.publication ? this.publication.files : [];
-    }
+    },
   },
   methods: {
     /**
@@ -97,20 +144,20 @@ export default {
      * Delete a file by its attachment id
      */
     async removeFile(id) {
-      const res = await fetch(`/files/pub/${ id }/delete`, {
+      const res = await fetch(`/files/pub/${id}/delete`, {
         method: 'DELETE',
-        headers: { accept: 'application/json' }
+        headers: { accept: 'application/json' },
       });
       const json = await res.json();
       this.publication = json.publication;
-    }
+    },
   },
   /**
    * Fetch the selected files on mount in case input is pre-populated (e.g. page refresh)
    */
   mounted() {
     this.selectFiles();
-  }
+  },
 };
 </script>
 
@@ -187,5 +234,3 @@ textarea {
   }
 }
 </style>
-
-

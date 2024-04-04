@@ -4,6 +4,7 @@ from phenome10k import create_app
 from phenome10k.data.gbif import pull_tags
 from phenome10k.extensions import db, security
 from phenome10k.models import User, Scan, Taxonomy
+from datetime import datetime as dt
 
 
 def create_cli_app(info):
@@ -33,6 +34,12 @@ def set_admin_pw(password):
     security.datastore.add_role_to_user(user, 'ADMIN')
 
     user.set_password(password)
+
+    # make sure admin user is active and confirmed
+    user.active = True
+    if user.confirmed_at is None:
+        user.confirmed_at = dt.now()
+
     security.datastore.commit()
 
     click.echo('Admin password set.')
@@ -40,12 +47,12 @@ def set_admin_pw(password):
 
 @cli.command()
 def update_gbif_tags():
-    """ Updates taxonomy tags from gbif backbone and deletes unused ones."""
+    """
+    Updates taxonomy tags from gbif backbone and deletes unused ones.
+    """
     click.echo('Updating tags:')
     for scan in Scan.query.filter(Scan.gbif_species_id).all():
-        tags = [
-            db.session.merge(tag) for tag in pull_tags(scan.gbif_species_id)
-        ]
+        tags = [db.session.merge(tag) for tag in pull_tags(scan.gbif_species_id)]
         scan.taxonomy = tags
         click.echo(' - ' + scan.scientific_name)
 

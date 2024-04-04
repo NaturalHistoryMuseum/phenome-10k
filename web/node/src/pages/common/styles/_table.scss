@@ -2,7 +2,6 @@
 @import 'scss/fonts';
 @import 'scss/vars';
 
-
 .table {
   grid-column: 2 / content-end;
   border-collapse: collapse;
@@ -34,7 +33,6 @@
       text-transform: uppercase;
     }
   }
-
 }
 
 @mixin marginCol {
@@ -50,7 +48,6 @@
     text-align: left;
   }
 }
-
 
 @mixin stripes {
   & tr:nth-child(even) {

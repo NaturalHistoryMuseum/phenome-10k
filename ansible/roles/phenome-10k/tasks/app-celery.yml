@@ -1,88 +1,77 @@
 ---
-- name: Check for RabbitMQ repofile
-  stat:
-    path: /etc/yum.repos.d/rabbitmq_rabbitmq-server.repo
-  register: rabbitmq_repofile
+- name: Copy RabbitMQ setup script
+  copy:
+    src: rabbitmq-setup-20240322.sh
+    dest: /tmp/rabbitmq-setup.sh
+    mode: a+x
+  become: true
 
-- name: Check for Erlang repofile
-  stat:
-    path: /etc/yum.repos.d/rabbitmq_erlang.repo
-  register: erlang_repofile
+- name: Run RabbitMQ setup script
+  shell: /tmp/rabbitmq-setup.sh
+  become: true
 
-- name: Create RabbitMQ repofile
-  shell: |
-    curl -LsS "{{ rabbitmq_setup_script }}" | bash -s --
-  args:
-    executable: "/bin/bash"
-  when: not rabbitmq_repofile.stat.exists
-  become: y
+- name: Remove RabbitMQ setup script
+  file:
+    path: /tmp/rabbitmq-setup.sh
+    state: absent
+  become: true
 
-- name: Create Erlang repofile
-  shell: |
-    curl -LsS "{{ erlang_setup_script }}" | bash -s --
-  args:
-    executable: "/bin/bash"
-  when: not erlang_repofile.stat.exists
-  become: y
-
-- name: install Erlang
-  yum:
-    name: erlang
-    state: present
-    enablerepo: rabbitmq_erlang
-  become: y
-
-- name: install RabbitMQ
-  yum:
-    name: rabbitmq-server
-    state: present
-    enablerepo: rabbitmq_rabbitmq-server
-  become: y
+- name: Copy RabbitMQ advanced config file
+  template:
+    src: rabbitmq-advanced.config
+    dest: /etc/rabbitmq/advanced.config
+  become: true
+  notify:
+    - restart rabbitmq
 
 - name: Copy RabbitMQ config file
   template:
-    src: rabbitmq.conf.j2
-    dest: '/etc/rabbitmq/rabbitmq.conf'
-  become: y
+    src: rabbitmq-env.conf.j2
+    dest: /etc/rabbitmq/rabbitmq-env.conf
+  become: true
   notify:
     - restart rabbitmq
+
+- meta: flush_handlers
 
 - name: Start/enable RabbitMQ
   systemd:
     name: rabbitmq-server.service
     state: started
-    enabled: y
-  become: y
+    enabled: true
+  become: true
 
 - name: Enable RabbitMQ management plugin
   rabbitmq_plugin:
     names: rabbitmq_management
     state: enabled
-  become: y
+  become: true
 
 - name: Add RabbitMQ user
   rabbitmq_user:
     user: '{{ p10k_db_user }}'
     password: '{{ p10k_db_password }}'
+    node: rabbit@localhost
     vhost: /
     configure_priv: .*
     read_priv: .*
     write_priv: .*
     state: present
-  become: y
+  become: true
 
 - name: Delete RabbitMQ guest user
   rabbitmq_user:
     user: guest
     state: absent
-  become: y
+    node: rabbit@localhost
+  become: true
 
 - name: Install Redis
-  yum:
+  apt:
     name:
       - redis
     state: present
-  become: yes
+  become: true
   notify:
     - restart redis
 
@@ -90,14 +79,14 @@
   systemd:
     name: redis.service
     state: started
-    enabled: y
-  become: y
+    enabled: true
+  become: true
 
 - name: Create the celery service
   template:
     src: celery.service.j2
     dest: /etc/systemd/system/celery.service
-  become: y
+  become: true
   notify:
     - restart celery
 
@@ -105,14 +94,14 @@
   systemd:
     name: celery.service
     state: started
-    enabled: y
-  become: y
+    enabled: true
+  become: true
 
 - name: Create the flower service
   template:
     src: flower.service.j2
     dest: /etc/systemd/system/flower.service
-  become: y
+  become: true
   notify:
     - restart flower
 
@@ -120,5 +109,5 @@
   systemd:
     name: flower.service
     state: started
-    enabled: y
-  become: y
+    enabled: true
+  become: true

@@ -1,11 +1,12 @@
 // Element ID is always under this key, it's in the spec.
 const ELEMENT = 'element-6066-11e4-a52e-4f735466cecf';
 
-const wait = timeout => new Promise(resolve => setTimeout(resolve, timeout));
+const wait = (timeout) =>
+  new Promise((resolve) => setTimeout(resolve, timeout));
 
 // Helper function for turning webdriver responses into
 // either an error that gets thrown or the element ID.
-const $ = msg => {
+const $ = (msg) => {
   if (msg.error) {
     const e = new Error(msg.message);
     Error.captureStackTrace(e, $);
@@ -15,7 +16,7 @@ const $ = msg => {
     return msg[ELEMENT];
   }
   return msg;
-}
+};
 
 // There is theoretically a built in wait timout but I couldn't
 // get it working so I hacked one
@@ -27,7 +28,7 @@ const waitFor = async (fn, timeout = 10000, interval = 1000) => {
       if (res) {
         return $(res);
       }
-    } catch(e) {
+    } catch (e) {
       if (Date.now() + interval - start > timeout) {
         console.log('Throwing');
         throw e;
@@ -36,14 +37,16 @@ const waitFor = async (fn, timeout = 10000, interval = 1000) => {
 
     if (Date.now() + interval - start > timeout) {
       console.log('Throwing');
-      throw new Error('Couldn\'t wait');
+      throw new Error("Couldn't wait");
     }
 
-    console.log('Retrying')
+    console.log('Retrying');
     await wait(interval);
   }
-}
+};
 
 module.exports = {
-  wait, waitFor, $
+  wait,
+  waitFor,
+  $,
 };
