@@ -1,6 +1,6 @@
 {
   "name": "phenome-10k",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Hosting of 3D biological models for the academic and educational community.",
   "main": "index.js",
   "author": "Paul Kiddle <p.kiddle@nhm.ac.uk>",
