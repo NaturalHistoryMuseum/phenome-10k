@@ -1,3 +1,22 @@
+## v2.1.0 (2024-04-09)
+
+### Feature
+
+- update the gbif taxonomy script
+
+### Build System(s)
+
+- add letsencrypt tasks
+- update virtual ip
+- add maintenance page
+- add .well-known folder
+- align nginx configs
+- add root mysql config earlier
+
+### Chores/Misc
+
+- fix versions
+
 ## v2.0.0 (2024-04-04)
 
 ### Fix
