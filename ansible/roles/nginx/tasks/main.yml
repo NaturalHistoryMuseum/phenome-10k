@@ -28,6 +28,11 @@
   notify: restart nginx
   become: true
 
+- name: Check if certificates dir exists
+  stat:
+    path: '{{ letsencrypt_dir }}'
+  register: certdir
+
 - name: Copy nginx non-ssl config
   template:
     src: phenome10k.org.conf.j2
@@ -35,7 +40,12 @@
   notify:
     - restart nginx
   become: true
-  when: not use_ssl
+  when: (not use_ssl) or (not certdir.stat.islnk is defined)
+
+- import_tasks: letsencrypt.yml
+  tags:
+    - letsencrypt
+  when: use_ssl
 
 - name: Copy nginx ssl config
   template:
@@ -44,7 +54,7 @@
   notify:
     - restart nginx
   become: true
-  when: use_ssl
+  when: use_ssl and certdir.stat.islnk is defined
 
 - name: Start nginx
   systemd:
