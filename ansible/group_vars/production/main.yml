@@ -19,7 +19,7 @@ trusted_networks:
   - 127.0.0.0/16
 
 # keepalived
-virtual_ip: 157.140.2.106
+virtual_ip: 157.140.2.191
 vrrp_interface: ens160
 vrrp_password: "{{ lookup('hashi_vault', 'secret=phenome10k/vrrp:password url=https://man-vault-2.nhm.ac.uk:8200')}}"
 

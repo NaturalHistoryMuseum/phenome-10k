@@ -5,6 +5,7 @@ from phenome10k.data.gbif import pull_tags
 from phenome10k.extensions import db, security
 from phenome10k.models import User, Scan, Taxonomy
 from datetime import datetime as dt
+from sqlalchemy import select
 
 
 def create_cli_app(info):
@@ -51,10 +52,19 @@ def update_gbif_tags():
     Updates taxonomy tags from gbif backbone and deletes unused ones.
     """
     click.echo('Updating tags:')
-    for scan in Scan.query.filter(Scan.gbif_species_id).all():
-        tags = [db.session.merge(tag) for tag in pull_tags(scan.gbif_species_id)]
-        scan.taxonomy = tags
-        click.echo(' - ' + scan.scientific_name)
+    species_ids = db.session.execute(
+        select(Scan.gbif_species_id)
+        .where(Scan.gbif_species_id.isnot(None))
+        .group_by(Scan.gbif_species_id)
+    )
+    for sid in species_ids:
+        tags = [db.session.merge(tag) for tag in pull_tags(sid[0])]
+        db.session.commit()
+        if len(tags) == 0:
+            continue
+        for scan in Scan.query.filter(Scan.gbif_species_id == sid[0]):
+            scan.taxonomy = tags
+        click.echo(' - ' + tags[-1].name)
 
     click.echo('Deleting tags:')
     for tax in Taxonomy.query.filter(db.not_(Taxonomy.scans.any())):

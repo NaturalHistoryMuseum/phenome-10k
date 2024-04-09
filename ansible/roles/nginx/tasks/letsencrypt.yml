@@ -1,0 +1,36 @@
+---
+- name: Install certbot
+  snap:
+    name: certbot
+    state: present
+    classic: true
+  become: true
+
+- name: Link certbot snap executable to bin
+  file:
+    src: /snap/bin/certbot
+    dest: /usr/bin/certbot
+    state: link
+  become: true
+
+- name: Check for account
+  shell: 'certbot show_account'
+  become: true
+  register: cert_account
+  ignore_errors: true
+
+- name: Register certbot
+  shell: 'certbot -n register --agree-tos -m {{ sysadmin_email }}'
+  become: true
+  when: cert_account is failed
+
+- name: Check if certificates dir exists
+  stat:
+    path: '{{ letsencrypt_dir }}'
+  register: certdir
+
+- debug:
+    msg: |
+      Once the server is accessible over http, log on and run: certbot --nginx
+      Then run this playbook again.
+  when: certdir.stat.islnk is not defined

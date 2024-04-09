@@ -8,9 +8,30 @@
   template:
     src: nginx.conf.j2
     dest: /etc/nginx/nginx.conf
-  notify:
-    - restart nginx
+  notify: restart nginx
   become: true
+
+- name: Copy maintenance file
+  copy:
+    src: maintenance.html
+    dest: /usr/share/nginx/html/maintenance.html.off
+    owner: root
+    group: root
+  notify: restart nginx
+  become: true
+
+- name: Copy .well-known
+  copy:
+    src: .well-known
+    dest: /var/www/
+    mode: 0644
+  notify: restart nginx
+  become: true
+
+- name: Check if certificates dir exists
+  stat:
+    path: '{{ letsencrypt_dir }}'
+  register: certdir
 
 - name: Copy nginx non-ssl config
   template:
@@ -19,7 +40,12 @@
   notify:
     - restart nginx
   become: true
-  when: not use_ssl
+  when: (not use_ssl) or (not certdir.stat.islnk is defined)
+
+- import_tasks: letsencrypt.yml
+  tags:
+    - letsencrypt
+  when: use_ssl
 
 - name: Copy nginx ssl config
   template:
@@ -28,7 +54,7 @@
   notify:
     - restart nginx
   become: true
-  when: use_ssl
+  when: use_ssl and certdir.stat.islnk is defined
 
 - name: Start nginx
   systemd:
