@@ -11,6 +11,15 @@
   notify: restart nginx
   become: true
 
+- name: Copy maintenance file
+  copy:
+    src: maintenance.html
+    dest: /usr/share/nginx/html/maintenance.html.off
+    owner: root
+    group: root
+  notify: restart nginx
+  become: true
+
 - name: Copy .well-known
   copy:
     src: .well-known

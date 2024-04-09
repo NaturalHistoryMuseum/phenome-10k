@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Phenome10k - Maintenance</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="https://github.com/NaturalHistoryMuseum/phenome-10k/raw/main/static/icons/favicon-32x32.png">
+    <link rel="shortcut icon" href="https://github.com/NaturalHistoryMuseum/phenome-10k/raw/main/static/icons/favicon.ico">
+    <style>
+    @import url("https://fonts.googleapis.com/css2?family=Red+Hat+Text");
+    body {
+      font-family: "Red Hat Text", "Helvetica", Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.7em;
+      margin: 0;
+      padding: 0;
+      text-align: center;
+    }
+    .main {
+      display: grid;
+      grid-template-columns: 300px;
+      justify-content: center;
+      align-content: center;
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+    .main > * {
+      width: 100%;
+      padding: 10px;
+    }
+    path {
+      fill-opacity:1;
+    }
+    .outline {
+      display:inline;
+      fill:#ffffff;
+      stroke:#000000;
+      stroke-width:1;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+      stroke-miterlimit:4;
+      stroke-opacity:1;
+      stroke-dasharray: 3;
+      animation: draw 10s linear infinite;
+    }
+    @keyframes draw {
+      from {
+        stroke-dashoffset: 100;
+      }
+      to {
+        stroke-dashoffset: 0;
+      }
+    }
+
+    .eye, .dashes > path {
+      display:inline;
+      fill:#555;
+      stroke-width:0.07;
+      animation: fade 5s linear infinite;
+    }
+    .nose {
+      fill:#555;
+      stroke:#555;
+      stroke-width:0.264583px;
+      stroke-linecap:butt;
+      stroke-linejoin:miter;
+      animation: fade 5s linear infinite;
+    }
+    @keyframes fade {
+      0% {
+        fill: #333;
+        stroke: #333;
+      }
+      50% {
+        fill: #666;
+        stroke: #666;
+      }
+      100% {
+        fill: #333;
+        stroke: #333;
+      }
+    }
+    </style>
+</head>
+<body>
+    <div class='main'>
+      <svg viewBox="0 0 105 82" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(-50,-109)">
+          <path class="outline" d="m 56.590629,162.09785 c 0.665795,-1.77619 1.552429,-3.11358 3.449575,-5.6639 3.398008,-4.0535 6.794751,-8.35065 10.524576,-11.98388 9.862085,-9.28321 14.708531,-20.87079 19.643714,-26.4378 7.13548,-7.09028 15.944106,-7.65508 29.759286,-7.57663 4.43193,0.16051 17.74455,5.63062 23.59299,14.79224 4.58877,8.00645 4.93188,18.94438 9.02429,28.51952 0.34314,1.81071 0.056,3.65392 -2.23183,4.67686 -2.42177,1.15715 -3.41629,-0.0739 -5.47906,-0.0677 -3.8088,0.21315 -12.45992,9.47099 -21.87035,12.08698 -20.85783,6.47046 -45.394763,19.0631 -50.714744,19.34536 -3.787554,0.0295 -11.52585,-2.61633 -16.260459,-3.85561 -3.343356,-1.13295 -4.743577,-1.40135 -4.239742,-7.35245 0.572005,-3.45983 3.601151,-8.53599 5.401726,-12.80398 -0.446253,-0.61248 -0.998556,-2.24316 -0.599972,-3.67901 z"/>
+          <path class="eye" d="m 109.71952,168.48113 c -4.20909,-1.45973 -7.18077,-2.82716 -8.95454,-7.08245 -1.502074,-4.05126 -0.68007,-8.68131 -2.980934,-12.51754 -1.49547,-2.24815 -3.39171,-5.49801 -3.10392,-8.10468 0.3458,-3.59613 2.04113,-6.84089 5.18508,-9.49369 8.019634,-5.37118 17.337824,-2.18502 24.650484,1.96397 4.08404,2.56605 7.73088,6.91426 9.04823,10.61049 0.83936,2.37094 1.61702,9.57512 0.0872,13.21315 -2.66622,5.77553 -8.60818,8.68665 -11.35269,9.85955 -3.65724,1.35544 -8.32118,2.16809 -12.5789,1.5512 z"/>
+          <path class="nose" d="m 55.851842,163.93943 c 2.897436,0.1366 6.878314,-2.35606 9.140326,-1.99735 2.623618,0.90315 3.339945,7.04892 3.230402,9.20928 -0.227464,3.43673 -4.939213,9.30855 -6.591159,9.64969 -4.268348,-1.45481 -6.86042,-2.5843 -9.842536,-2.22022 0.352768,-3.68552 5.790195,-11.03333 5.401726,-12.80398 -0.329808,-0.9697 -0.88626,-0.90875 -1.338759,-1.83742 z"/>
+          <g class="dashes">
+            <path d="m 68.129529,152.974 c 4.030647,-3.65007 7.825898,-7.82542 11.321844,-12.09285 2.318256,-1.60515 -1.481095,4.65688 -2.460035,5.29841 -2.81745,2.11804 -5.507367,6.20493 -8.861809,6.79444 z m 13.986289,-15.46812 c 0.380709,-2.89198 1.592744,0.71741 0,0 z m 2.586749,-4.82675 c 1.863389,-2.88014 1.03337,1.61144 0,0 z m 2.334501,-3.40401 c 1.005337,-2.1322 3.515759,-3.35601 0.968586,-0.30671 -0.167791,0.0486 -0.771104,0.82146 -0.968586,0.30671 z m 2.566389,-3.50351 c 3.484303,-4.98218 7.765335,-9.81253 13.251623,-12.62675 0.98722,1.22512 -4.807812,3.57714 -5.967742,5.74948 -2.652318,1.47412 -4.932653,7.13949 -7.283881,6.87727 z"/>
+            <path d="m 59.178158,160.04755 c 1.181066,-1.92105 7.64374,-6.27923 3.619354,-1.8096 -1.200672,1.57628 -4.91062,4.93304 -5.542429,6.06987"/>
+          </g>
+        </g>
+      </svg>
+      <p>Phenome10k is temporarily down for maintenance. Check back later!</p>
+    </div>
+</body>
+</html>
