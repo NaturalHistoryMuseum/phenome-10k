@@ -19,6 +19,10 @@ server {
     server_name  _;
     access_log   /var/log/nginx/p10k.log;
 
+    location ^~ /.well-known {
+        root /var/www/;
+    }
+
     location / {
       # if the maintenance page exists, return service unavailable
       if (-f /usr/share/nginx/html/maintenance.html) {

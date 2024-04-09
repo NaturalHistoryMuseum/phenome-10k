@@ -38,6 +38,10 @@ server {
 
     add_header Content-Security-Policy upgrade-insecure-requests;
 
+    location ^~ /.well-known {
+        root /var/www/;
+    }
+
     location / {
       # if the maintenance page exists, return service unavailable
       if (-f /usr/share/nginx/html/maintenance.html) {
