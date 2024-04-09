@@ -20,7 +20,7 @@ def upgrade():
     with op.batch_alter_table('taxonomy', schema=None) as batch_op:
         batch_op.add_column(sa.Column('gbif', sa.Boolean(), nullable=True))
 
-    op.execute("update taxonomy set gbif = 't'")
+    op.execute("update taxonomy set gbif = 1")
     op.alter_column('taxonomy', 'gbif', nullable=False)
 
 
