@@ -3,11 +3,28 @@ upstream phenome10k {
 }
 
 server {
+    listen       80;
+    listen       [::]:80;
+    server_name  {{ monit_hostname }};
+
+    location / {
+      proxy_pass http://localhost:8080/;
+      proxy_set_header Host $http_host;
+    }
+}
+
+server {
     listen       80 default_server;
     listen       [::]:80 default_server;
     server_name  _;
+    access_log   /var/log/nginx/p10k.log;
 
     location / {
+      # if the maintenance page exists, return service unavailable
+      if (-f /usr/share/nginx/html/maintenance.html) {
+        return 503;
+      }
+
       proxy_pass http://phenome10k;
       proxy_connect_timeout 10s;
       proxy_read_timeout 10s;
@@ -18,15 +35,9 @@ server {
       # Allow large file uploads
       client_max_body_size {{ max_upload_size_mb }}M;
     }
-}
 
-server {
-    listen       80;
-    listen       [::]:80;
-    server_name  {{ monit_hostname }};
-
-    location / {
-      proxy_pass http://localhost:8080/;
-      proxy_set_header Host $http_host;
+    error_page 503 /maintenance.html;
+    location = /maintenance.html {
+      root  /usr/share/nginx/html/;
     }
 }
