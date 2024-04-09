@@ -5,6 +5,7 @@ class Taxonomy(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(250), nullable=False)
     parent_id = db.Column(db.Integer, db.ForeignKey('taxonomy.id'))
+    gbif = db.Column(db.Boolean, nullable=False, default=True)
 
     children = db.relationship('Taxonomy')
 
@@ -19,12 +20,9 @@ class Taxonomy(db.Model):
         data = self.serialize()
 
         if depth > 0:
-            if len(self.children) == 1:
-                data['children'] = self.children[0].serialize_tree(depth)['children']
-            else:
-                data['children'] = [
-                    child.serialize_tree(depth - 1) for child in self.children
-                ]
+            data['children'] = [
+                child.serialize_tree(depth - 1) for child in self.children
+            ]
         else:
             data['children'] = []
         return data
