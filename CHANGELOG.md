@@ -1,3 +1,9 @@
+## v2.1.1 (2024-04-09)
+
+### Fix
+
+- set existing columns to 1 not 't'
+
 ## v2.1.0 (2024-04-09)
 
 ### Feature
