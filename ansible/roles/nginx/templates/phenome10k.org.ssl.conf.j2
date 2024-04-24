@@ -5,9 +5,26 @@ upstream phenome10k {
 server {
     listen       80;
     listen       [::]:80;
-    listen       443 ssl;
-    listen	     [::]:443 ssl;
     server_name  {{ monit_hostname }};
+
+    add_header Content-Security-Policy upgrade-insecure-requests;
+
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen	            443 ssl http2;
+    listen              [::]:443 ssl http2;
+    server_name         {{ monit_hostname }};
+
+    ssl_certificate     {{ certificates_dir }}/monit-ss.crt;
+    ssl_certificate_key {{ certificates_dir }}/monit-ss.pem;
+    ssl_protocols       TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    ssl_session_cache   shared:SSL:10m;
+    ssl_session_timeout 10m;
+
+    add_header          Content-Security-Policy upgrade-insecure-requests;
 
     location / {
       proxy_pass http://localhost:8080/;
@@ -16,9 +33,13 @@ server {
 }
 
 server {
-    listen       80 default_server;
-    listen       [::]:80 default_server;
-    server_name  _;
+    listen              80 default_server;
+    listen              [::]:80 default_server;
+    server_name         _;
+
+    location ^~ /.well-known {
+        root /var/www/;
+    }
 
     add_header Content-Security-Policy upgrade-insecure-requests;
 
@@ -26,41 +47,19 @@ server {
 }
 
 server {
-    listen	     443 ssl http2 default_server;
-    listen       [::]:443 ssl http2 default_server;
-    server_name  _;
-    access_log   /var/log/nginx/p10k.log;
+    listen	            443 ssl http2 default_server;
+    listen              [::]:443 ssl http2 default_server;
+    server_name         _;
+    keepalive_timeout   70;
+    access_log          /var/log/nginx/p10k.log;
 
-    ssl_certificate {{ letsencrypt_dir }}/fullchain.pem;
-    ssl_certificate_key {{ letsencrypt_dir }}/privkey.pem;
-    include /etc/letsencrypt/options-ssl-nginx.conf;
-    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+    include             {{ nginx_partial_configs_dir }}/ssl_certs.conf;
+    ssl_protocols       TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    ssl_session_cache   shared:SSL:10m;
+    ssl_session_timeout 10m;
 
-    add_header Content-Security-Policy upgrade-insecure-requests;
+    add_header          Content-Security-Policy upgrade-insecure-requests;
 
-    location ^~ /.well-known {
-        root /var/www/;
-    }
-
-    location / {
-      # if the maintenance page exists, return service unavailable
-      if (-f /usr/share/nginx/html/maintenance.html) {
-        return 503;
-      }
-
-      proxy_pass http://phenome10k;
-      proxy_connect_timeout 10s;
-      proxy_read_timeout 10s;
-
-      # Redefine the header fields that NGINX sends to the upstream server
-      proxy_set_header Host $http_host;
-
-      # Allow large file uploads
-      client_max_body_size {{ max_upload_size_mb }}M;
-    }
-
-    error_page 503 /maintenance.html;
-    location = /maintenance.html {
-      root  /usr/share/nginx/html/;
-    }
+    include             {{ nginx_partial_configs_dir }}/server-body.conf;
 }

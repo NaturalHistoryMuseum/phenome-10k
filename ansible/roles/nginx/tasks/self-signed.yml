@@ -1,0 +1,31 @@
+---
+- name: Install openssl
+  apt:
+    name: openssl
+    state: present
+  become: true
+
+- name: Create certificates directory
+  file:
+    path: '{{ certificates_dir }}'
+    state: directory
+  become: true
+
+- name: Check if self-signed certificate exists
+  stat:
+    path: '{{ certificates_dir }}/p10k-ss.crt'
+  register: sscert
+
+- name: Create self-signed certificates
+  shell: 'openssl req -nodes -new -x509 -keyout {{ certificates_dir }}/p10k-ss.pem -out {{ certificates_dir }}/p10k-ss.crt -subj "/CN={{ hostname }}"'
+  when: sscert.stat.islnk is not defined
+  become: yes
+
+- name: Check if self-signed certificate exists for monit
+  stat:
+    path: '{{ certificates_dir }}/monit-ss.crt'
+  register: ssmonitcert
+
+- name: Create self-signed certificates for monit
+  shell: 'openssl req -nodes -new -x509 -keyout {{ certificates_dir }}/monit-ss.pem -out {{ certificates_dir }}/monit-ss.crt -subj "/CN={{ monit_hostname }}"'
+  become: yes

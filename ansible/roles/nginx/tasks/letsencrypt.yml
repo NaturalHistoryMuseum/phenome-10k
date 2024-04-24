@@ -27,10 +27,11 @@
 - name: Check if certificates dir exists
   stat:
     path: '{{ letsencrypt_dir }}'
-  register: certdir
+  register: lecertdir
+  become: true
 
 - debug:
     msg: |
-      Once the server is accessible over http, log on and run: certbot --nginx
+      Once the server is accessible on {{ hostname }}, log on and run: certbot certonly --webroot -w /var/www
       Then run this playbook again.
-  when: certdir.stat.islnk is not defined
+  when: lecertdir.stat.islnk is not defined
