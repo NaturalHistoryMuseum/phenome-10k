@@ -1,3 +1,9 @@
+## v2.2.0 (2024-04-24)
+
+### Feature
+
+- self signed certificates, letsencrypt updates, etc
+
 ## v2.1.1 (2024-04-09)
 
 ### Fix
