@@ -28,10 +28,49 @@
   notify: restart nginx
   become: true
 
-- name: Check if certificates dir exists
+- name: Create partial configs directory
+  file:
+    path: '{{ nginx_partial_configs_dir }}'
+    state: directory
+  become: true
+
+- name: Copy server body config
+  template:
+    src: server-body.conf.j2
+    dest: '{{ nginx_partial_configs_dir }}/server-body.conf'
+  notify:
+    - restart nginx
+  become: true
+
+- import_tasks: self-signed.yml
+  when: use_ssl
+
+- name: Check if letsencrypt certificates dir exists
   stat:
     path: '{{ letsencrypt_dir }}'
-  register: certdir
+  register: lecertdir
+  become: true
+
+# always use self-signed certificates for the backup lb because we can't autorenew
+# letsencrypt without disabling the main lb
+
+- name: Copy self-signed certificates config
+  template:
+    src: self-signed.conf.j2
+    dest: '{{ nginx_partial_configs_dir }}/ssl_certs.conf'
+  notify:
+    - restart nginx
+  become: true
+  when: use_ssl and ((not lecertdir.stat.islnk is defined) or vrrp_state == 'BACKUP')
+
+- name: Copy letsencrypt certificates config
+  template:
+    src: letsencrypt.conf.j2
+    dest: '{{ nginx_partial_configs_dir }}/ssl_certs.conf'
+  notify:
+    - restart nginx
+  become: true
+  when: use_ssl and lecertdir.stat.islnk is defined and vrrp_state == 'MASTER'
 
 - name: Copy nginx non-ssl config
   template:
@@ -40,12 +79,7 @@
   notify:
     - restart nginx
   become: true
-  when: (not use_ssl) or (not certdir.stat.islnk is defined)
-
-- import_tasks: letsencrypt.yml
-  tags:
-    - letsencrypt
-  when: use_ssl
+  when: not use_ssl
 
 - name: Copy nginx ssl config
   template:
@@ -54,7 +88,12 @@
   notify:
     - restart nginx
   become: true
-  when: use_ssl and certdir.stat.islnk is defined
+  when: use_ssl
+
+- import_tasks: letsencrypt.yml
+  tags:
+    - letsencrypt
+  when: use_ssl and vrrp_state == 'MASTER'
 
 - name: Start nginx
   systemd:

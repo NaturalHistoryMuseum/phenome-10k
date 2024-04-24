@@ -19,7 +19,7 @@ trusted_networks:
   - 127.0.0.0/16
 
 # keepalived
-virtual_ip: 157.140.2.191
+virtual_ip: 157.140.2.224
 vrrp_interface: ens160
 vrrp_password: "{{ lookup('hashi_vault', 'secret=phenome10k/vrrp:password url=https://man-vault-2.nhm.ac.uk:8200')}}"
 
@@ -37,8 +37,8 @@ mysql_monit:
   password: "{{ lookup('hashi_vault', 'secret=phenome10k/mysql:monit_password url=https://man-vault-2.nhm.ac.uk:8200')}}"
 
 # nginx
-letsencrypt_dir: /etc/letsencrypt/live/www.phenome10k.org
 use_ssl: true
+hostname: phenome10k.org
 
 # p10k: flask
 flask_secret_key: "{{ lookup('hashi_vault', 'secret=phenome10k/p10k:flask_secret url=https://man-vault-2.nhm.ac.uk:8200')}}"

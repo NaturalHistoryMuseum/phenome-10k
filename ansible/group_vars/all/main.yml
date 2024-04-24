@@ -21,6 +21,9 @@ models_dir: '{{ nfs_path }}/models'
 tmp_upload_dir: '{{ nfs_path }}/tmp-uploads'
 uploads_dir: '{{ nfs_path }}/uploads'
 p10k_logs: /var/log/phenome10k
+nginx_partial_configs_dir: /etc/nginx/parts
+letsencrypt_dir: /etc/letsencrypt/live/www.phenome10k.org
+certificates_dir: /etc/nginx/certificates
 
 # firewall
 trusted_networks:
@@ -53,7 +56,8 @@ mysql_monit:
 
 # nginx
 max_upload_size_mb: 500
-monit_hostname: monit.phenome10k.localhost
+hostname: phenome10k.localhost
+monit_hostname: 'monit.{{ hostname }}'
 use_ssl: false
 
 # nodejs
