@@ -1,3 +1,18 @@
+## v2.3.0 (2024-04-25)
+
+### Feature
+
+- add robots.txt
+- add config to block certain useragents
+
+### Fix
+
+- remove file that never actually got used
+
+### Chores/Misc
+
+- remove standard comments and unused sections from nginx config
+
 ## v2.2.0 (2024-04-24)
 
 ### Feature
