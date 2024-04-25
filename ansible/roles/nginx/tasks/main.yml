@@ -42,6 +42,14 @@
     - restart nginx
   become: true
 
+- name: Copy blocked useragents config
+  copy:
+    src: blocked-useragents.conf
+    dest: '{{ nginx_partial_configs_dir }}/blocked-useragents.conf'
+  notify:
+    - restart nginx
+  become: true
+
 - import_tasks: self-signed.yml
   when: use_ssl
 

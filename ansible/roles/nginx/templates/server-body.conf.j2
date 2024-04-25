@@ -1,3 +1,7 @@
+if ($should_block) {
+    return 403;
+}
+
 location ^~ /.well-known {
     root /var/www/;
 }
