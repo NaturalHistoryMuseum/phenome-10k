@@ -2,6 +2,10 @@ if ($should_block) {
     return 403;
 }
 
+location /robots.txt {
+    root /var/www;
+}
+
 location ^~ /.well-known {
     root /var/www/;
 }

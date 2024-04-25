@@ -28,6 +28,14 @@
   notify: restart nginx
   become: true
 
+- name: Copy robots.txt
+  copy:
+    src: robots.txt
+    dest: /var/www/
+    mode: 0644
+  notify: restart nginx
+  become: true
+
 - name: Create partial configs directory
   file:
     path: '{{ nginx_partial_configs_dir }}'
