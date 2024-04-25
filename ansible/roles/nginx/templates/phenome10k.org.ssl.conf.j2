@@ -37,10 +37,6 @@ server {
     listen              [::]:80 default_server;
     server_name         _;
 
-    location ^~ /.well-known {
-        root /var/www/;
-    }
-
     add_header Content-Security-Policy upgrade-insecure-requests;
 
     return 301 https://$host$request_uri;
