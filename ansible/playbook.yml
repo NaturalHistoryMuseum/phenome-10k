@@ -37,7 +37,7 @@
     - core
     - firewall
     - users
-    - nginx
+    - {role: nginx, tags: nginx}
     - monit/monit
     - monit/mmonit
     - keepalived
