@@ -1,3 +1,14 @@
+## v2.3.1 (2024-05-02)
+
+### Fix
+
+- fix reference to scan object in feed template
+
+### Build System(s)
+
+- update some python deps
+- update minor versions of node deps and rebuild lock file
+
 ## v2.3.0 (2024-04-25)
 
 ### Feature
