@@ -1,3 +1,9 @@
+## v2.4.0 (2024-07-26)
+
+### Feature
+
+- configure flask logging to file
+
 ## v2.3.1 (2024-05-02)
 
 ### Fix
