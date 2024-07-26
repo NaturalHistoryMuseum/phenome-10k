@@ -1,3 +1,6 @@
+from logging.config import dictConfig
+from pathlib import Path
+
 from flask import Flask
 from phenome10k.config import Config, get_celery_config
 from phenome10k.extensions import (
@@ -11,14 +14,41 @@ from phenome10k.extensions import (
     spec,
     captcha,
 )
-from phenome10k.tasks import celery
-from phenome10k.models import user_datastore
 from phenome10k.forms import P10KLoginForm, P10KRegisterForm
+from phenome10k.models import user_datastore
+from phenome10k.tasks import celery
 
 
 def init(return_celery=False):
     app = Flask(__name__, static_folder=Config.STATIC_DIR)
     app.config.from_object(Config)
+
+    log_file = Path(Config.LOG_FILE)
+    log_file.parent.mkdir(exist_ok=True, parents=True)
+    log_level = 'DEBUG' if app.debug else 'WARNING'
+    # this adds a log file without disabling the default flask console log
+    dictConfig(
+        {
+            'version': 1,
+            'disable_existing_loggers': False,
+            'formatters': {
+                'default': {
+                    'format': '%(asctime)s %(levelname)s [%(name)s] %(message)s',
+                }
+            },
+            'handlers': {
+                'file': {
+                    'class': 'logging.FileHandler',
+                    'filename': Config.LOG_FILE,
+                    'formatter': 'default',
+                    'level': log_level,
+                },
+            },
+            'loggers': {
+                '': {'handlers': ['file'], 'level': log_level},
+            },
+        }
+    )
 
     db.init_app(app)
     migrate.init_app(app, db)
