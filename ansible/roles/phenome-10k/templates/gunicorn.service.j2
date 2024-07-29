@@ -3,7 +3,7 @@ Description=phenome10k service
 
 [Service]
 Type=simple
-ExecStart={{ gunicorn_binary }} --error-logfile /var/log/phenome10k/error.log --access-logfile /var/log/phenome10k/access.log -b 0.0.0.0:{{ gunicorn_port }} -w 4 api.wsgi:app
+ExecStart={{ gunicorn_binary }} --error-logfile /var/log/phenome10k/error.log --access-logfile /var/log/phenome10k/access.log -b 0.0.0.0:{{ gunicorn_port }} -w 4 --threads 8 --timeout 120 api.wsgi:app
 Restart=on-abort
 WorkingDirectory={{ p10k_src_dir }}
 User={{ p10k_linux_user }}
