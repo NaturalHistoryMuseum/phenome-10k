@@ -1,3 +1,14 @@
+## v2.4.1 (2024-07-29)
+
+### Fix
+
+- make default log level configurable
+
+### Build System(s)
+
+- increase timeout for gunicorn
+- adjust threads for gunicorn
+
 ## v2.4.0 (2024-07-26)
 
 ### Feature
