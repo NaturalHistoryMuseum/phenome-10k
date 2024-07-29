@@ -25,7 +25,7 @@ def init(return_celery=False):
 
     log_file = Path(Config.LOG_FILE)
     log_file.parent.mkdir(exist_ok=True, parents=True)
-    log_level = 'DEBUG' if app.debug else 'WARNING'
+    log_level = 'DEBUG' if app.debug else Config.LOG_LEVEL
     # this adds a log file without disabling the default flask console log
     dictConfig(
         {
