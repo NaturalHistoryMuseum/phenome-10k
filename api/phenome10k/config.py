@@ -26,6 +26,7 @@ class Config(object):
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL') or 'alycejenni@gmail.com'
     LOG_FILE = os.environ.get('LOG_FILE') or 'logs/phenome10k.log'
+    LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING')
     SERVER_NAME = os.environ.get('SERVER_NAME') or None
     UPLOAD_DIRECTORY = os.environ.get('UPLOAD_DIRECTORY') or os.path.abspath('uploads')
     MODEL_DIRECTORY = os.environ.get('MODEL_DIRECTORY') or os.path.abspath(
