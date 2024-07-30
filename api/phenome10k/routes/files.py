@@ -107,7 +107,11 @@ def send_uploads(path):
             pass
 
         height = im.height * width // im.width
-        im.thumbnail((width, height))
+        try:
+            im.thumbnail((width, height))
+        except OSError:
+            # if this didn't work, the image is broken
+            raise NotFound()
         byte_io = io.BytesIO()
         im.save(byte_io, format='PNG')
         im.save(thumbnail_file, format='PNG')
