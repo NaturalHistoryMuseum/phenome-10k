@@ -1,3 +1,19 @@
+## v2.4.2 (2024-07-30)
+
+### Fix
+
+- use safe_join from werkzeug
+- add catch for broken images
+- make height an int too
+
+### Build System(s)
+
+- remove obsolete docker compose version specifier
+
+### Chores/Misc
+
+- ignore logs generated during development
+
 ## v2.4.1 (2024-07-29)
 
 ### Fix
