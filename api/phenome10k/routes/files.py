@@ -106,7 +106,7 @@ def send_uploads(path):
         except FileExistsError:
             pass
 
-        height = im.height * width / im.width
+        height = im.height * width // im.width
         im.thumbnail((width, height))
         byte_io = io.BytesIO()
         im.save(byte_io, format='PNG')
