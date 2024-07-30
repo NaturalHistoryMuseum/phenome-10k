@@ -17,6 +17,7 @@ coverage
 web/scss/.sass-cache/
 
 api/thumbnails/
+api/logs/
 
 build/
 
