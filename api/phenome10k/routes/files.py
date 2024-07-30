@@ -6,8 +6,8 @@ from PIL import Image
 from flask import Blueprint, redirect, url_for, send_file
 from flask import Response, current_app, send_from_directory
 from flask import request
-from flask.helpers import safe_join
 from werkzeug.exceptions import NotFound, BadRequest
+from werkzeug.utils import safe_join
 
 from ._decorators import login_required, requires_contributor
 from ._utils import ensure_editable
