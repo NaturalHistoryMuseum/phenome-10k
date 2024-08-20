@@ -56,6 +56,7 @@ class Config(object):
     HCAPTCHA_ENABLED = not os.environ.get('FLASK_DEBUG', False)
     HCAPTCHA_SITE_KEY = os.environ.get('HCAPTCHA_SITE_KEY')
     HCAPTCHA_SECRET_KEY = os.environ.get('HCAPTCHA_SECRET_KEY')
+    CACHE_REDIS_URL = os.environ.get('CACHE_REDIS_URL', 'redis://localhost:6379/0')
 
 
 def get_celery_config():

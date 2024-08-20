@@ -2,7 +2,7 @@ import click
 from flask.cli import FlaskGroup
 from phenome10k import create_app
 from phenome10k.data.gbif import pull_tags
-from phenome10k.extensions import db, security
+from phenome10k.extensions import db, security, cache
 from phenome10k.models import User, Scan, Taxonomy
 from datetime import datetime as dt
 from sqlalchemy import select
@@ -71,6 +71,24 @@ def update_gbif_tags():
         click.echo(' - ' + tax.name)
         db.session.delete(tax)
     db.session.commit()
+
+    click.echo('Clearing taxonomy tree cache:')
+    is_deleted = cache.delete('taxonomy_tree')
+    click.echo('Deleted.' if is_deleted else 'Did not exist or could not be deleted.')
+
+
+@cli.command()
+@click.argument('keys', nargs=-1)
+def clear_cache(keys):
+    """
+    Clears items from the flask cache (not the celery cache).
+    """
+    if keys:
+        cache.delete_many(*keys)
+        click.echo(f'Removed {len(keys)} keys from cache.')
+    else:
+        cache.clear()
+        click.echo('Cleared whole cache.')
 
 
 if __name__ == '__main__':
