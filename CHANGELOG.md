@@ -1,3 +1,18 @@
+## v2.5.0 (2024-08-20)
+
+### Feature
+
+- add command to clear cache
+
+### Performance
+
+- add flask-caching and cache taxonomy tree output
+- use 9 workers, remove threads
+
+### Build System(s)
+
+- add logrotate config to ansible
+
 ## v2.4.2 (2024-07-30)
 
 ### Fix

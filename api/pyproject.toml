@@ -1,6 +1,6 @@
 [project]
 name = "phenome10k"
-version = "2.4.2"
+version = "2.5.0"
 description = "Hosting of 3D biological models for the academic and educational community."
 requires-python = ">=3.8"
 license = { text = "GPL-3.0-or-later" }
