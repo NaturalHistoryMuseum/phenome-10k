@@ -13,6 +13,7 @@ from phenome10k.extensions import (
     ma,
     spec,
     captcha,
+    cache,
 )
 from phenome10k.forms import P10KLoginForm, P10KRegisterForm
 from phenome10k.models import user_datastore
@@ -63,6 +64,14 @@ def init(return_celery=False):
     scan_store.init_app(db)
     upload_store.init_app(app)
     ma.init_app(app)
+    cache.init_app(
+        app,
+        config={
+            'CACHE_TYPE': 'RedisCache',
+            'CACHE_KEY_PREFIX': 'p10k_cache_',
+            'CACHE_REDIS_URL': Config.CACHE_REDIS_URL,
+        },
+    )
     config_celery(app)
 
     from phenome10k.routes import init_routes

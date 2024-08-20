@@ -77,6 +77,7 @@ flower_broker_api: http://{{ p10k_db_user }}:{{ p10k_db_password|urlencode() }}@
   rabbitmq_host }}:15672/api/
 
 # p10k: flask
+cache_redis_url: redis://{{ redis_host }}:6379/1
 flask_secret_key: G}<Ci&XWqSqA/mF7ZCWI7JJ.:QuuZF
 gunicorn_binary: '{{ venv_bin }}/gunicorn'
 gunicorn_port: 8000
