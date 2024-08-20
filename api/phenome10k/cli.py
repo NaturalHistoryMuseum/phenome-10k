@@ -77,5 +77,19 @@ def update_gbif_tags():
     click.echo('Deleted.' if is_deleted else 'Did not exist or could not be deleted.')
 
 
+@cli.command()
+@click.argument('keys', nargs=-1)
+def clear_cache(keys):
+    """
+    Clears items from the flask cache (not the celery cache).
+    """
+    if keys:
+        cache.delete_many(*keys)
+        click.echo(f'Removed {len(keys)} keys from cache.')
+    else:
+        cache.clear()
+        click.echo('Cleared whole cache.')
+
+
 if __name__ == '__main__':
     cli()
