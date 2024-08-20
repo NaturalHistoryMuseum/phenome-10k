@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
 from flask_hcaptcha import hCaptcha
+from flask_caching import Cache
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
@@ -22,6 +23,7 @@ spec = APISpec(
     openapi_version='3.1.0',
     plugins=[FlaskPlugin(), MarshmallowPlugin()],
 )
+cache = Cache()
 
 scan_store = ScanStore()
 upload_store = TmpUploadStore()

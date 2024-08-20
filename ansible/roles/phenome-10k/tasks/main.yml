@@ -109,3 +109,11 @@
     job: find {{ tmp_upload_dir }} -type f -mtime +1 -delete
   become: true
   become_user: phenome10k
+
+- name: Configure logrotate
+  copy:
+    src: p10k-logrotate.conf
+    dest: /etc/logrotate.d/phenome10k
+    owner: root
+    group: root
+  become: true

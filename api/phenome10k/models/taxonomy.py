@@ -1,4 +1,4 @@
-from phenome10k.extensions import db
+from phenome10k.extensions import db, cache
 
 
 class Taxonomy(db.Model):
@@ -32,10 +32,16 @@ class Taxonomy(db.Model):
 
     @staticmethod
     def tree():
-        return [
-            tag.serialize_tree()
-            for tag in Taxonomy.query.filter_by(parent_id=None).all()
-        ]
+        return taxonomy_tree()
 
     def __repr__(self):
         return '<Taxonomy {}>'.format(self.name)
+
+
+@cache.cached(timeout=0, key_prefix='taxonomy_tree')
+def taxonomy_tree():
+    # This is very slow and the output should only change when update_gbif_tags is run,
+    # so we just cache it indefinitely.
+    return [
+        tag.serialize_tree() for tag in Taxonomy.query.filter_by(parent_id=None).all()
+    ]
