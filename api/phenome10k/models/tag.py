@@ -1,4 +1,4 @@
-from phenome10k.extensions import db
+from phenome10k.extensions import db, cache
 
 
 class Tag(db.Model):
@@ -31,14 +31,7 @@ class Tag(db.Model):
 
     @staticmethod
     def tree():
-        cats = {}
-
-        for tag in Tag.query.filter_by(parent_id=None).all():
-            if tag.category in cats:
-                cats[tag.category].append(tag.serialize_tree())
-            else:
-                cats[tag.category] = [tag.serialize_tree()]
-        return cats
+        return tag_tree()
 
     def __eq__(self, obj):
         return isinstance(obj, Tag) and obj.id == self.id
@@ -48,3 +41,15 @@ class Tag(db.Model):
 
     def __hash__(self):
         return hash(self.id)
+
+
+@cache.cached(timeout=86400, key_prefix='tag_tree')
+def tag_tree():
+    cats = {}
+
+    for tag in Tag.query.filter_by(parent_id=None).all():
+        if tag.category in cats:
+            cats[tag.category].append(tag.serialize_tree())
+        else:
+            cats[tag.category] = [tag.serialize_tree()]
+    return cats
