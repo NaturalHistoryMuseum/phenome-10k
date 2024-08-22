@@ -42,6 +42,8 @@ class Taxonomy(db.Model):
 def taxonomy_tree():
     # This is very slow and the output should only change when update_gbif_tags is run,
     # so we just cache it indefinitely.
+    # depth = 4 goes to family level.
     return [
-        tag.serialize_tree() for tag in Taxonomy.query.filter_by(parent_id=None).all()
+        tag.serialize_tree(depth=4)
+        for tag in Taxonomy.query.filter_by(parent_id=None).all()
     ]
