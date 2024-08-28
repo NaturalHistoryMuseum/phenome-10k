@@ -9,7 +9,7 @@
   become_user: phenome10k
 
 - name: rebuild front end
-  command: npm build
+  command: npm run build
   args:
     chdir: '{{ frontend_root_dir }}'
   environment:
