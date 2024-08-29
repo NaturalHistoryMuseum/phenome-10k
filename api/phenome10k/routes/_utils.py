@@ -1,3 +1,6 @@
+import gzip
+import json
+
 import requests
 from flask import url_for, request, jsonify, render_template, current_app, redirect
 from flask_security import current_user
@@ -97,7 +100,13 @@ def rpc(url, method, params):
         'jsonrpc': '2.0',
         'id': 0,
     }
-    response = requests.post(url, json=payload).json()
+
+    string_payload = json.dumps(payload)
+    gzipped = gzip.compress(string_payload.encode('utf-8'))
+
+    headers = {'Content-Encoding': 'gzip', 'Content-Type': 'application/json'}
+
+    response = requests.post(url, data=gzipped, headers=headers).json()
     if 'error' in response:
         raise Exception(response['error']['message'])
     return response['result']
