@@ -1,3 +1,24 @@
+## v2.6.0 (2024-09-02)
+
+### Feature
+
+- compress rpc json payload
+
+### Performance
+
+- display taxonomy tree to family level
+- reduce scans per page to 50
+- also cache the tag tree, but only for 1 day at a time
+
+### Build System(s)
+
+- update mmonit version
+- update to node v20
+
+### Chores/Misc
+
+- ignore dist files
+
 ## v2.5.0 (2024-08-20)
 
 ### Feature
