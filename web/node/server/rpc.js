@@ -23,12 +23,23 @@ function wrapError(e) {
 }
 
 async function parseBody(request) {
-  let body = '';
+  let body = [];
   for await (const chunk of request) {
-    body += chunk;
+    body.push(chunk);
   }
 
-  return JSON.parse(body);
+  const stream = new Blob(body).stream();
+  const decompressedStream = stream.pipeThrough(
+    new DecompressionStream('gzip'),
+  );
+
+  let chunks = [];
+  for await (const chunk of decompressedStream) {
+    chunks.push(chunk);
+  }
+  const txt = Buffer.concat(chunks).toString();
+
+  return JSON.parse(txt);
 }
 
 module.exports = (methods) => {

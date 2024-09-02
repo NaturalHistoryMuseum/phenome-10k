@@ -36,7 +36,7 @@ bps = [bp, *aliases, single_scan]  # convenient for import
 @bp.route('/')
 @bp.route('/<int:page>')
 def library(page=1):
-    per_page = 100
+    per_page = 50
     sort = request.args.get('sort')
     ontogenic_age = request.args.getlist('ontogenic_age')
     geologic_age = request.args.getlist('geologic_age')
