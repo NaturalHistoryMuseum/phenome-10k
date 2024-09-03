@@ -1,3 +1,13 @@
+## v2.6.1 (2024-09-03)
+
+### Fix
+
+- update node-sass to v9
+
+### Build System(s)
+
+- remove -get from apt-get update
+
 ## v2.6.0 (2024-09-02)
 
 ### Feature
