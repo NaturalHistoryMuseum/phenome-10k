@@ -1,6 +1,6 @@
 FROM node:20
 
-RUN apt-get -q -y update && DEBIAN_FRONTEND=noninteractive apt-get -q -y upgrade
+RUN apt -q -y update && DEBIAN_FRONTEND=noninteractive apt-get -q -y upgrade
 RUN apt-get -q -y install mariadb-client
 
 COPY ./docker/app-node/entrypoint /deploy/entrypoint
