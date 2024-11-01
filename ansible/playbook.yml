@@ -25,7 +25,7 @@
     - monit/monit
   vars:
     monit_services:
-      - gunicorn
+      - uwsgi
       - systems
       - 50gb-root-partition
 

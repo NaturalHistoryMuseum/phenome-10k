@@ -6,7 +6,7 @@ requires-python = ">=3.8"
 license = { text = "GPL-3.0-or-later" }
 authors = [
     { name = "Paul Kiddle" },
-    { name = "Ginger Butcher", email = "phenome10k@nhm.ac.uk" }
+    { name = "Ginger Burns", email = "phenome10k@nhm.ac.uk" }
 ]
 keywords = []
 classifiers = [

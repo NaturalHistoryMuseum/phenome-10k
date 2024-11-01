@@ -24,7 +24,7 @@ class Config(object):
     MAIL_PORT = os.environ.get('MAIL_PORT', 25)
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
-    ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL') or 'alycejenni@gmail.com'
+    ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL') or 'phenome10k@nhm.ac.uk'
     LOG_FILE = os.environ.get('LOG_FILE') or 'logs/phenome10k.log'
     LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING')
     SERVER_NAME = os.environ.get('SERVER_NAME') or None

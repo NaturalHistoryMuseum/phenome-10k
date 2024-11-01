@@ -11,13 +11,13 @@ Flask==2.0.3
 flask-caching==2.3.0
 flask-hcaptcha==0.6.0
 Flask-Mail==0.9.1
+Flask-Marshmallow==0.14.0
 Flask-Migrate==3.1.0
 flask-security-too==5.0.1
 Flask-SQLAlchemy==2.5.1
 Flask-WTF==1.0.1
-Flask-Marshmallow==0.14.0
 flower==1.2.0
-gunicorn==20.1.0
+pyuwsgi==2.0.26
 importlib-metadata==4.11.3
 marshmallow-sqlalchemy==0.28.0
 numpy==1.22.3

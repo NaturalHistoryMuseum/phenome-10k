@@ -1,0 +1,14 @@
+[uwsgi]
+http = 0.0.0.0:{{ uwsgi_port }}
+wsgi-file = api/wsgi.py
+callable = app
+wsgi-disable-file-wrapper = true
+master = true
+processes = 3
+threads = 3
+buffer-size = 65535
+stats = 127.0.0.1:9191
+log-5xx = true
+
+req-logger = file:/var/log/phenome10k/u_access.log
+logger = file:/var/log/phenome10k/u_error.log

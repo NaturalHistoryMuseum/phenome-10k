@@ -161,6 +161,8 @@ class Query(object):
                 for c in self._columns.values():
                     try:
                         v = c.type.python_type(r.q)
+                        if type(v) is bool:
+                            continue
                         or_filters.append(c == v)
                     except:
                         continue
