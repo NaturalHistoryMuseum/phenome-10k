@@ -17,7 +17,7 @@
   when: not skip_git_checkout
   notify:
     - rebuild front end
-    - restart gunicorn
+    - restart uwsgi
     - restart node
   tags:
     - flask
@@ -55,7 +55,7 @@
   become: true
   become_user: phenome10k
   notify:
-    - restart gunicorn
+    - restart uwsgi
 
 - name: Create log directory
   file:

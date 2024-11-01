@@ -79,8 +79,9 @@ flower_broker_api: http://{{ p10k_db_user }}:{{ p10k_db_password|urlencode() }}@
 # p10k: flask
 cache_redis_url: redis://{{ redis_host }}:6379/1
 flask_secret_key: G}<Ci&XWqSqA/mF7ZCWI7JJ.:QuuZF
-gunicorn_binary: '{{ venv_bin }}/gunicorn'
-gunicorn_port: 8000
+uwsgi_binary: "{{ venv_bin }}/uwsgi"
+uwsgi_ini: "{{ p10k_home }}/uswgi.ini"
+uwsgi_port: 8000
 p10k_admin_email: a.goswami@nhm.ac.uk
 p10k_admin_password: pass
 password_salt: 7mrUh6kF*&PEh2gUTmHc

@@ -55,17 +55,26 @@
   become_user: phenome10k
   run_once: true
 
-- name: Create the gunicorn service
+- name: Copy uwsgi.ini config
   template:
-    src: gunicorn.service.j2
-    dest: /etc/systemd/system/gunicorn.service
+    src: uwsgi.ini.j2
+    dest: '{{ uwsgi_ini }}'
+  become: true
+  become_user: phenome10k
+  notify:
+    - restart uwsgi
+
+- name: Create the uwsgi service
+  template:
+    src: uwsgi.service.j2
+    dest: /etc/systemd/system/uwsgi.service
   become: true
   notify:
-    - restart gunicorn
+    - restart uwsgi
 
-- name: Enable gunicorn service
+- name: Enable uwsgi service
   systemd:
-    name: gunicorn.service
+    name: uwsgi.service
     state: started
     enabled: y
   become: true
