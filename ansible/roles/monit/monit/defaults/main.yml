@@ -14,12 +14,12 @@ monit_eventqueue:
 # Active - try and restart services
 monit_monitoring_mode: active
 monit_services_conf:
-  gunicorn:
+  uwsgi:
     check_type: process
-    check_id: gunicorn
+    check_id: uwsgi
     id_type: matching
-    start: /bin/systemctl restart gunicorn
-    stop: /bin/systemctl stop gunicorn
+    start: /bin/systemctl restart uwsgi
+    stop: /bin/systemctl stop uwsgi
     group: web
     tests:
       - condition: cpu > 60% for 20 cycles

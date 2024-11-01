@@ -1,5 +1,5 @@
 upstream phenome10k {
-{% for server in app_servers %}  server {{ server }}:{{ gunicorn_port }};{% endfor %}
+{% for server in app_servers %}  server {{ server }}:{{ uwsgi_port }};{% endfor %}
 }
 
 server {

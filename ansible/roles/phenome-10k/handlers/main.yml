@@ -17,9 +17,9 @@
   become: true
   become_user: phenome10k
 
-- name: restart gunicorn
+- name: restart uwsgi
   service:
-    name: gunicorn
+    name: uwsgi
     state: restarted
   become: true
 
