@@ -138,7 +138,7 @@ def manage(page=1):
     # which requires a CSRF token. Construct the form to generate one.
     ScanUploadForm()
 
-    per_page = 50
+    per_page = 48
 
     startswith = request.args.get('char')
     search = request.args.get('q')
