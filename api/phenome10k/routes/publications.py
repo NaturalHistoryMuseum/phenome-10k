@@ -123,7 +123,7 @@ def manage(page=1):
     return render_vue(data, title='Manage Publications')
 
 
-@bp.route('/<publication:pub_object>/')
+@bp.route('/<publication:pub_object>')
 def view(pub_object):
     if not pub_object.published and not (
         current_user.is_authenticated and current_user.can_edit(pub_object)

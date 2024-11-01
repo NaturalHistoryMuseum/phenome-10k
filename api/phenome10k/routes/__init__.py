@@ -15,6 +15,7 @@ def init_routes(app):
         query.bp,
     ]
 
+    app.url_map.strict_slashes = False
     app.url_map.converters['scan'] = ScanConverter
     app.url_map.converters['publication'] = PublicationConverter
     app.url_map.converters['file'] = FileConverter
