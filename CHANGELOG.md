@@ -1,3 +1,20 @@
+## v2.6.2 (2024-11-01)
+
+### Fix
+
+- ignore booleans in query
+- disable strict_slashes by default
+
+### Build System(s)
+
+- swap from gunicorn to uwsgi
+
+### Chores/Misc
+
+- update author name
+- sort requirements
+- ignore logs
+
 ## v2.6.1 (2024-09-03)
 
 ### Fix
