@@ -56,10 +56,10 @@ export default {
       return this.keyStates[SHIFT_KEY]
         ? 'zoom'
         : this.keyStates[CTRL_KEY]
-        ? this.buttonStates[0]
-          ? 'moving'
-          : 'move'
-        : null;
+          ? this.buttonStates[0]
+            ? 'moving'
+            : 'move'
+          : null;
     },
   },
   $viewer: null,

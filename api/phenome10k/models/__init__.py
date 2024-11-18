@@ -1,10 +1,10 @@
-from .file_attachment import File, Attachment
+from .file_attachment import Attachment, File
 from .links import (
+    PublicationFile,
     ScanAttachment,
+    ScanPublication,
     ScanTag,
     ScanTaxonomy,
-    ScanPublication,
-    PublicationFile,
 )
 from .publication import Publication
 from .scan import Scan

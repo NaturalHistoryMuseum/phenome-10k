@@ -1,10 +1,10 @@
-from marshmallow import fields
 from flask_marshmallow.fields import AbsoluteURLFor
+from marshmallow import fields
 
-from ._fields import PublicList
-from .response import get_search_schema
 from ..extensions import ma
 from ..models import Publication
+from ._fields import PublicList
+from .response import get_search_schema
 
 
 class PublicationSchema(ma.SQLAlchemyAutoSchema):

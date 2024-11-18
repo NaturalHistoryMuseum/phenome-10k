@@ -5,12 +5,13 @@ Revision ID: 2c7579ef30d0
 Revises: 4d0bb8428937
 Create Date: 2022-09-15 11:32:16.114156
 """
-from alembic import op
-import sqlalchemy as sa
-from sqlalchemy import orm
-from sqlalchemy.ext.declarative import declarative_base
+
 import uuid
 
+import sqlalchemy as sa
+from alembic import op
+from sqlalchemy import orm
+from sqlalchemy.ext.declarative import declarative_base
 
 # revision identifiers, used by Alembic.
 revision = '2c7579ef30d0'

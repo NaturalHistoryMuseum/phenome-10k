@@ -5,10 +5,11 @@ import magic
 from flask import current_app
 from flask.helpers import url_for
 from flask_security import current_user
-from phenome10k.extensions import db
 from sqlalchemy import event
 from sqlalchemy.sql import func
 from werkzeug.utils import secure_filename
+
+from phenome10k.extensions import db
 
 
 class File(db.Model):

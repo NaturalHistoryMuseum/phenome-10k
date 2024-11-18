@@ -1,15 +1,15 @@
 import math
 
-from flask import Blueprint, request, redirect, g, url_for
+from flask import Blueprint, g, redirect, request, url_for
 from flask_security import current_user
 from werkzeug.exceptions import NotFound
 
-from ._decorators import requires_contributor
-from ._utils import ensure_editable, make_aliases, render_vue
 from ..data.slugs import generate_slug
 from ..extensions import db
 from ..forms import PublicationUploadForm
-from ..models import File, Publication, Attachment
+from ..models import Attachment, File, Publication
+from ._decorators import requires_contributor
+from ._utils import ensure_editable, make_aliases, render_vue
 
 bp = Blueprint('publications', __name__, url_prefix='/publications')
 aliases = [Blueprint('publication', 'publication', url_prefix='/publication')]

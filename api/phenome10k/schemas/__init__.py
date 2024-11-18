@@ -1,11 +1,11 @@
-from .scan import ScanSchema, NestedScanSchema, ScanSearchResponse
+from .file_attachment import AttachmentSchema
 from .publication import (
-    PublicationSchema,
     NestedPublicationSchema,
+    PublicationSchema,
     PublicationSearchResponse,
 )
-from .file_attachment import AttachmentSchema
 from .response import get_search_schema
+from .scan import NestedScanSchema, ScanSchema, ScanSearchResponse
 
 
 def init_schemas(spec):

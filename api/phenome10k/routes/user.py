@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, current_app
+from flask import Blueprint, current_app, render_template, request
 from flask_mail import Message
 from flask_security import current_user
 

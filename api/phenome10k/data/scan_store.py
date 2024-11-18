@@ -1,6 +1,6 @@
 import os
 import tempfile
-from zipfile import ZipFile, ZIP_DEFLATED
+from zipfile import ZIP_DEFLATED, ZipFile
 
 import trimesh
 from openctm import CTM, export_mesh
@@ -62,7 +62,7 @@ class ScanStore:
 
     def new(self, author_uri):
         # Create instance of scan
-        from ..models import User, Scan
+        from ..models import Scan, User
 
         author = User.query.filter_by(email=author_uri).first()
         if author is None:
@@ -75,9 +75,9 @@ class ScanStore:
         return scan
 
     def update(self, scan, file, data, attachments=None):
-        from .slugs import generate_slug
-        from ..models import Taxonomy, Attachment, File
+        from ..models import Attachment, File, Taxonomy
         from .gbif import pull_tags, validate_id
+        from .slugs import generate_slug
 
         attachments = attachments or []
         author_id = scan.author_id
@@ -169,7 +169,7 @@ class ScanStore:
         """
         Convert an uploaded model file to a ctm file.
         """
-        from ..models import Scan, File
+        from ..models import File, Scan
 
         if not isinstance(scan, Scan):
             scan = self.get(scan)

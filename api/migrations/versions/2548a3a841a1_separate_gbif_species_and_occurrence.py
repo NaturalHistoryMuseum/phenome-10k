@@ -1,12 +1,13 @@
 """
-separate gbif species and occurrence.
+Separate gbif species and occurrence.
 
 Revision ID: 2548a3a841a1
 Revises: 4420116fa319
 Create Date: 2021-09-30 09:12:32.864080
 """
-from alembic import op
+
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import mysql
 
 # revision identifiers, used by Alembic.

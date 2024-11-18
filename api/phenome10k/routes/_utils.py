@@ -2,14 +2,14 @@ import gzip
 import json
 
 import requests
-from flask import url_for, request, jsonify, render_template, current_app, redirect
+from flask import current_app, jsonify, redirect, render_template, request, url_for
 from flask_security import current_user
 from sqlalchemy.exc import MultipleResultsFound
 from werkzeug.exceptions import Forbidden
-from werkzeug.routing import BaseConverter, ValidationError, PathConverter
+from werkzeug.routing import BaseConverter, PathConverter, ValidationError
 
 from ..extensions import db
-from ..models import Scan, Publication
+from ..models import Publication, Scan
 from ..schemas.response import QueryResponse
 
 

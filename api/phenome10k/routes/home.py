@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, make_response, redirect
+from flask import Blueprint, make_response, render_template
 
 from ..models import Scan
 

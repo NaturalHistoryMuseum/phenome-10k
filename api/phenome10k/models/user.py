@@ -1,7 +1,8 @@
-from flask_security import UserMixin, RoleMixin, SQLAlchemyUserDatastore
+from flask_security import RoleMixin, SQLAlchemyUserDatastore, UserMixin
 from passlib.context import CryptContext
-from phenome10k.extensions import db
 from sqlalchemy.sql import func
+
+from phenome10k.extensions import db
 
 # Allow decoding phpasswords, but deprecate all but argon2
 crypt_ctx = CryptContext(schemes=['argon2', 'phpass'], deprecated=['auto'])
