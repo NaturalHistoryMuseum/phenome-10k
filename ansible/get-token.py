@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
 
-from urllib.parse import urlencode
-from urllib.request import Request, urlopen
-from urllib.error import HTTPError, URLError
+import getpass
 import json
 import sys
-import getpass
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 sys.stderr.write('Vault LDAP username: ')
 user = input()
@@ -34,7 +33,7 @@ try:
             if duration >= 24:
                 duration = duration / 24
                 unit = 'days'
-    print(f'Got token OK. It\'s valid for {duration:g} {unit}.', file=sys.stderr)
+    print(f"Got token OK. It's valid for {duration:g} {unit}.", file=sys.stderr)
     print(token)
 except HTTPError as e:
     print(f'Failed to get a token, sorry. Vault says:', file=sys.stderr)

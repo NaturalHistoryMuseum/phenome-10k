@@ -1,18 +1,18 @@
 from flask_wtf import FlaskForm
 from wtforms import (
-    widgets,
-    StringField,
     BooleanField,
-    SubmitField,
     FileField,
-    TextAreaField,
     MultipleFileField,
     SelectMultipleField,
+    StringField,
+    SubmitField,
+    TextAreaField,
+    widgets,
 )
 from wtforms.validators import DataRequired
 
 from ..extensions import db
-from ..models import Tag, Publication
+from ..models import Publication, Tag
 
 
 class ScanUploadForm(FlaskForm):

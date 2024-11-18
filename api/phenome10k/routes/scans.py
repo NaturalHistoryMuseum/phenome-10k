@@ -1,25 +1,24 @@
 import math
 
-from flask import Blueprint, request, redirect, url_for, g
-from flask import current_app
+from flask import Blueprint, current_app, g, redirect, request, url_for
 from flask_security import current_user, login_required
 from werkzeug.datastructures import FileStorage
-from werkzeug.exceptions import NotFound, Unauthorized
+from werkzeug.exceptions import Unauthorized
 
-from ._decorators import requires_contributor
-from ._utils import (
-    hide_scan_files,
-    render_vue,
-    ensure_editable,
-    render_content,
-    rpc_call,
-    make_aliases,
-)
 from ..data.scan_store import ScanException
 from ..extensions import db, scan_store, upload_store
 from ..forms import ScanUploadForm
 from ..models import Publication, Scan, Tag, Taxonomy
 from ..tasks import create_ctm
+from ._decorators import requires_contributor
+from ._utils import (
+    ensure_editable,
+    hide_scan_files,
+    make_aliases,
+    render_content,
+    render_vue,
+    rpc_call,
+)
 
 bp = Blueprint('scans', __name__, url_prefix='/scans')
 aliases = [Blueprint('library', 'library', url_prefix='/library')]

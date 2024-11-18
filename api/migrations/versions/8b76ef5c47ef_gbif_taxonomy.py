@@ -5,9 +5,9 @@ Revision ID: 8b76ef5c47ef
 Revises: 01816b2fcaea
 Create Date: 2024-04-05 16:19:09.627686
 """
-from alembic import op
-import sqlalchemy as sa
 
+import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '8b76ef5c47ef'
@@ -20,7 +20,7 @@ def upgrade():
     with op.batch_alter_table('taxonomy', schema=None) as batch_op:
         batch_op.add_column(sa.Column('gbif', sa.Boolean(), nullable=True))
 
-    op.execute("update taxonomy set gbif = 1")
+    op.execute('update taxonomy set gbif = 1')
     op.alter_column('taxonomy', 'gbif', nullable=False)
 
 

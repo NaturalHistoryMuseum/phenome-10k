@@ -1,7 +1,7 @@
-from . import home, user, admin, scans, publications, files, query
-from ._utils import ScanConverter, PublicationConverter, FileConverter
-from .errors import internal_error, forbidden_error, not_found_error
 from ..extensions import spec
+from . import admin, files, home, publications, query, scans, user
+from ._utils import FileConverter, PublicationConverter, ScanConverter
+from .errors import forbidden_error, internal_error, not_found_error
 
 
 def init_routes(app):

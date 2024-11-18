@@ -1,6 +1,6 @@
 from werkzeug.utils import secure_filename
 
-from ..models import Scan, Publication
+from ..models import Publication, Scan
 
 
 def slug_available(slug):

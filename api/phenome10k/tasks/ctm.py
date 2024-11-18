@@ -1,5 +1,5 @@
-from .apium import celery
 from ..extensions import scan_store
+from .apium import celery
 
 
 @celery.task()

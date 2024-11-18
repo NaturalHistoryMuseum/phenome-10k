@@ -5,11 +5,11 @@ Revision ID: 77f6b43f2bfa
 Revises: 2c7579ef30d0
 Create Date: 2022-09-21 10:47:40.439190
 """
-from alembic import op
+
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy import orm
 from sqlalchemy.ext.declarative import declarative_base
-
 
 # revision identifiers, used by Alembic.
 revision = '77f6b43f2bfa'

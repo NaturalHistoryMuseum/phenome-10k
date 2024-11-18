@@ -1,13 +1,14 @@
-from flask_security import Security
-from flask_mail import Mail
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
-from flask_hcaptcha import hCaptcha
-from flask_caching import Cache
 from apispec import APISpec
 from apispec.ext.marshmallow import MarshmallowPlugin
 from apispec_webframeworks.flask import FlaskPlugin
+from flask_caching import Cache
+from flask_hcaptcha import hCaptcha
+from flask_mail import Mail
+from flask_marshmallow import Marshmallow
+from flask_migrate import Migrate
+from flask_security import Security
+from flask_sqlalchemy import SQLAlchemy
+
 from .data.scan_store import ScanStore
 from .data.tmp_upload_store import TmpUploadStore
 

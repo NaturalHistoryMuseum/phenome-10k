@@ -1,5 +1,6 @@
-from phenome10k.extensions import db, ma
 from sqlalchemy.sql import func
+
+from phenome10k.extensions import db
 
 
 class Scan(db.Model):

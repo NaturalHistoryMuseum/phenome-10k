@@ -5,6 +5,7 @@ Revision ID: 01816b2fcaea
 Revises: 77f6b43f2bfa
 Create Date: 2024-03-12 16:10:30.144815
 """
+
 import sqlalchemy as sa
 from alembic import op
 from sqlalchemy import orm

@@ -5,9 +5,9 @@ Revision ID: 4420116fa319
 Revises: e64692114f90
 Create Date: 2021-05-11 16:44:22.287485
 """
-from alembic import op
-import sqlalchemy as sa
 
+import sqlalchemy as sa
+from alembic import op
 
 # revision identifiers, used by Alembic.
 revision = '4420116fa319'
