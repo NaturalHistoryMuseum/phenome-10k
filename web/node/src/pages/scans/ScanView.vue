@@ -207,14 +207,12 @@ export default {
       let links = {};
 
       if (this.scan.gbif_species_id) {
-        links[
-          'gbifSpecies'
-        ] = `https://gbif.org/species/${this.scan.gbif_species_id}`;
+        links['gbifSpecies'] =
+          `https://gbif.org/species/${this.scan.gbif_species_id}`;
       }
       if (this.scan.gbif_occurrence_id) {
-        links[
-          'gbifOccurrence'
-        ] = `https://gbif.org/occurrence/${this.scan.gbif_occurrence_id}`;
+        links['gbifOccurrence'] =
+          `https://gbif.org/occurrence/${this.scan.gbif_occurrence_id}`;
       }
 
       return links;

@@ -1,7 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Red+Hat+Text&family=Titillium+Web&display=swap');
 body {
   background: #0a0a0a;
-  background: top left/cover url(../homepage.jpg),
+  background:
+    top left/cover url(../homepage.jpg),
     linear-gradient(#0a0a0a, #656766 1150px);
   color: white;
 }
