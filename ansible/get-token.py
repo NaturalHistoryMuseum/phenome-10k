@@ -2,23 +2,30 @@
 
 import getpass
 import json
+import os
 import sys
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
-sys.stderr.write('Vault LDAP username: ')
-user = input()
+user = input('Vault LDAP username: ')
 pswd = getpass.getpass('Vault LDAP password: ')
+vault_url = os.environ.get('VAULT_ADDR')
+if not vault_url:
+    vault_url = input('Vault URL: ')
+vault_login_url = f'{vault_url}/v1/auth/ldap/login/{user}'
+post_fields = {'password': pswd}
+headers = {
+    'User-Agent': 'phenome10k deployment script',
+    'Content-Type': 'application/json',
+}
 
-vault_url = (
-    'https://man-vault-2.nhm.ac.uk:8200/v1/auth/ldap/login/' + user
-)  # Set destination URL here
-post_fields = {'password': pswd}  # Set POST fields here
-
-request = Request(vault_url, json.dumps(post_fields).encode())
+request = Request(
+    vault_login_url, data=json.dumps(post_fields).encode(), headers=headers
+)
 try:
-    resp = urlopen(request).read().decode()
-    auth = json.loads(resp)['auth']
+    resp = urlopen(request)
+    content = resp.read().decode()
+    auth = json.loads(content)['auth']
     token = auth['client_token']
     duration = auth['lease_duration']
     unit = 'seconds'
@@ -33,7 +40,7 @@ try:
             if duration >= 24:
                 duration = duration / 24
                 unit = 'days'
-    print(f"Got token OK. It's valid for {duration:g} {unit}.", file=sys.stderr)
+    print(f"Got token OK. It's valid for {duration:g} {unit}.")
     print(token)
 except HTTPError as e:
     print(f'Failed to get a token, sorry. Vault says:', file=sys.stderr)
