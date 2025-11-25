@@ -28,6 +28,37 @@ docker compose exec app-node npm run test
 
 ***
 
+## Vault
+
+Ansible uses variables pulled from Vault.
+
+### Setup
+
+This only has to be done once (unless you reinstall the interpreter).
+
+1. Install `hvac`: this is a Python library that needs to be installed with the same interpreter that ansible uses (probably your root/system Python):
+   ```shell
+   pip install hvac
+   ```
+   
+### Usage
+
+Ansible requires access to two environment variables: `VAULT_TOKEN` (your personal login token) and `VAULT_ADDR` (the URL of the vault).
+
+1. Run this script to get the token:
+   ```shell
+   python ansible/get-token.py
+   ```
+2. And then set both values manually in the shell (put a space before each so they don't get saved in your history):
+   ```shell
+    export VAULT_TOKEN="your-token-here"
+    export VAULT_ADDR="https://vault-url-here"
+   ```
+
+If you close your current shell, you'll have to do this again before Ansible will work.
+
+***
+
 ## Local staging
 
 There is a [Vagrant](https://www.vagrantup.com) configuration that more accurately reflects the production server setup. It's provisioned using ansible.
@@ -35,17 +66,8 @@ There is a [Vagrant](https://www.vagrantup.com) configuration that more accurate
 As a staging environment, it requires some production values (e.g. hcaptcha keys) and can therefore only be run by individuals with access to certain Natural History Museum services.
 
 ### Setup
-1. Install `hvac`: this is a Python library that needs to be installed with the same interpreter that ansible uses (probably your root/system Python)
-2. Generate a vault token:
-   ```shell
-   python ansible/get-token.py
-   ```
-3. Export the token to apply it to your current shell environment:
-   ```shell
-   export VAULT_TOKEN=your-token-here
-   ```
-   Note that if you close your current shell, you'll have to do this again before Vagrant will work.
-4. Add `192.168.10.21   phenome10k.localhost` to `/etc/hosts`.
+
+1. Add `192.168.10.21   phenome10k.localhost` to `/etc/hosts`.
 
 ### Running Vagrant
 ```shell
