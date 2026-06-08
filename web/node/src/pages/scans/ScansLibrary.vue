@@ -239,7 +239,10 @@ export default {
       transparent 7px
     );
   background-repeat: no-repeat;
-  background-size: 7px auto, 7px auto, auto;
+  background-size:
+    7px auto,
+    7px auto,
+    auto;
   background-position-x: right;
   padding-right: 9px;
   list-style: none;
@@ -254,7 +257,10 @@ export default {
   align-items: center;
 
   &:last-child {
-    background-size: 7px 6px, 7px auto, auto;
+    background-size:
+      7px 6px,
+      7px auto,
+      auto;
   }
 
   & ul {

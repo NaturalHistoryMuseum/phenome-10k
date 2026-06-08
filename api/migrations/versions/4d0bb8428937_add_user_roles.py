@@ -5,12 +5,12 @@ Revision ID: 4d0bb8428937
 Revises: 1aa4435fb125
 Create Date: 2022-09-14 14:59:15.377881
 """
+
 import sqlalchemy as sa
 from alembic import op
-from sqlalchemy.dialects import mysql
 from sqlalchemy import orm
+from sqlalchemy.dialects import mysql
 from sqlalchemy.ext.declarative import declarative_base
-
 
 # revision identifiers, used by Alembic.
 revision = '4d0bb8428937'

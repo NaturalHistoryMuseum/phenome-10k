@@ -1,7 +1,7 @@
 from marshmallow import fields
 
 from ..extensions import ma
-from ..models import File, Attachment
+from ..models import Attachment, File
 
 
 class FileSchema(ma.SQLAlchemyAutoSchema):

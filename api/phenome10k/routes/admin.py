@@ -1,10 +1,10 @@
-from flask import Blueprint, request, redirect, url_for, jsonify
+from flask import Blueprint, jsonify, redirect, request, url_for
 from flask_security import current_user
 
-from ._decorators import requires_admin
-from ._utils import render_vue
 from ..extensions import security
 from ..models import User
+from ._decorators import requires_admin
+from ._utils import render_vue
 
 bp = Blueprint('admin', __name__)
 

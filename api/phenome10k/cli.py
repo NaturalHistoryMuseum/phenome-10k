@@ -1,11 +1,13 @@
+from datetime import datetime as dt
+
 import click
 from flask.cli import FlaskGroup
+from sqlalchemy import select
+
 from phenome10k import create_app
 from phenome10k.data.gbif import pull_tags
-from phenome10k.extensions import db, security, cache
-from phenome10k.models import User, Scan, Taxonomy
-from datetime import datetime as dt
-from sqlalchemy import select
+from phenome10k.extensions import cache, db, security
+from phenome10k.models import Scan, Taxonomy, User
 
 
 def create_cli_app(info):

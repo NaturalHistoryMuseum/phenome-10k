@@ -2,10 +2,11 @@ import json
 import urllib.request
 
 from flask_security import ConfirmRegisterForm
+from wtforms import SelectField, StringField
+from wtforms.validators import DataRequired, ValidationError
+
 from phenome10k.extensions import captcha
 from phenome10k.models import User
-from wtforms import StringField, SelectField
-from wtforms.validators import DataRequired, ValidationError
 
 data = urllib.request.urlopen('http://country.io/names.json').read()
 countries = sorted(list(json.loads(data).items()), key=lambda x: x[1])

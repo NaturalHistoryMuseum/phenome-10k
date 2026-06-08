@@ -2,17 +2,24 @@ import io
 import os
 from zipfile import ZipFile
 
+from flask import (
+    Blueprint,
+    Response,
+    current_app,
+    redirect,
+    request,
+    send_file,
+    send_from_directory,
+    url_for,
+)
 from PIL import Image
-from flask import Blueprint, redirect, url_for, send_file
-from flask import Response, current_app, send_from_directory
-from flask import request
-from werkzeug.exceptions import NotFound, BadRequest
+from werkzeug.exceptions import BadRequest, NotFound
 from werkzeug.utils import safe_join
 
+from ..extensions import db, upload_store
+from ..models import Publication, PublicationFile, Scan, ScanAttachment
 from ._decorators import login_required, requires_contributor
 from ._utils import ensure_editable
-from ..extensions import db, upload_store
-from ..models import PublicationFile, ScanAttachment, Publication, Scan
 
 bp = Blueprint('files', __name__, url_prefix='/files')
 

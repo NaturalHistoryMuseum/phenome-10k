@@ -10,6 +10,8 @@
     dest: /etc/nginx/nginx.conf
   notify: restart nginx
   become: true
+  tags:
+    - nginx_config
 
 - name: Copy maintenance file
   copy:
@@ -41,6 +43,8 @@
     path: '{{ nginx_partial_configs_dir }}'
     state: directory
   become: true
+  tags:
+    - nginx_config
 
 - name: Copy server body config
   template:
@@ -49,6 +53,8 @@
   notify:
     - restart nginx
   become: true
+  tags:
+    - nginx_config
 
 - name: Copy blocked useragents config
   copy:
@@ -57,6 +63,8 @@
   notify:
     - restart nginx
   become: true
+  tags:
+    - nginx_config
 
 - import_tasks: self-signed.yml
   when: use_ssl
@@ -78,6 +86,8 @@
     - restart nginx
   become: true
   when: use_ssl and ((not lecertdir.stat.islnk is defined) or vrrp_state == 'BACKUP')
+  tags:
+    - nginx_config
 
 - name: Copy letsencrypt certificates config
   template:
@@ -87,6 +97,8 @@
     - restart nginx
   become: true
   when: use_ssl and lecertdir.stat.islnk is defined and vrrp_state == 'MASTER'
+  tags:
+    - nginx_config
 
 - name: Copy nginx non-ssl config
   template:
@@ -96,6 +108,8 @@
     - restart nginx
   become: true
   when: not use_ssl
+  tags:
+    - nginx_config
 
 - name: Copy nginx ssl config
   template:
@@ -105,6 +119,8 @@
     - restart nginx
   become: true
   when: use_ssl
+  tags:
+    - nginx_config
 
 - import_tasks: letsencrypt.yml
   tags:

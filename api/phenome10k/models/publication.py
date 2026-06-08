@@ -1,5 +1,6 @@
-from phenome10k.extensions import db
 from sqlalchemy.sql import func
+
+from phenome10k.extensions import db
 
 
 class Publication(db.Model):

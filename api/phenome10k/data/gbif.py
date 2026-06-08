@@ -1,7 +1,7 @@
 import requests
+from sqlalchemy import and_
 
 from phenome10k.models import Taxonomy
-from sqlalchemy import and_
 
 
 def fetch_json(url):

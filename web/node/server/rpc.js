@@ -48,8 +48,8 @@ module.exports = (methods) => {
       typeof ctx === 'function'
         ? ctx(methodName)
         : methodName in ctx
-        ? ctx[methodName].bind(ctx)
-        : null;
+          ? ctx[methodName].bind(ctx)
+          : null;
     if (method) {
       return method;
     } else if (methodName.indexOf('.') >= 0) {

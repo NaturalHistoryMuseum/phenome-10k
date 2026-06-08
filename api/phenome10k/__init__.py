@@ -2,18 +2,19 @@ from logging.config import dictConfig
 from pathlib import Path
 
 from flask import Flask
+
 from phenome10k.config import Config, get_celery_config
 from phenome10k.extensions import (
-    db,
-    migrate,
-    security,
-    mail,
-    scan_store,
-    upload_store,
-    ma,
-    spec,
-    captcha,
     cache,
+    captcha,
+    db,
+    ma,
+    mail,
+    migrate,
+    scan_store,
+    security,
+    spec,
+    upload_store,
 )
 from phenome10k.forms import P10KLoginForm, P10KRegisterForm
 from phenome10k.models import user_datastore

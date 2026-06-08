@@ -1,4 +1,4 @@
-from phenome10k.extensions import db, cache
+from phenome10k.extensions import cache, db
 
 
 class Taxonomy(db.Model):

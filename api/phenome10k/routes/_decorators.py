@@ -1,7 +1,7 @@
 from functools import wraps
 
 from flask import render_template
-from flask_security import login_required, current_user
+from flask_security import current_user, login_required
 
 
 def requires_admin(f):

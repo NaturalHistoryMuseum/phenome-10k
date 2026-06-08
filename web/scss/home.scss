@@ -5,7 +5,8 @@
 
 body {
   background: #0a0a0a; // fallback
-  background: top left/cover url(../homepage.jpg),
+  background:
+    top left/cover url(../homepage.jpg),
     linear-gradient(#0a0a0a, #656766 1150px);
   color: white;
 }
