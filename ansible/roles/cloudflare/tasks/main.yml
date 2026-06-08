@@ -1,0 +1,47 @@
+---
+  - name: Ensure keyrings directory exists
+    file:
+      path: /usr/share/keyrings
+      state: directory
+      mode: 0755
+    become: yes
+
+  - name: Add cloudflare key and repo
+    deb822_repository:
+      name: cloudflared
+      types: deb
+      uris: https://pkg.cloudflare.com/cloudflared
+      suites: any
+      components: main
+      signed_by: https://pkg.cloudflare.com/cloudflare-public-v2.gpg
+      state: present
+    become: yes
+
+  - name: Update apt
+    apt:
+      update_cache: yes
+    become: yes
+
+  - name: Install cloudflared
+    apt:
+      pkg: cloudflared
+      state: present
+    become: yes
+
+  - name: Check if cloudflare service is installed
+    stat:
+      path: /etc/systemd/system/cloudflared.service
+    register: cloudflared_service
+
+  - name: Setup cloudflare tunnel
+    shell: "cloudflared service install {{ cloudflare_token }}"
+    become: yes
+    when: not cloudflared_service.stat.exists
+
+  - name: Replace the service file
+    template:
+      src: cloudflared.service.j2
+      dest: /etc/systemd/system/cloudflared.service
+    become: true
+    notify:
+      - restart cloudflare

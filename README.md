@@ -90,5 +90,7 @@ The site's infrastructure is an HA architecture is composed of:
 The system can be deployed to production via ansible:
 
 ```bash
-ansible-playbook ansible/playbook.yml -i ansible/inventories/production.ini -k -K --user YOUR-USERNAME
+ansible-playbook -iansible/inventories/production.ini ansible/playbook.yml -e@ansible/group_vars/production/main.yml -k -K  -uYOUR_USERNAME --tags TAGS
 ```
+
+**NB**: there's some kind of problem with loading the production `group_vars` file automatically, so it has to be explicitly specified via `-e@ansible/group_vars/production/main.yml`.

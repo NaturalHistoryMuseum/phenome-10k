@@ -50,3 +50,6 @@ mail_host: mta-smtprelay-2.nhm.ac.uk
 
 # p10k: setup
 skip_git_checkout: false
+
+# cloudflare
+cloudflare_token: "{{ lookup('hashi_vault', 'secret=phenome10k/cloudflare:token') }}"
