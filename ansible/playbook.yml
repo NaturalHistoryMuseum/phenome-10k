@@ -35,12 +35,18 @@
 - hosts: lb
   roles:
     - core
-    - firewall
+    - role: firewall
+      tags:
+        - firewall
     - users
     - {role: nginx, tags: nginx}
     - monit/monit
     - monit/mmonit
     - keepalived
+    - role: cloudflare
+      tags:
+        - cloudflare
+      when: env == "production"
   vars:
     monit_services:
       - nginx
