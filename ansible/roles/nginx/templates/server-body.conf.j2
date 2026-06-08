@@ -11,6 +11,9 @@ location ^~ /.well-known {
 }
 
 location / {
+    limit_req zone=limit_ip burst=60 nodelay;
+    limit_req zone=limit_ua burst=60 nodelay;
+
     # if the maintenance page exists, return service unavailable
     if (-f /usr/share/nginx/html/maintenance.html) {
         return 503;
