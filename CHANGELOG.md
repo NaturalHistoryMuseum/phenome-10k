@@ -1,3 +1,34 @@
+## v2.6.3 (2026-06-08)
+
+### Fix
+
+- remove vault url from token script
+
+### Docs
+
+- update vault info in readme
+
+### Style
+
+- prettier reformatting
+- python formatting
+
+### Build System(s)
+
+- **ansible**: add nginx_config tag
+- **ansible**: add some basic rate limiting
+- **ansible**: add cloudflare
+- **ansible**: remove vault url from lookups
+- block some useragents
+
+### Chores/Misc
+
+- update pre-commit, switch to ruff
+
+### Minor UI Changes
+
+- set scan page size to 48
+
 ## v2.6.2 (2024-11-01)
 
 ### Fix
