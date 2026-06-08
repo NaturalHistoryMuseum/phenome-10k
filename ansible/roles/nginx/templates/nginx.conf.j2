@@ -16,6 +16,10 @@ http {
 
     access_log  /var/log/nginx/access.log  main;
 
+    limit_req_zone $binary_remote_addr zone=limit_ip:10m rate=10r/s;
+    limit_req_zone $http_user_agent zone=limit_ua:10m rate=10r/s;
+    limit_req_status 429;
+
     sendfile            on;
     tcp_nopush          on;
     tcp_nodelay         on;
