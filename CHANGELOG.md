@@ -1,3 +1,13 @@
+## v2.6.4 (2026-11-19)
+
+### Build System(s)
+
+- install nginx from official repos
+
+### Chores/Misc
+
+- use consistent bool syntax
+
 ## v2.6.3 (2026-06-08)
 
 ### Fix
