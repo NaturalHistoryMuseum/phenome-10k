@@ -18,7 +18,7 @@
     components: nginx
     signed_by: https://nginx.org/keys/nginx_signing.key
     state: present
-  become: yes
+  become: true
 
 - name: Pin repository
   copy:
@@ -30,13 +30,13 @@
 
 - name: Update apt
   apt:
-    update_cache: yes
-  become: yes
+    update_cache: true
+  become: true
 
 - name: Install nginx
   apt:
     name: nginx
-    allow_downgrade: no
+    allow_downgrade: false
   become: true
 
 - name: Copy nginx base config file
