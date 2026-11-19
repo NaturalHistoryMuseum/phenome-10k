@@ -1,7 +1,42 @@
 ---
+- name: Install prerequisites
+  apt:
+    name:
+      - curl
+      - gnupg2
+      - ca-certificates
+      - lsb-release
+      - ubuntu-keyring
+  become: true
+
+- name: Add nginx key and repo
+  deb822_repository:
+    name: nginx
+    types: deb
+    uris: https://nginx.org/packages/ubuntu
+    suites: jammy
+    components: nginx
+    signed_by: https://nginx.org/keys/nginx_signing.key
+    state: present
+  become: true
+
+- name: Pin repository
+  copy:
+    src: 99nginx
+    dest: /etc/apt/preferences.d/99nginx
+    owner: root
+    group: root
+  become: true
+
+- name: Update apt
+  apt:
+    update_cache: true
+  become: true
+
 - name: Install nginx
   apt:
     name: nginx
+    allow_downgrade: false
   become: true
 
 - name: Copy nginx base config file
